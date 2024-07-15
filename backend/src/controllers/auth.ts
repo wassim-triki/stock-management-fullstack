@@ -2,7 +2,8 @@ import { Response, Request } from 'express';
 import crypto from 'crypto';
 import { IUser, User } from '../models/User';
 import { sendEmail } from '../utils/emailSender';
-import ErrorResponse from '../utils/errorResponse';
+import passport from '../config/passport';
+import { ErrorResponse, SuccessResponse } from '../utils/response';
 
 export const register = async (req: Request, res: Response, next: any) => {
   const { username, email, password } = req.body;
@@ -12,35 +13,34 @@ export const register = async (req: Request, res: Response, next: any) => {
       email,
       password,
     });
-    sendToken(user, 201, res);
+    console.log('user created');
+    return res
+      .status(201)
+      .json(new SuccessResponse('User created', await User.findOne({ email })));
   } catch (error: any) {
     next(error);
   }
 };
 
 export const login = async (req: Request, res: Response, next: any) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return next(
-      new ErrorResponse('Please provide a valid email and Password', 400)
-    );
-  }
-  try {
-    const user: IUser | null = await User.findOne({ email }).select(
-      '+password'
-    );
-    if (!user) {
-      return next(new ErrorResponse('Invalid Credentials', 401));
+  passport.authenticate(
+    'local',
+    (err: Error, user: IUser, info: { message: string }) => {
+      if (err) return next(err);
+      if (!user) {
+        console.log(JSON.stringify(info) + '❤️❤️❤️❤️❤️❤️');
+        return next(new ErrorResponse(info.message, 401));
+      }
+      req.logIn(user, (err) => {
+        if (err) return next(err);
+        User.findOne({ email: user.email }).then((user) => {
+          return res
+            .status(200)
+            .json(new SuccessResponse('Login successful', user));
+        });
+      });
     }
-    const isMatch: boolean = await user.matchPassword(password);
-    if (!isMatch) {
-      return next(new ErrorResponse('Invalid Credentials', 401));
-    }
-
-    sendToken(user, 200, res);
-  } catch (error: any) {
-    return next(new ErrorResponse(error.message, 500));
-  }
+  )(req, res, next);
 };
 
 export const forgotPassword = async (

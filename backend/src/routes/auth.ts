@@ -1,17 +1,18 @@
 import express from 'express';
+import passport from 'passport';
 const router = express.Router();
-//import controllers
+// Import controllers
 import {
   register,
-  login,
   forgotPassword,
   resetPassword,
+  login,
 } from '../controllers/auth';
 
-//routes
-router.route('/register').post(register);
-router.route('/login').post(login);
-router.route('/forgotpassword').post(forgotPassword);
-router.route('/resetpassword/:resetToken').post(resetPassword);
+// Routes
+router.post('/register', register);
+router.post('/login', login);
+router.post('/forgotpassword', forgotPassword);
+router.post('/resetpassword/:resetToken', resetPassword);
 
 export default router;
