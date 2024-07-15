@@ -31,7 +31,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 
 # Expose the port that the app runs on
-EXPOSE 5000
+EXPOSE 4000
 
 # Command to run the application
 CMD ["node", "dist/server.js"]
