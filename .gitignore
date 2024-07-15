@@ -1,0 +1,30 @@
+# Node modules
+**/node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+
+# Mac system files
+.DS_Store
+
+# Docker files
+**/data/db
+docker-compose.override.yml
+
+# Build output
+dist/
+build/
+
+# Next.js
+.next/
+
+# Coverage
+coverage/
+
+# VS Code
+.vscode/

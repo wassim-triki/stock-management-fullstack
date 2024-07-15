@@ -1,0 +1,53 @@
+services:
+  frontend:
+    container_name: frontend_container
+    image: frontend
+    build:
+      context: ./frontend
+      dockerfile: frontend.dockerfile
+    ports:
+      - 3000:3000
+    restart: always
+    networks:
+      - internal-network
+    depends_on:
+      - backend
+
+  backend:
+    container_name: backend_container
+    image: backend
+    build:
+      context: ./backend
+      dockerfile: backend.dockerfile
+    ports:
+      - 4000:4000
+    restart: always
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo_db:${DB_PORT}/${DB_NAME}?authSource=admin
+    depends_on:
+      - mongo_db
+    networks:
+      - internal-network
+
+  mongo_db:
+    container_name: db_container
+    image: mongo:latest
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data/db:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - internal-network
+
+networks:
+  internal-network:
+    driver: bridge
