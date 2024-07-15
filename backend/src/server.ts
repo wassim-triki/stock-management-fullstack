@@ -12,6 +12,9 @@ import authRouter from './routes/auth';
 import userRoutes from './routes/user';
 import { createTestUsers } from './utils/createTestUsers';
 import errorHandler from './middleware/errorHandler';
+import { createRouteHandler } from 'uploadthing/express';
+import { uploadRouter } from './utils/uploadthing';
+import { authHandler } from './middleware/authHandler';
 
 export const app = express();
 export let httpServer: ReturnType<typeof http.createServer>;
@@ -33,6 +36,13 @@ export const Main = async () => {
   logging.log('----------------------------------------');
   app.use('/api/auth', authRouter);
   app.use('/api/users', userRoutes);
+  app.use(
+    '/api/uploadthing',
+    authHandler,
+    createRouteHandler({
+      router: uploadRouter,
+    })
+  );
   // app.use('/api/private', require('./routes/private'));
   app.get('/healthcheck', (req, res, next) => {
     return res.status(200).json({ hello: 'world!' });

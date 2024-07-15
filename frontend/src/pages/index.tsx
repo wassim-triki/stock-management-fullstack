@@ -8,7 +8,6 @@ export default function Home() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      console.log("fetching users");
       try {
         const res = await fetch("http://localhost:4000/api/users");
         const data = (await res.json()) as IUser[];
