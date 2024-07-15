@@ -7,8 +7,11 @@ WORKDIR /app
 # Copy the package.json and package-lock.json files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Ensure consistent npm version
+RUN npm install -g npm@latest
+
+# Install dependencies with retry logic
+RUN npm cache clean --force && npm install --timeout=100000
 
 # Copy the rest of the application code
 COPY . .
@@ -28,7 +31,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 
 # Expose the port that the app runs on
-EXPOSE 4000
+EXPOSE 5000
 
 # Command to run the application
 CMD ["node", "dist/server.js"]
