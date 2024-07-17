@@ -29,9 +29,13 @@ import {
   useRegisterFormContext,
 } from "@/context/multistep-registration-form-context";
 import { useRouter } from "next/navigation";
-import { IErrorResponse, signupHandler } from "@/api/auth";
+import { IErrorResponse, ISuccessResponse, signupHandler } from "@/api/auth";
 import AuthLayout from "@/components/auth-layout";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { AlertDestructive } from "../ui/alert-destructive";
+import { message } from "antd";
+import { useToast } from "../ui/use-toast";
+import { ToastAction } from "../ui/toast";
 
 const formSchema = z.object({
   phone: z
@@ -63,12 +67,12 @@ function StepThree() {
   const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
     null,
   );
-
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
-
+  const router = useRouter();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Handle form submission
     setErrorResponse(null);
@@ -83,9 +87,16 @@ function StepThree() {
         setErrorResponse(resp as IErrorResponse);
         return;
       }
+      const successResp = resp as ISuccessResponse;
+      toast({
+        variant: "success",
+        title: successResp.payload.message,
+        // description: "Your being redirected...",
+        action: <ToastAction altText="Okay">Okay</ToastAction>,
+      });
+      router.push("/login");
     }
-
-    // router.push("/register/completed"); // Redirect to the final step or completion page
+    return;
   }
 
   const handlePrevStep = () => {
@@ -191,9 +202,7 @@ function StepThree() {
           </div>
 
           {errorResponse && (
-            <div className="text-sm font-medium text-destructive">
-              {errorResponse.error.message}
-            </div>
+            <AlertDestructive error={errorResponse.error.message} />
           )}
           <div className="flex justify-between gap-4">
             <Button

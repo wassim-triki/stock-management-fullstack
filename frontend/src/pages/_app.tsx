@@ -3,6 +3,7 @@ import { AppProps, type AppType } from "next/app";
 
 import "@/styles/globals.css";
 import { NextPage } from "next";
+import { Toaster } from "@/components/ui/toaster";
 
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: React.ReactElement) => React.ReactNode;
@@ -19,6 +20,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <div className={GeistSans.className}>
       {getLayout(<Component {...pageProps} />)}
+      <Toaster />
     </div>
   );
 }

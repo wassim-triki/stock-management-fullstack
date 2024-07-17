@@ -36,6 +36,7 @@ import {
   stepTwoHandler,
 } from "@/api/auth";
 import AuthLayout from "@/components/auth-layout";
+import { AlertDestructive } from "../ui/alert-destructive";
 
 const formSchema = z.object({
   firstName: z
@@ -136,11 +137,8 @@ function StepTwo() {
               </FormItem>
             )}
           />
-
           {errorResponse && (
-            <div className="text-sm font-medium text-destructive">
-              {errorResponse.error.message}
-            </div>
+            <AlertDestructive error={errorResponse.error.message} />
           )}
           <div className="flex justify-between gap-4">
             <Button

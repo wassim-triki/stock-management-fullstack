@@ -32,6 +32,7 @@ import {
 import { useRouter } from "next/navigation";
 import { checkEmailAvailability, IErrorResponse } from "@/api/auth";
 import AuthLayout from "@/components/auth-layout";
+import { AlertDestructive } from "../ui/alert-destructive";
 
 const formSchema = z
   .object({
@@ -150,9 +151,7 @@ function StepOne() {
           />
 
           {errorResponse && (
-            <div className="text-sm font-medium text-destructive">
-              {errorResponse.error.message}
-            </div>
+            <AlertDestructive error={errorResponse.error.message} />
           )}
           <Button className="w-full" type="submit">
             Next

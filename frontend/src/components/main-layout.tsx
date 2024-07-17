@@ -1,7 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import Head from "next/head";
 import Header from "./header";
 import { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 
 type MainLayoutProps = {
   children: ReactNode;
@@ -14,6 +15,10 @@ const MainLayout = ({
   description,
   title = "Default Title",
 }: MainLayoutProps) => {
+  const router = useRouter();
+  useEffect(() => {
+    console.log(router);
+  }, [router]);
   return (
     <>
       <Head>

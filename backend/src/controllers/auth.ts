@@ -31,7 +31,7 @@ export const signup = async (req: Request, res: Response, next: any) => {
       address,
     });
     console.log('user created');
-    return res.status(201).json(new SuccessResponse('User created', user));
+    return res.status(201).json(new SuccessResponse('Account created', user));
   } catch (error: any) {
     next(error);
   }

@@ -7,6 +7,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,11 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { AlertDestructive } from "./ui/alert-destructive";
+import { useRouter } from "next/navigation";
+import { useToast } from "./ui/use-toast";
+import { ToastAction } from "./ui/toast";
 
 export interface ILoginForm {
   email: string;
@@ -43,11 +49,12 @@ function Login() {
   const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
     null,
   );
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
-
+  const router = useRouter();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
@@ -58,8 +65,14 @@ function Login() {
       return;
     }
     const successResp = resp as ISuccessResponse;
-    console.log(successResp);
-    await message.success(successResp.payload.message);
+    // await message.success(successResp.payload.message);
+    toast({
+      variant: "success",
+      title: successResp.payload.message,
+      // description: "Your being redirected to Home...",
+      action: <ToastAction altText="Okay">Okay</ToastAction>,
+    });
+    router.push("/");
   }
   return (
     <>
@@ -108,9 +121,7 @@ function Login() {
             )}
           />
           {errorResponse && (
-            <div className="text-sm font-medium text-destructive">
-              {errorResponse.error.message}
-            </div>
+            <AlertDestructive error={errorResponse.error.message} />
           )}
           <Button
             // formAction={emailLogin}

@@ -68,7 +68,7 @@ export const Main = async () => {
     logging.log('----------------------------------------');
   });
 
-  await createTestUsers();
+  // await createTestUsers();
 };
 
 export const Shutdown = (callback: any) =>
