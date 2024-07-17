@@ -1,4 +1,5 @@
 import MainLayout from "@/components/main-layout";
+import RegistrationLayout from "@/components/registration-layout";
 import React from "react";
 import {
   Card,
@@ -10,18 +11,27 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-function Login({ searchParams }: { searchParams: { message: string } }) {
+import Link from "next/link";
+
+function StepOne({
+  searchParams = { message: "sdfsdkfhsdf" },
+}: {
+  searchParams: { message: string };
+}) {
   return (
     <section className="flex h-[calc(100vh-57px)] items-center justify-center">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <div className="flex justify-between">
+            <CardTitle className="text-2xl">Sign up</CardTitle>
+            <span>1️⃣</span>
+          </div>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <form id="login-form" className="grid gap-4">
+          <form id="register-form" className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -44,28 +54,33 @@ function Login({ searchParams }: { searchParams: { message: string } }) {
                 required
               />
             </div>
-            {searchParams?.message && (
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="confirmPassword">Confirm password</Label>
+              </div>
+              <Input
+                minLength={6}
+                name="confirmPassword"
+                id="confirmPassword"
+                type="password"
+                required
+              />
+            </div>
+            {/* {searchParams?.message && (
               <div className="text-sm font-medium text-destructive">
                 {searchParams.message}
               </div>
-            )}
-            <Button
-              // formAction={emailLogin}
-              className="w-full"
-            >
-              Login
+            )} */}
+            <Button className="w-full" type="submit">
+              Next
             </Button>
           </form>
           {/* <OAuthButtons /> */}
           <div className="text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <a
-              // formAction={signup}
-              href="/register/step-one"
-              className="underline"
-            >
-              Sign up
-            </a>
+            Already have an account?{" "}
+            <Link className="underline" href={"/login"}>
+              Login
+            </Link>
           </div>
         </CardContent>
       </Card>
@@ -73,13 +88,12 @@ function Login({ searchParams }: { searchParams: { message: string } }) {
   );
 }
 
-Login.getLayout = function getLayout(page: React.ReactNode) {
+export default StepOne;
+
+StepOne.getLayout = function getLayout(page: React.ReactNode) {
   return (
-    <MainLayout title="Login">
-      {/* <NestedLayout>{page}</NestedLayout> */}
-      {page}
+    <MainLayout title="Home">
+      <RegistrationLayout>{page}</RegistrationLayout>
     </MainLayout>
   );
 };
-
-export default Login;
