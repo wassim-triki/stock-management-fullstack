@@ -11,7 +11,7 @@ import { useRegisterFormContext } from "@/context/multistep-registration-form-co
 interface AuthLayoutProps {
   title: string;
   description: string;
-  stepIndicator?: React.ReactNode;
+  steps?: boolean;
   children: React.ReactNode;
 }
 
@@ -19,6 +19,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   title,
   description,
   children,
+  steps = false,
 }) => {
   const { step } = useRegisterFormContext();
   return (
@@ -27,7 +28,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         <CardHeader>
           <div className="flex justify-between">
             <CardTitle className="text-2xl">{title}</CardTitle>
-            {step && (
+            {steps && (
               <span className="text-2xl font-black text-slate-500">
                 {step}/3
               </span>

@@ -24,7 +24,7 @@ const Header: React.FC = () => {
                 <Link href="/login">Sign In</Link>
               </Button>
               <Button variant={"outline"} asChild>
-                <Link href="/register">Join</Link>
+                <Link href="/signup">Join</Link>
               </Button>
             </div>
           )}

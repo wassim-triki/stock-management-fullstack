@@ -31,6 +31,7 @@ Signup.getLayout = function getLayout(page: React.ReactNode) {
         <AuthLayout
           title="Sign Up"
           description="Enter your information below to create an account"
+          steps
         >
           {page}
         </AuthLayout>
