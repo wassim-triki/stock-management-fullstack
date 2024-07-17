@@ -28,7 +28,6 @@ export const login = async (req: Request, res: Response, next: any) => {
     (err: Error, user: IUser, info: { message: string }) => {
       if (err) return next(err);
       if (!user) {
-        console.log(JSON.stringify(info) + '❤️❤️❤️❤️❤️❤️');
         return next(new ErrorResponse(info.message, 401));
       }
       req.logIn(user, (err) => {
@@ -113,11 +112,3 @@ export const resetPassword = async (req: Request, res: Response, next: any) => {
     next(error);
   }
 };
-
-function sendToken(user: IUser, statusCode: number, res: Response) {
-  const token = user.generateAuthToken();
-  res.status(statusCode).json({
-    success: true,
-    token,
-  });
-}

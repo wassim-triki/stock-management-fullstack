@@ -25,7 +25,6 @@ const PointSchema: Schema = new Schema({
 
 // Declare user type
 export interface IUser extends Document {
-  generateAuthToken(): string;
   getResetPasswordToken(): string;
   getSignedToken(): string;
   resetPasswordToken: string | undefined;
@@ -51,55 +50,74 @@ export interface IUser extends Document {
       location: IPoint;
     };
   };
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
   active: boolean;
 }
 
 // Define user schema
-const UserSchema: Schema = new Schema({
-  username: {
-    type: String,
-    lowercase: true,
-    unique: true,
-    required: [true, "Can't be blank"],
-    index: true,
-  },
-  password: {
-    type: String,
-    required: [true, "Can't be blank"],
-    select: false,
-    minlength: [8, 'Please use a minimum of 8 characters'],
-  },
-  email: {
-    type: String,
-    lowercase: true,
-    required: [true, "Can't be blank"],
-    match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please use a valid address'],
-    unique: true,
-    index: true,
-  },
-  profile: {
-    firstName: { type: String },
-    lastName: { type: String },
-    avatar: { type: String },
-    bio: { type: String },
-    phone: { type: String },
-    gender: { type: String },
-    address: {
-      street1: { type: String },
-      street2: { type: String },
-      city: { type: String },
-      state: { type: String },
-      country: { type: String },
-      zip: { type: String },
-      location: { type: PointSchema },
+const UserSchema: Schema = new Schema(
+  {
+    username: {
+      type: String,
+      lowercase: true,
+      unique: true,
+      required: [true, "Can't be blank"],
+      index: true,
     },
+    password: {
+      type: String,
+      required: [true, "Can't be blank"],
+      select: false,
+      minlength: [8, 'Please use a minimum of 8 characters'],
+    },
+    email: {
+      type: String,
+      lowercase: true,
+      required: [true, "Can't be blank"],
+      match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please use a valid address'],
+      unique: true,
+      index: true,
+    },
+    profile: {
+      firstName: { type: String },
+      lastName: { type: String },
+      avatar: { type: String },
+      bio: { type: String },
+      phone: { type: String },
+      gender: { type: String },
+      address: {
+        street1: { type: String },
+        street2: { type: String },
+        city: { type: String },
+        state: { type: String },
+        country: { type: String },
+        zip: { type: String },
+        location: { type: PointSchema },
+      },
+    },
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: { type: String },
+    role: {
+      type: String,
+      enum: ['admin', 'manager', 'user'],
+      default: 'user',
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    active: { type: Boolean, default: true },
   },
-  resetPasswordToken: { type: String },
-  resetPasswordExpire: { type: String },
-  active: { type: Boolean, default: true },
-});
+  { timestamps: true }
+);
 
-UserSchema.pre<IUser>('save', async function (next: any) {
+UserSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
   }
@@ -124,15 +142,8 @@ UserSchema.methods.getResetPasswordToken = function () {
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  this.resetPasswordExpire = Date.now() + 10 * (60 * 1000);
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
   return resetToken;
-};
-
-UserSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign({ id: this._id }, process.env.JWT_SECRET!, {
-    expiresIn: process.env.JWT_EXPIRE,
-  });
-  return token;
 };
 
 export const User: Model<IUser> = model<IUser>('User', UserSchema);
