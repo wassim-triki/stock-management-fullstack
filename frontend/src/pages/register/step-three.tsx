@@ -1,6 +1,6 @@
 import MainLayout from "@/components/main-layout";
 import RegistrationLayout from "@/components/registration-layout";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -30,40 +30,44 @@ import {
   useRegisterFormContext,
 } from "@/context/multistep-registration-form-context";
 import { useRouter } from "next/navigation";
-import { checkEmailAvailability, IErrorResponse } from "@/api/auth";
+import {
+  checkEmailAvailability,
+  IErrorResponse,
+  stepTwoHandler,
+} from "@/api/auth";
 import AuthLayout from "@/components/auth-layout";
 
-const formSchema = z
-  .object({
-    email: z.string().min(1, "Email is required").email("Invalid email"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .superRefine(({ confirmPassword, password }, ctx) => {
-    if (confirmPassword !== password) {
-      ctx.addIssue({
-        code: "custom",
-        message: "The passwords must match",
-        path: ["confirmPassword"],
-      });
-    }
-  });
+const formSchema = z.object({
+  firstName: z
+    .string()
+    .regex(
+      /^[A-Za-z']+$/,
+      "First name should not contain numbers or special characters",
+    )
+    .min(1, "First name is required")
+    .min(2, "Last name must be longer that 2 characters")
+    .max(50, "First name must be 50 characters or less"),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .regex(
+      /^[A-Za-z']+$/,
+      "First name should not contain numbers or special characters",
+    )
+    .min(2, "Last name must be longer that 2 characters")
+    .max(50, "Last name must be 50 characters or less"),
+});
 
-function StepOne() {
-  const { updateRegistrationData, intiStep, nextStep, formData } =
-    useRegisterFormContext();
+function StepThree() {
+  const { updateRegistrationData, prevStep } = useRegisterFormContext();
   const router = useRouter();
   const defaultValues: Partial<IRegisterData> = {
-    email: formData?.email ?? "",
-    password: formData?.password ?? "",
-    confirmPassword: formData?.confirmPassword ?? "",
+    firstName: "",
+    lastName: "",
   };
   const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
     null,
   );
-  useEffect(() => {
-    intiStep();
-  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,20 +77,18 @@ function StepOne() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     setErrorResponse(null);
-    const resp = await checkEmailAvailability(values);
+    const resp = await stepTwoHandler(values);
     if (resp.success === false) {
       setErrorResponse(resp as IErrorResponse);
       return;
     }
     updateRegistrationData(values);
-    handleNextStep();
   }
 
-  const handleNextStep = () => {
-    nextStep();
+  const handlePrevStep = () => {
+    prevStep();
     router.push("/register/step-two");
   };
-
   return (
     <>
       <Form {...form}>
@@ -97,19 +99,15 @@ function StepOne() {
         >
           <FormField
             control={form.control}
-            name="email"
+            name="firstName"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <FormLabel>Email*</FormLabel>
+                      <FormLabel>First name*</FormLabel>
                     </div>
-                    <Input
-                      type="email"
-                      placeholder="m@example.com"
-                      {...field}
-                    />
+                    <Input placeholder="John" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -119,33 +117,15 @@ function StepOne() {
 
           <FormField
             control={form.control}
-            name="password"
+            name="lastName"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <FormLabel>Password*</FormLabel>
+                      <FormLabel>Last name*</FormLabel>
                     </div>
-                    <Input type="password" {...field} />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="grid gap-2">
-                    <div className="flex items-center">
-                      <FormLabel>Confirm password*</FormLabel>
-                    </div>
-                    <Input type="password" {...field} />
+                    <Input placeholder="Doe" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -158,9 +138,19 @@ function StepOne() {
               {errorResponse.error.message}
             </div>
           )}
-          <Button className="w-full" type="submit">
-            Next
-          </Button>
+          <div className="flex justify-between gap-4">
+            <Button
+              onClick={handlePrevStep}
+              className="w-full"
+              type="button"
+              variant={"secondary"}
+            >
+              Back
+            </Button>
+            <Button className="w-full" type="submit">
+              Sign up
+            </Button>
+          </div>
         </form>
       </Form>
       <div className="text-center text-sm">
@@ -173,14 +163,15 @@ function StepOne() {
   );
 }
 
-export default StepOne;
+export default StepThree;
 
-StepOne.getLayout = function getLayout(page: React.ReactNode) {
+StepThree.getLayout = function getLayout(page: React.ReactNode) {
   return (
     <MainLayout title="Home">
       <RegistrationLayout>
         <AuthLayout
           title="Sign up"
+          stepIndicator={<span>3️⃣</span>}
           description="Enter your information below to create an account"
         >
           {page}

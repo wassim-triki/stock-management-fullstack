@@ -36,3 +36,20 @@ export async function checkEmailAvailability({
     return (error as { response: { data: IErrorResponse } }).response.data;
   }
 }
+
+export async function stepTwoHandler({
+  firstName,
+  lastName,
+}: Partial<IRegisterData>): Promise<ISuccessResponse | IErrorResponse> {
+  try {
+    const response = await axios.post("/api/auth/step-two", {
+      firstName,
+      lastName,
+    });
+    const data: unknown = response.data;
+    const resp: ISuccessResponse = data as ISuccessResponse;
+    return resp;
+  } catch (error: unknown) {
+    return (error as { response: { data: IErrorResponse } }).response.data;
+  }
+}

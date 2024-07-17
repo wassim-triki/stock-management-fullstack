@@ -19,3 +19,21 @@ export const stepOneSchema = {
 };
 
 export const validateStepOne = ajv.compile(stepOneSchema);
+
+export const stepTwoSchema = {
+  type: 'object',
+  properties: {
+    firstName: {
+      type: 'string',
+      pattern: "^[A-Za-z']+$", // Regex to allow only letters and apostrophe
+    },
+    lastName: {
+      type: 'string',
+      pattern: "^[A-Za-z']+$", // Regex to allow only letters and apostrophe
+    },
+  },
+  required: ['firstName', 'lastName'],
+  additionalProperties: false,
+};
+
+export const validateStepTwo = ajv.compile(stepTwoSchema);

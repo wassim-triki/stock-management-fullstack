@@ -11,18 +11,36 @@ export interface IRegisterData {
   email: string;
   password: string;
   confirmPassword: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface IRegisterFormStep {
+  step: number;
+  formData: IRegisterData | null;
 }
 
 export interface RegisterFormContextProps {
-  registrationData: IRegisterData | null;
+  step: number | null;
+  formData: IRegisterData | null;
+  nextStep: () => void;
+  prevStep: () => void;
+  intiStep: () => void;
   updateRegistrationData: (property: Partial<IRegisterData>) => void;
 }
 
 // Initial state
 const defaultState: RegisterFormContextProps = {
-  registrationData: null,
+  step: null,
+  formData: null,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   updateRegistrationData: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  prevStep: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  nextStep: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  intiStep: () => {},
 };
 
 export const RegisterFormContext =
@@ -34,11 +52,24 @@ interface UserFormProviderProps {
 export const RegisterFormProvider: FC<UserFormProviderProps> = ({
   children,
 }) => {
-  const [registrationData, setRegistrationData] =
-    useState<IRegisterData | null>(null);
+  const [formData, setFormData] = useState<IRegisterData | null>(null);
+
+  const [step, setStep] = useState<number>(1);
+
+  const nextStep = () => {
+    setStep((prevStep) => prevStep + 1);
+  };
+  //init steps to 1
+  const intiStep = () => {
+    setStep(1);
+  };
+
+  const prevStep = () => {
+    setStep((prevStep) => prevStep - 1);
+  };
 
   const updateRegistrationData = (values: Partial<IRegisterData>) => {
-    setRegistrationData((prevData) => {
+    setFormData((prevData) => {
       if (prevData === null) {
         return { ...values } as IRegisterData;
       }
@@ -47,12 +78,19 @@ export const RegisterFormProvider: FC<UserFormProviderProps> = ({
   };
 
   useEffect(() => {
-    console.log(registrationData);
-  }, [registrationData]);
+    console.log(formData);
+  }, [formData]);
 
   return (
     <RegisterFormContext.Provider
-      value={{ registrationData, updateRegistrationData }}
+      value={{
+        intiStep,
+        formData,
+        step,
+        nextStep,
+        prevStep,
+        updateRegistrationData,
+      }}
     >
       {children}
     </RegisterFormContext.Provider>

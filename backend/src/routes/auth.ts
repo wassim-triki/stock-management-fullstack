@@ -8,12 +8,14 @@ import {
   // resetPassword,
   login,
   checkEmailAvailability,
+  stepTwoHandler,
 } from '../controllers/auth';
 
 // Routes
 router.post('/register', register);
 router.post('/login', login);
 router.post('/check-email', checkEmailAvailability);
+router.post('/step-two', stepTwoHandler);
 // router.post('/forgotpassword', forgotPassword);
 // router.post('/resetpassword/:resetToken', resetPassword);
 

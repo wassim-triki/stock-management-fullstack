@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { IUser, User } from '../models/User';
 import passport from '../config/passport';
 import { ErrorResponse, SuccessResponse } from '../utils/response';
-import { validateStepOne } from '../schemas/userSchemas';
+import { validateStepOne, validateStepTwo } from '../schemas/userSchemas';
 
 export const register = async (req: Request, res: Response, next: any) => {
   const { username, email, password } = req.body;
@@ -60,6 +60,27 @@ export const checkEmailAvailability = async (
       throw new ErrorResponse('Email is already in use', 400);
     }
     return res.status(200).json(new SuccessResponse('Email is available', {}));
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const stepTwoHandler = async (
+  req: Request,
+  res: Response,
+  next: any
+) => {
+  const { firstName, lastName } = req.body;
+
+  const valid = validateStepTwo(req.body);
+  try {
+    if (!valid) {
+      throw new ErrorResponse('Validation failed', 400, validateStepOne.errors);
+    }
+
+    return res
+      .status(200)
+      .json(new SuccessResponse('Step 2 completed successfully', {}));
   } catch (error: any) {
     next(error);
   }
