@@ -3,8 +3,9 @@ import axios from "@/lib/axiosInstance";
 import { ifError } from "assert";
 import { IRegisterData } from "@/context/multistep-registration-form-context";
 import { AxiosError } from "axios";
+import { ILoginForm } from "@/components/login";
 
-interface ISuccessResponse {
+export interface ISuccessResponse {
   success: boolean;
   payload: {
     message: string;
@@ -59,6 +60,19 @@ export async function signupHandler(
 ): Promise<ISuccessResponse | IErrorResponse> {
   try {
     const response = await axios.post("/api/auth/signup", formData);
+    const data: unknown = response.data;
+    const resp: ISuccessResponse = data as ISuccessResponse;
+    return resp;
+  } catch (error: unknown) {
+    return (error as { response: { data: IErrorResponse } }).response.data;
+  }
+}
+
+export async function loginHandler(
+  formData: ILoginForm,
+): Promise<ISuccessResponse | IErrorResponse> {
+  try {
+    const response = await axios.post("/api/auth/login", formData);
     const data: unknown = response.data;
     const resp: ISuccessResponse = data as ISuccessResponse;
     return resp;
