@@ -1,6 +1,6 @@
 import MainLayout from "@/components/main-layout";
 import RegistrationLayout from "@/components/registration-layout";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -30,41 +30,33 @@ import {
   useRegisterFormContext,
 } from "@/context/multistep-registration-form-context";
 import { useRouter } from "next/navigation";
-import {
-  checkEmailAvailability,
-  IErrorResponse,
-  stepTwoHandler,
-} from "@/api/auth";
+import { checkEmailAvailability, IErrorResponse } from "@/api/auth";
 import AuthLayout from "@/components/auth-layout";
 
-const formSchema = z.object({
-  firstName: z
-    .string()
-    .regex(
-      /^[A-Za-z']+$/,
-      "First name should not contain numbers or special characters",
-    )
-    .min(1, "First name is required")
-    .min(2, "Last name must be longer that 2 characters")
-    .max(50, "First name must be 50 characters or less"),
-  lastName: z
-    .string()
-    .min(1, "Last name is required")
-    .regex(
-      /^[A-Za-z']+$/,
-      "First name should not contain numbers or special characters",
-    )
-    .min(2, "Last name must be longer that 2 characters")
-    .max(50, "Last name must be 50 characters or less"),
-});
+const formSchema = z
+  .object({
+    email: z.string().min(1, "Email is required").email("Invalid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "The passwords must match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
 
-function StepTwo() {
-  const { updateRegistrationData, nextStep, prevStep, formData } =
+function StepOne() {
+  const { updateRegistrationData, initStep, nextStep, formData } =
     useRegisterFormContext();
   const router = useRouter();
   const defaultValues: Partial<IRegisterData> = {
-    firstName: formData?.firstName ?? "",
-    lastName: formData?.lastName ?? "",
+    email: formData?.email ?? "",
+    password: formData?.password ?? "",
+    confirmPassword: formData?.confirmPassword ?? "",
   };
   const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
     null,
@@ -78,7 +70,7 @@ function StepTwo() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     setErrorResponse(null);
-    const resp = await stepTwoHandler(values);
+    const resp = await checkEmailAvailability(values);
     if (resp.success === false) {
       setErrorResponse(resp as IErrorResponse);
       return;
@@ -89,13 +81,8 @@ function StepTwo() {
 
   const handleNextStep = () => {
     nextStep();
-    router.push("/register/step-three");
   };
 
-  const handlePrevStep = () => {
-    prevStep();
-    router.push("/register/step-one");
-  };
   return (
     <>
       <Form {...form}>
@@ -106,15 +93,19 @@ function StepTwo() {
         >
           <FormField
             control={form.control}
-            name="firstName"
+            name="email"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <FormLabel>First name*</FormLabel>
+                      <FormLabel>Email*</FormLabel>
                     </div>
-                    <Input placeholder="John" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="m@example.com"
+                      {...field}
+                    />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -124,15 +115,33 @@ function StepTwo() {
 
           <FormField
             control={form.control}
-            name="lastName"
+            name="password"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <FormLabel>Last name*</FormLabel>
+                      <FormLabel>Password*</FormLabel>
                     </div>
-                    <Input placeholder="Doe" {...field} />
+                    <Input type="password" {...field} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="grid gap-2">
+                    <div className="flex items-center">
+                      <FormLabel>Confirm password*</FormLabel>
+                    </div>
+                    <Input type="password" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -145,19 +154,9 @@ function StepTwo() {
               {errorResponse.error.message}
             </div>
           )}
-          <div className="flex justify-between gap-4">
-            <Button
-              onClick={handlePrevStep}
-              className="w-full"
-              type="button"
-              variant={"secondary"}
-            >
-              Back
-            </Button>
-            <Button className="w-full" type="submit">
-              Next
-            </Button>
-          </div>
+          <Button className="w-full" type="submit">
+            Next
+          </Button>
         </form>
       </Form>
       <div className="text-center text-sm">
@@ -170,20 +169,4 @@ function StepTwo() {
   );
 }
 
-export default StepTwo;
-
-StepTwo.getLayout = function getLayout(page: React.ReactNode) {
-  return (
-    <MainLayout title="Home">
-      <RegistrationLayout>
-        <AuthLayout
-          title="Sign up"
-          stepIndicator={<span>2️⃣</span>}
-          description="Enter your information below to create an account"
-        >
-          {page}
-        </AuthLayout>
-      </RegistrationLayout>
-    </MainLayout>
-  );
-};
+export default StepOne;

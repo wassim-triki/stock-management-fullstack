@@ -53,7 +53,6 @@ const formSchema = z.object({
 function StepThree() {
   const { updateRegistrationData, prevStep, formData } =
     useRegisterFormContext();
-  const router = useRouter();
   const defaultValues: Partial<IRegisterData> = {
     phone: formData?.phone ?? "",
     street: formData?.street ?? "",
@@ -91,7 +90,6 @@ function StepThree() {
 
   const handlePrevStep = () => {
     prevStep();
-    router.push("/register/step-two");
   };
 
   return (
@@ -217,19 +215,3 @@ function StepThree() {
 }
 
 export default StepThree;
-
-StepThree.getLayout = function getLayout(page: React.ReactNode) {
-  return (
-    <MainLayout title="Home">
-      <RegistrationLayout>
-        <AuthLayout
-          title="Sign up"
-          stepIndicator={<span>3️⃣</span>}
-          description="Enter your information below to complete your account"
-        >
-          {page}
-        </AuthLayout>
-      </RegistrationLayout>
-    </MainLayout>
-  );
-};
