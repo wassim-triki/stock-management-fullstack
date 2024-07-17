@@ -1,6 +1,6 @@
 import MainLayout from "@/components/main-layout";
 import RegistrationLayout from "@/components/registration-layout";
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -30,6 +30,7 @@ import {
   useRegisterFormContext,
 } from "@/context/multistep-registration-form-context";
 import { useRouter } from "next/navigation";
+import { checkEmailAvailability, IErrorResponse } from "@/api/auth";
 
 const formSchema = z
   .object({
@@ -59,14 +60,23 @@ function StepOne({
     password: "",
     confirmPassword: "",
   };
+  const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
+    null,
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    setErrorResponse(null);
+    const resp = await checkEmailAvailability(values);
+    if (resp.success === false) {
+      setErrorResponse(resp as IErrorResponse);
+      return;
+    }
     formContext.updateRegistrationData(values);
     router.push("/register/step_two/");
   }
@@ -143,11 +153,11 @@ function StepOne({
                 )}
               />
 
-              {/* {searchParams?.message && (
-              <div className="text-sm font-medium text-destructive">
-                {searchParams.message}
-              </div>
-            )} */}
+              {errorResponse && (
+                <div className="text-sm font-medium text-destructive">
+                  {errorResponse.error.message}
+                </div>
+              )}
               <Button className="w-full" type="submit">
                 Next
               </Button>

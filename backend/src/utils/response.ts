@@ -15,9 +15,9 @@ export class SuccessResponse<T> {
 export class ErrorResponse extends Error {
   success: boolean;
   statusCode: number;
-  details?: string;
+  details?: any;
 
-  constructor(message: string, statusCode: number, details?: string) {
+  constructor(message: string, statusCode: number, details?: any) {
     super(message);
     this.success = false;
     this.statusCode = statusCode;
