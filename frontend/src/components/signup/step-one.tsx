@@ -33,6 +33,8 @@ import { useRouter } from "next/navigation";
 import { checkEmailAvailability, IErrorResponse } from "@/api/auth";
 import AuthLayout from "@/components/auth-layout";
 import { AlertDestructive } from "../ui/alert-destructive";
+import { useApi } from "@/hooks/useApi";
+import { LoadingSpinner } from "../ui/loading-spinner";
 
 const formSchema = z
   .object({
@@ -59,9 +61,8 @@ function StepOne() {
     password: formData?.password ?? "",
     confirmPassword: formData?.confirmPassword ?? "",
   };
-  const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
-    null,
-  );
+
+  const { loading, error, apiRequest } = useApi();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,10 +71,8 @@ function StepOne() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    setErrorResponse(null);
-    const resp = await checkEmailAvailability(values);
-    if (resp.success === false) {
-      setErrorResponse(resp as IErrorResponse);
+    const resp = await checkEmailAvailability(values, apiRequest);
+    if (!resp || resp.success === false) {
       return;
     }
     updateRegistrationData(values);
@@ -150,11 +149,9 @@ function StepOne() {
             )}
           />
 
-          {errorResponse && (
-            <AlertDestructive error={errorResponse.error.message} />
-          )}
+          {error && <AlertDestructive error={error.error.message} />}
           <Button className="w-full" type="submit">
-            Next
+            {loading ? <LoadingSpinner /> : "Next"}
           </Button>
         </form>
       </Form>

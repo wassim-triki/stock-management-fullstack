@@ -31,6 +31,8 @@ import { AlertDestructive } from "./ui/alert-destructive";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
 import { ToastAction } from "./ui/toast";
+import { useApi } from "@/hooks/useApi";
+import { LoadingSpinner } from "./ui/loading-spinner";
 
 export interface ILoginForm {
   email: string;
@@ -46,29 +48,24 @@ function Login() {
     email: "",
     password: "",
   };
-  const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
-    null,
-  );
+
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
   const router = useRouter();
+  const { loading, error, apiRequest } = useApi();
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    setErrorResponse(null);
-    const resp = await loginHandler(values);
-    if (resp.success === false) {
-      setErrorResponse(resp as IErrorResponse);
+    const resp = await loginHandler(values, apiRequest);
+    if (!resp || resp.success === false) {
       return;
     }
     const successResp = resp as ISuccessResponse;
     // await message.success(successResp.payload.message);
     toast({
       variant: "success",
-      title: successResp.payload.message,
+      title: successResp?.payload.message,
       // description: "Your being redirected to Home...",
       action: <ToastAction altText="Okay">Okay</ToastAction>,
     });
@@ -120,15 +117,13 @@ function Login() {
               </FormItem>
             )}
           />
-          {errorResponse && (
-            <AlertDestructive error={errorResponse.error.message} />
-          )}
+          {error && <AlertDestructive error={error.error.message} />}
           <Button
             // formAction={emailLogin}
             type="submit"
             className="w-full"
           >
-            Login
+            {loading ? <LoadingSpinner /> : "Login"}
           </Button>
         </form>
       </Form>

@@ -37,6 +37,8 @@ import {
 } from "@/api/auth";
 import AuthLayout from "@/components/auth-layout";
 import { AlertDestructive } from "../ui/alert-destructive";
+import { LoadingSpinner } from "../ui/loading-spinner";
+import { useApi } from "@/hooks/useApi";
 
 const formSchema = z.object({
   firstName: z
@@ -66,21 +68,16 @@ function StepTwo() {
     firstName: formData?.firstName ?? "",
     lastName: formData?.lastName ?? "",
   };
-  const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
-    null,
-  );
+
+  const { loading, error, apiRequest } = useApi();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    setErrorResponse(null);
-    const resp = await stepTwoHandler(values);
-    if (resp.success === false) {
-      setErrorResponse(resp as IErrorResponse);
+    const resp = await stepTwoHandler(values, apiRequest);
+    if (!resp || resp.success === false) {
       return;
     }
     updateRegistrationData(values);
@@ -137,9 +134,7 @@ function StepTwo() {
               </FormItem>
             )}
           />
-          {errorResponse && (
-            <AlertDestructive error={errorResponse.error.message} />
-          )}
+          {error && <AlertDestructive error={error.error.message} />}
           <div className="flex justify-between gap-4">
             <Button
               onClick={handlePrevStep}
@@ -150,7 +145,7 @@ function StepTwo() {
               Back
             </Button>
             <Button className="w-full" type="submit">
-              Next
+              {loading ? <LoadingSpinner /> : "Next"}
             </Button>
           </div>
         </form>

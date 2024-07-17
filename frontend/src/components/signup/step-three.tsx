@@ -36,6 +36,8 @@ import { AlertDestructive } from "../ui/alert-destructive";
 import { message } from "antd";
 import { useToast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
+import { useApi } from "@/hooks/useApi";
+import { LoadingSpinner } from "../ui/loading-spinner";
 
 const formSchema = z.object({
   phone: z
@@ -64,9 +66,8 @@ function StepThree() {
     state: formData?.state ?? "",
     zip: formData?.zip ?? "",
   };
-  const [errorResponse, setErrorResponse] = useState<IErrorResponse | null>(
-    null,
-  );
+
+  const { loading, error, apiRequest } = useApi();
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,22 +76,20 @@ function StepThree() {
   const router = useRouter();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Handle form submission
-    setErrorResponse(null);
     updateRegistrationData(values);
     if (formData) {
       const data: IRegisterData = {
         ...values,
         ...formData,
       };
-      const resp = await signupHandler(data);
-      if (resp.success === false) {
-        setErrorResponse(resp as IErrorResponse);
+      const resp = await signupHandler(data, apiRequest);
+      if (!resp || resp.success === false) {
         return;
       }
       const successResp = resp as ISuccessResponse;
       toast({
         variant: "success",
-        title: successResp.payload.message,
+        title: successResp?.payload.message,
         // description: "Your being redirected...",
         action: <ToastAction altText="Okay">Okay</ToastAction>,
       });
@@ -201,9 +200,7 @@ function StepThree() {
             />
           </div>
 
-          {errorResponse && (
-            <AlertDestructive error={errorResponse.error.message} />
-          )}
+          {error && <AlertDestructive error={error.error.message} />}
           <div className="flex justify-between gap-4">
             <Button
               onClick={handlePrevStep}
@@ -214,7 +211,7 @@ function StepThree() {
               Back
             </Button>
             <Button className="w-full" type="submit">
-              Submit
+              {loading ? <LoadingSpinner /> : "Create account"}
             </Button>
           </div>
         </form>

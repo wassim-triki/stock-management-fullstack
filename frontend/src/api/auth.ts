@@ -1,8 +1,5 @@
-import { object } from "zod";
 import axios from "@/lib/axiosInstance";
-import { ifError } from "assert";
 import { IRegisterData } from "@/context/multistep-registration-form-context";
-import { AxiosError } from "axios";
 import { ILoginForm } from "@/components/login";
 
 export interface ISuccessResponse {
@@ -19,64 +16,73 @@ export interface IErrorResponse {
   error: { message: string; details?: object };
 }
 
-export async function checkEmailAvailability({
-  email,
-  password,
-  confirmPassword,
-}: Partial<IRegisterData>): Promise<ISuccessResponse | IErrorResponse> {
+export async function checkEmailAvailability(
+  { email, password, confirmPassword }: Partial<IRegisterData>,
+  apiRequest: <T>(request: () => Promise<T>) => Promise<T | null>,
+): Promise<ISuccessResponse | IErrorResponse | null> {
   try {
-    const response = await axios.post("/api/auth/check-email", {
-      email,
-      password,
-      confirmPassword,
+    return apiRequest<ISuccessResponse | IErrorResponse>(async () => {
+      const response = await axios.post("/api/auth/check-email", {
+        email,
+        password,
+        confirmPassword,
+      });
+      const data: unknown = response.data;
+      const resp: ISuccessResponse = data as ISuccessResponse;
+      return resp;
     });
-    const data: unknown = response.data;
-    const resp: ISuccessResponse = data as ISuccessResponse;
-    return resp;
-  } catch (error: unknown) {
+  } catch (error) {
     return (error as { response: { data: IErrorResponse } }).response.data;
   }
 }
 
-export async function stepTwoHandler({
-  firstName,
-  lastName,
-}: Partial<IRegisterData>): Promise<ISuccessResponse | IErrorResponse> {
+export async function stepTwoHandler(
+  { firstName, lastName }: Partial<IRegisterData>,
+  apiRequest: <T>(request: () => Promise<T>) => Promise<T | null>,
+): Promise<ISuccessResponse | IErrorResponse | null> {
   try {
-    const response = await axios.post("/api/auth/step-two", {
-      firstName,
-      lastName,
+    return apiRequest<ISuccessResponse | IErrorResponse>(async () => {
+      const response = await axios.post("/api/auth/step-two", {
+        firstName,
+        lastName,
+      });
+      const data: unknown = response.data;
+      const resp: ISuccessResponse = data as ISuccessResponse;
+      return resp;
     });
-    const data: unknown = response.data;
-    const resp: ISuccessResponse = data as ISuccessResponse;
-    return resp;
-  } catch (error: unknown) {
+  } catch (error) {
     return (error as { response: { data: IErrorResponse } }).response.data;
   }
 }
 
 export async function signupHandler(
   formData: IRegisterData,
-): Promise<ISuccessResponse | IErrorResponse> {
+  apiRequest: <T>(request: () => Promise<T>) => Promise<T | null>,
+): Promise<ISuccessResponse | IErrorResponse | null> {
   try {
-    const response = await axios.post("/api/auth/signup", formData);
-    const data: unknown = response.data;
-    const resp: ISuccessResponse = data as ISuccessResponse;
-    return resp;
-  } catch (error: unknown) {
+    return apiRequest<ISuccessResponse | IErrorResponse>(async () => {
+      const response = await axios.post("/api/auth/signup", formData);
+      const data: unknown = response.data;
+      const resp: ISuccessResponse = data as ISuccessResponse;
+      return resp;
+    });
+  } catch (error) {
     return (error as { response: { data: IErrorResponse } }).response.data;
   }
 }
 
 export async function loginHandler(
   formData: ILoginForm,
-): Promise<ISuccessResponse | IErrorResponse> {
+  apiRequest: <T>(request: () => Promise<T>) => Promise<T | null>,
+): Promise<ISuccessResponse | IErrorResponse | null> {
   try {
-    const response = await axios.post("/api/auth/login", formData);
-    const data: unknown = response.data;
-    const resp: ISuccessResponse = data as ISuccessResponse;
-    return resp;
-  } catch (error: unknown) {
+    return apiRequest<ISuccessResponse | IErrorResponse>(async () => {
+      const response = await axios.post("/api/auth/login", formData);
+      const data: unknown = response.data;
+      const resp: ISuccessResponse = data as ISuccessResponse;
+      return resp;
+    });
+  } catch (error) {
     return (error as { response: { data: IErrorResponse } }).response.data;
   }
 }
