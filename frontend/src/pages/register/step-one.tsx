@@ -50,7 +50,7 @@ const formSchema = z
   });
 
 function StepOne() {
-  const { updateRegistrationData, intiStep, nextStep, formData } =
+  const { updateRegistrationData, initStep, nextStep, formData } =
     useRegisterFormContext();
   const router = useRouter();
   const defaultValues: Partial<IRegisterData> = {
@@ -62,7 +62,7 @@ function StepOne() {
     null,
   );
   useEffect(() => {
-    intiStep();
+    initStep();
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({

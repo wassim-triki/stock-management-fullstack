@@ -13,6 +13,11 @@ export interface IRegisterData {
   confirmPassword: string;
   firstName: string;
   lastName: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
 }
 
 export interface IRegisterFormStep {
@@ -25,7 +30,7 @@ export interface RegisterFormContextProps {
   formData: IRegisterData | null;
   nextStep: () => void;
   prevStep: () => void;
-  intiStep: () => void;
+  initStep: () => void;
   updateRegistrationData: (property: Partial<IRegisterData>) => void;
 }
 
@@ -40,7 +45,7 @@ const defaultState: RegisterFormContextProps = {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   nextStep: () => {},
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  intiStep: () => {},
+  initStep: () => {},
 };
 
 export const RegisterFormContext =
@@ -56,17 +61,9 @@ export const RegisterFormProvider: FC<UserFormProviderProps> = ({
 
   const [step, setStep] = useState<number>(1);
 
-  const nextStep = () => {
-    setStep((prevStep) => prevStep + 1);
-  };
-  //init steps to 1
-  const intiStep = () => {
-    setStep(1);
-  };
-
-  const prevStep = () => {
-    setStep((prevStep) => prevStep - 1);
-  };
+  const initStep = () => setStep(1);
+  const nextStep = () => setStep((prev) => prev + 1);
+  const prevStep = () => setStep((prev) => prev - 1);
 
   const updateRegistrationData = (values: Partial<IRegisterData>) => {
     setFormData((prevData) => {
@@ -84,7 +81,7 @@ export const RegisterFormProvider: FC<UserFormProviderProps> = ({
   return (
     <RegisterFormContext.Provider
       value={{
-        intiStep,
+        initStep,
         formData,
         step,
         nextStep,

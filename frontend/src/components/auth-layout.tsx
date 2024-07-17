@@ -27,7 +27,11 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         <CardHeader>
           <div className="flex justify-between">
             <CardTitle className="text-2xl">{title}</CardTitle>
-            {step && <span>{step}</span>}
+            {step && (
+              <span className="text-2xl font-black text-slate-500">
+                {step}/3
+              </span>
+            )}
           </div>
           <CardDescription>{description}</CardDescription>
         </CardHeader>

@@ -39,15 +39,13 @@ export interface IUser extends Document {
     avatar: string;
     bio: string;
     phone: string;
-    gender: string;
+    // gender: string;
     address: {
-      street1: string;
-      street2: string;
+      street: string;
       city: string;
       state: string;
       country: string;
       zip: string;
-      location: IPoint;
     };
   };
   role: string;
@@ -86,15 +84,13 @@ const UserSchema: Schema = new Schema(
       avatar: { type: String },
       bio: { type: String },
       phone: { type: String },
-      gender: { type: String },
+      // gender: { type: String },
       address: {
-        street1: { type: String },
-        street2: { type: String },
+        street: { type: String },
         city: { type: String },
         state: { type: String },
         country: { type: String },
         zip: { type: String },
-        location: { type: PointSchema },
       },
     },
     resetPasswordToken: { type: String },
