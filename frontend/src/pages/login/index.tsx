@@ -12,7 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RegistrationLayout from "@/components/registration-layout";
 import AuthLayout from "@/components/auth-layout";
-function Login({ searchParams }: { searchParams: { message: string } }) {
+export const getServerSideProps = async () => {
+  return {
+    props: {
+      title: "Login",
+      description:
+        "Enter your email and password below to login to your account",
+    },
+  };
+};
+function Login() {
   return (
     <>
       <form id="login-form" className="grid gap-4">
@@ -38,11 +47,11 @@ function Login({ searchParams }: { searchParams: { message: string } }) {
             required
           />
         </div>
-        {searchParams?.message && (
+        {/* {searchParams?.message && (
           <div className="text-sm font-medium text-destructive">
             {searchParams.message}
           </div>
-        )}
+        )} */}
         <Button
           // formAction={emailLogin}
           className="w-full"
