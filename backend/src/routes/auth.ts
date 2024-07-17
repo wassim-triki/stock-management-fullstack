@@ -3,7 +3,7 @@ import passport from 'passport';
 const router = express.Router();
 // Import controllers
 import {
-  register,
+  signup,
   // forgotPassword,
   // resetPassword,
   login,
@@ -12,7 +12,7 @@ import {
 } from '../controllers/auth';
 
 // Routes
-router.post('/register', register);
+router.post('/signup', signup);
 router.post('/login', login);
 router.post('/check-email', checkEmailAvailability);
 router.post('/step-two', stepTwoHandler);

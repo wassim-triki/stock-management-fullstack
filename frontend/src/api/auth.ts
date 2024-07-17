@@ -53,3 +53,16 @@ export async function stepTwoHandler({
     return (error as { response: { data: IErrorResponse } }).response.data;
   }
 }
+
+export async function signupHandler(
+  formData: IRegisterData,
+): Promise<ISuccessResponse | IErrorResponse> {
+  try {
+    const response = await axios.post("/api/auth/signup", formData);
+    const data: unknown = response.data;
+    const resp: ISuccessResponse = data as ISuccessResponse;
+    return resp;
+  } catch (error: unknown) {
+    return (error as { response: { data: IErrorResponse } }).response.data;
+  }
+}

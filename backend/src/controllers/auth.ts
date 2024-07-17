@@ -5,18 +5,33 @@ import passport from '../config/passport';
 import { ErrorResponse, SuccessResponse } from '../utils/response';
 import { validateStepOne, validateStepTwo } from '../schemas/userSchemas';
 
-export const register = async (req: Request, res: Response, next: any) => {
-  const { username, email, password } = req.body;
+export const signup = async (req: Request, res: Response, next: any) => {
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    phone,
+    street,
+    city,
+    state,
+    zip,
+  } = req.body;
+  const address = { street, city, state, zip };
+  const profile = { firstName, lastName, phone, address };
   try {
+    const userWithEmail = await User.findOne({ email });
+    if (userWithEmail) {
+      throw new ErrorResponse('Email is already in use', 400);
+    }
     const user: IUser = await User.create({
-      username,
       email,
       password,
+      profile,
+      address,
     });
     console.log('user created');
-    return res
-      .status(201)
-      .json(new SuccessResponse('User created', await User.findOne({ email })));
+    return res.status(201).json(new SuccessResponse('User created', user));
   } catch (error: any) {
     next(error);
   }

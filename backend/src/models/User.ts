@@ -30,21 +30,21 @@ export interface IUser extends Document {
   resetPasswordToken: string | undefined;
   resetPasswordExpire: string | undefined;
   matchPassword(password: string): boolean | PromiseLike<boolean>;
-  username: string;
+  // username: string;
   password: string;
   email: string;
   profile: {
     firstName: string;
     lastName: string;
-    avatar: string;
-    bio: string;
+    // avatar: string;
+    // bio: string;
     phone: string;
     // gender: string;
     address: {
       street: string;
       city: string;
       state: string;
-      country: string;
+      // country: string;
       zip: string;
     };
   };
@@ -57,18 +57,18 @@ export interface IUser extends Document {
 // Define user schema
 const UserSchema: Schema = new Schema(
   {
-    username: {
-      type: String,
-      lowercase: true,
-      unique: true,
-      required: [true, "Can't be blank"],
-      index: true,
-    },
+    // username: {
+    //   type: String,
+    //   lowercase: true,
+    //   unique: true,
+    //   required: [true, "Can't be blank"],
+    //   index: true,
+    // },
     password: {
       type: String,
       required: [true, "Can't be blank"],
       select: false,
-      minlength: [8, 'Please use a minimum of 8 characters'],
+      minlength: [6, 'Please use a minimum of 8 characters'],
     },
     email: {
       type: String,
@@ -81,15 +81,15 @@ const UserSchema: Schema = new Schema(
     profile: {
       firstName: { type: String },
       lastName: { type: String },
-      avatar: { type: String },
-      bio: { type: String },
+      // avatar: { type: String },
+      // bio: { type: String },
       phone: { type: String },
       // gender: { type: String },
       address: {
         street: { type: String },
         city: { type: String },
         state: { type: String },
-        country: { type: String },
+        // country: { type: String },
         zip: { type: String },
       },
     },

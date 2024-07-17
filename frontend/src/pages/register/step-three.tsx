@@ -29,7 +29,7 @@ import {
   useRegisterFormContext,
 } from "@/context/multistep-registration-form-context";
 import { useRouter } from "next/navigation";
-import { IErrorResponse } from "@/api/auth";
+import { IErrorResponse, signupHandler } from "@/api/auth";
 import AuthLayout from "@/components/auth-layout";
 import { PhoneInput } from "@/components/ui/phone-input";
 
@@ -74,6 +74,18 @@ function StepThree() {
     // Handle form submission
     setErrorResponse(null);
     updateRegistrationData(values);
+    if (formData) {
+      const data: IRegisterData = {
+        ...values,
+        ...formData,
+      };
+      const resp = await signupHandler(data);
+      if (resp.success === false) {
+        setErrorResponse(resp as IErrorResponse);
+        return;
+      }
+    }
+
     // router.push("/register/completed"); // Redirect to the final step or completion page
   }
 
