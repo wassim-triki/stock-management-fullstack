@@ -1,5 +1,8 @@
-import { RegisterFormProvider } from "@/context/multistep-registration-form-context";
-import React from "react";
+import {
+  RegisterFormProvider,
+  useRegisterFormContext,
+} from "@/context/multistep-registration-form-context";
+import React, { useEffect } from "react";
 
 export default function RegistrationLayout({
   children,

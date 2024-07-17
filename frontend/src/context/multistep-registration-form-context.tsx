@@ -4,12 +4,13 @@ import React, {
   ReactNode,
   FC,
   useContext,
+  useEffect,
 } from "react";
 
 export interface IRegisterData {
   email: string;
   password: string;
-  confirmPassowrd: string;
+  confirmPassword: string;
 }
 
 export interface RegisterFormContextProps {
@@ -45,6 +46,10 @@ export const RegisterFormProvider: FC<UserFormProviderProps> = ({
     });
   };
 
+  useEffect(() => {
+    console.log(registrationData);
+  }, [registrationData]);
+
   return (
     <RegisterFormContext.Provider
       value={{ registrationData, updateRegistrationData }}
@@ -54,11 +59,11 @@ export const RegisterFormProvider: FC<UserFormProviderProps> = ({
   );
 };
 
-export const useUserFormContext = () => {
+export const useRegisterFormContext = () => {
   const context = useContext(RegisterFormContext);
   if (!context) {
     throw new Error(
-      "useUserFormContext must be used within a UserFormContextProvider",
+      "useRegisterFormContext must be used within a RegisterFormProvider",
     );
   }
   return context;
