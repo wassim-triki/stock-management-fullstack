@@ -10,12 +10,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-function Register({ searchParams }: { searchParams: { message: string } }) {
+function Login({ searchParams }: { searchParams: { message: string } }) {
   return (
     <section className="flex h-[calc(100vh-57px)] items-center justify-center">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Register</CardTitle>
+          <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
@@ -59,13 +59,13 @@ function Register({ searchParams }: { searchParams: { message: string } }) {
           {/* <OAuthButtons /> */}
           <div className="text-center text-sm">
             Don&apos;t have an account?{" "}
-            <button
+            <a
               // formAction={signup}
-              form="login-form"
+              href="/register"
               className="underline"
             >
               Sign up
-            </button>
+            </a>
           </div>
         </CardContent>
       </Card>
@@ -73,13 +73,13 @@ function Register({ searchParams }: { searchParams: { message: string } }) {
   );
 }
 
-Register.getLayout = function getLayout(page: React.ReactNode) {
+Login.getLayout = function getLayout(page: React.ReactNode) {
   return (
-    <MainLayout title="Register">
+    <MainLayout title="Login">
       {/* <NestedLayout>{page}</NestedLayout> */}
       {page}
     </MainLayout>
   );
 };
 
-export default Register;
+export default Login;
