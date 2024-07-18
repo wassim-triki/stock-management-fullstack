@@ -7,9 +7,9 @@ const Header: React.FC = () => {
     <header className="sticky top-0 z-10 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <nav className="flex items-center space-x-4 lg:space-x-6">
-          <a className="mr-6 flex items-center space-x-2" href="/">
+          <Link className="mr-6 flex items-center space-x-2" href="/">
             <span className="font-bold">Stocks</span>
-          </a>
+          </Link>
           <Link href="/register/manager">Register your business</Link>
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2">

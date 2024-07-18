@@ -12,6 +12,8 @@ services:
       - internal-network
     depends_on:
       - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:4000
 
   backend:
     container_name: backend_container
@@ -28,6 +30,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
       - MONGO_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo_db:${DB_PORT}/${DB_NAME}?authSource=admin
+      - UPLOADTHING_SECRET=${UPLOADTHING_SECRET}
+      - UPLOADTHING_APP_ID=${UPLOADTHING_APP_ID}
+
     depends_on:
       - mongo_db
     networks:

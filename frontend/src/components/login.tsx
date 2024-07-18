@@ -33,6 +33,7 @@ import { useToast } from "./ui/use-toast";
 import { ToastAction } from "./ui/toast";
 import { useApi } from "@/hooks/useApi";
 import { LoadingSpinner } from "./ui/loading-spinner";
+import Link from "next/link";
 
 export interface ILoginForm {
   email: string;
@@ -129,9 +130,9 @@ function Login() {
       </Form>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <a href="/signup" className="underline">
+        <Link href="/signup" className="underline">
           Sign up
-        </a>
+        </Link>
       </div>
     </>
   );
