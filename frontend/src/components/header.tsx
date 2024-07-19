@@ -10,7 +10,7 @@ const Header: React.FC = () => {
           <Link className="mr-6 flex items-center space-x-2" href="/">
             <span className="font-bold">Stocks</span>
           </Link>
-          <Link href="/register/manager">Register your business</Link>
+          {/* <Link href="/register/manager">Register your business</Link> */}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2">
           {null !== null ? (
@@ -24,7 +24,7 @@ const Header: React.FC = () => {
                 <Link href="/login">Sign In</Link>
               </Button>
               <Button variant={"outline"} asChild>
-                <Link href="/signup">Join</Link>
+                <Link href="/signup">Create an account</Link>
               </Button>
             </div>
           )}

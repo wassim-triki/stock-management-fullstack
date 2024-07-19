@@ -34,6 +34,7 @@ import { ToastAction } from "./ui/toast";
 import { useApi } from "@/hooks/useApi";
 import { LoadingSpinner } from "./ui/loading-spinner";
 import Link from "next/link";
+import SubmitButton from "./ui/submit-button";
 
 export interface ILoginForm {
   email: string;
@@ -119,13 +120,7 @@ function Login() {
             )}
           />
           {error && <AlertDestructive error={error.error.message} />}
-          <Button
-            // formAction={emailLogin}
-            type="submit"
-            className="w-full"
-          >
-            {loading ? <LoadingSpinner /> : "Login"}
-          </Button>
+          <SubmitButton loading={loading}>Login</SubmitButton>
         </form>
       </Form>
       <div className="text-center text-sm">

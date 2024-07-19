@@ -67,3 +67,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+[aria-busy="true"]::before {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  font-size: larger;
+  background-image: url("../../public/spinner.svg");
+  background-size: 1em auto;
+  background-repeat: no-repeat;
+  stroke: red !important;
+  content: "";
+  /* vertical-align: -.125em; */
+}
