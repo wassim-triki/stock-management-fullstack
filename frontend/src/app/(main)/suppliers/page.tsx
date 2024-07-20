@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import PlaceholderContent from "@/components/admin-panel/placeholder-content";
 
 const Page = () => {
   return (
@@ -26,9 +27,10 @@ const Page = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="relative flex items-center justify-center text-6xl">
+      {/* <div className="relative flex items-center justify-center text-6xl">
         Suppliers
-      </div>
+      </div> */}
+      <PlaceholderContent />
     </ContentLayout>
   );
 };
