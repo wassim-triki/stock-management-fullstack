@@ -65,7 +65,7 @@ export const Main = async () => {
   logging.log('Define Controller Routing');
   logging.log('----------------------------------------');
   app.use('/api/auth', authRouter);
-  app.use('/api/users', authHandler, userRoutes);
+  app.use('/api/users', userRoutes);
 
   app.use(
     '/api/uploadthing',

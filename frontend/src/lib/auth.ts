@@ -6,7 +6,7 @@ import { AxiosError } from "axios";
 type ApiResponse = IErrorResponse | ISuccessResponse;
 
 export async function checkAuth(): Promise<ISuccessResponse | undefined> {
-// ctx: GetServerSidePropsContext,
+  // ctx: GetServerSidePropsContext,
   // Assuming the session is stored in a cookie called 'session'
 
   try {

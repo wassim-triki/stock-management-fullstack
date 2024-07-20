@@ -1,47 +1,43 @@
-// pages/protected.tsx
-import { IErrorResponse, ISuccessResponse } from "@/api/auth";
-import { checkAuth } from "@/lib/auth";
-import axiosInstance, { IApiResponse } from "@/lib/axiosInstance";
+import axios, { AxiosResponse } from "axios";
+import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import axiosInstance from "@/lib/axiosInstance";
 
-const ProtectedPage = () => {
-  const [data, setData] = useState<ISuccessResponse | undefined>();
+type Props = {
+  data: object;
+};
+
+async function fetchApi(): Promise<object> {
+  const resp: AxiosResponse = await axiosInstance.get(
+    "http://localhost:4000/api/auth/check-session",
+  );
+
+  return resp.data as object;
+}
+
+const Protected: React.FC<Props> = ({ data }) => {
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const resp = await checkAuth();
-      setData(resp);
-    };
-
-    fetchData().catch((err) => console.error(err));
+    setIsClient(true);
   }, []);
+
   return (
     <div>
-      {data ? (
-        <div>{JSON.stringify(data.payload.data)}</div>
-      ) : (
-        <div>Loading...</div>
-      )}
+      <p>{isClient ? "Client-side Rendered" : "Server-side Rendered"}</p>
+      <div>{JSON.stringify(data)}</div>
     </div>
   );
 };
 
-// export const getServerSideProps: GetServerSideProps = async (ctx) => {
-//   const resp = await checkAuth(ctx);
+export const getServerSideProps: GetServerSideProps = async () => {
+  const data = await fetchApi();
 
-//   if (!resp) {
-//     return {
-//       props: {
-//         cookie: null,
-//       },
-//     };
-//   }
+  return {
+    props: {
+      data,
+    },
+  };
+};
 
-//   return {
-//     props: { ...resp },
-//   };
-// };
-
-export default ProtectedPage;
+export default Protected;
