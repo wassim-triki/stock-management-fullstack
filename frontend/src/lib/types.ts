@@ -14,5 +14,21 @@ export type ApiSuccessResponse = {
 };
 
 export type User = {
+  _id: string;
   email: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+  };
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  active: boolean;
 };

@@ -17,7 +17,7 @@ const Header = async () => {
         <div className="flex flex-1 items-center justify-end space-x-2">
           {user ? (
             <div className="flex items-center gap-2">
-              <p>{user.email}</p>
+              <p>Welcome, {user.profile.firstName}</p>
               <Button>Sign Out</Button>
             </div>
           ) : (
