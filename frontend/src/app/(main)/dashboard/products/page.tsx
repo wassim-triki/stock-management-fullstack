@@ -1,14 +1,7 @@
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { columns } from "@/components/tables/employee-tables/columns";
-
-import { buttonVariants } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { Plus } from "lucide-react";
-import Link from "next/link";
-import { Supplier } from "@/lib/types";
+import { Product } from "@/lib/types";
 import { DataTable } from "@/components/tables/data-table";
+import ContentPageLayout from "@/components/layouts/content-page-layout";
+import { columns } from "@/components/tables/products-table/columns";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -28,33 +21,20 @@ export default async function page({ searchParams }: paramsProps) {
   const offset = (page - 1) * pageLimit;
 
   const res = await fetch(
-    `https://api.slingacademy.com/v1/sample-data/users?offset=${offset}&limit=${pageLimit}` +
-      (country ? `&search=${country}` : ""),
+    `https://api.slingacademy.com/v1/sample-data/products?offset=${offset}&limit=${pageLimit}`,
   );
   const dataRes = await res.json();
-  const totalUsers = dataRes.total_users; //1000
+  const totalUsers = dataRes.total_products; //1000
   const pageCount = Math.ceil(totalUsers / pageLimit);
-  const product: Supplier[] = dataRes.users;
+  const product: Product[] = dataRes.products;
   return (
     <>
-      <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
-        <Breadcrumbs items={breadcrumbItems} />
-
-        <div className="flex items-start justify-between">
-          <Heading
-            title={`Products (${totalUsers})`}
-            description="Manage employees (Server side table functionalities.)"
-          />
-
-          <Link
-            href={"/dashboard/employee/new"}
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
-            <Plus className="mr-2 h-4 w-4" /> Add New
-          </Link>
-        </div>
-        <Separator />
-
+      <ContentPageLayout
+        breadcrumbItems={breadcrumbItems}
+        title={`Products (${totalUsers})`}
+        description="Manage employees (Server side table functionalities.)"
+        addNewLink="/dashboard/products/new"
+      >
         <DataTable
           searchKey="name"
           pageNo={page}
@@ -63,7 +43,7 @@ export default async function page({ searchParams }: paramsProps) {
           data={product}
           pageCount={pageCount}
         />
-      </div>
+      </ContentPageLayout>
     </>
   );
 }

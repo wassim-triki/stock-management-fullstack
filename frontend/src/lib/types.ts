@@ -72,3 +72,9 @@ export type Supplier = {
   email: string;
   phone: string;
 };
+export type Product = {
+  _id: number;
+  name: string;
+  price: number;
+  description: string;
+};

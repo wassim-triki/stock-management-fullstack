@@ -58,13 +58,19 @@ const formSchema = z.object({
 type SupplierFormValues = z.infer<typeof formSchema>;
 
 interface SupplierFormProps {
-  initialData: any | null;
+  initialData?: SupplierFormValues | null;
+  title: string;
+  description: string;
   categories: any;
+  action: string;
 }
 
 export const SupplierForm: React.FC<SupplierFormProps> = ({
-  initialData,
+  title,
+  description,
   categories,
+  action,
+  initialData,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -72,10 +78,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imgLoading, setImgLoading] = useState(false);
-  const title = initialData ? "Edit product" : "Create product";
-  const description = initialData ? "Edit a product." : "Add a new product";
-  const toastMessage = initialData ? "Product updated." : "Product created.";
-  const action = initialData ? "Save changes" : "Create";
+  const toastMessage = "toast message";
 
   const defaultValues = initialData
     ? initialData

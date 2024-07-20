@@ -5,8 +5,8 @@ import React from "react";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
-  { title: "Create", link: "/dashboard/suppliers/create" },
+  { title: "Procucts", link: "/dashboard/products" },
+  { title: "Create", link: "/dashboard/products/create" },
 ];
 
 export default function Page() {
@@ -20,8 +20,8 @@ export default function Page() {
             { _id: "pants", name: "pants" },
           ]}
           action="Create"
-          description="Create a new supplier"
-          title="Create Supplier"
+          description="Create a new product"
+          title="Create product"
         />
       </div>
     </ScrollArea>
