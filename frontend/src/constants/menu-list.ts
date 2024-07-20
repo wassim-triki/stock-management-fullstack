@@ -48,7 +48,7 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Contents",
       menus: [
         {
-          href: "/suppliers",
+          href: "/dashboard/suppliers",
           label: "Suppliers",
           active: pathname.includes("/suppliers"),
           icon: Truck,
@@ -66,7 +66,7 @@ export function getMenuList(pathname: string): Group[] {
           ],
         },
         {
-          href: "/products",
+          href: "/dashboard/products",
           label: "Products",
           active: pathname.includes("/products"),
           icon: Boxes,
