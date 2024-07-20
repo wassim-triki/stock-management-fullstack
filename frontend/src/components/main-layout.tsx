@@ -16,9 +16,7 @@ const MainLayout = ({
   title = "Default Title",
 }: MainLayoutProps) => {
   const router = useRouter();
-  useEffect(() => {
-    console.log(router);
-  }, [router]);
+
   return (
     <>
       <Head>

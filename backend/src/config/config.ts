@@ -18,6 +18,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'jwt_secret';
 const config = {
   environment: process.env.NODE_ENV,
   hostname: SERVER_HOSTNAME,
+  clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
   port: SERVER_PORT,
   mongo: {
     uri: MONGO_URI,

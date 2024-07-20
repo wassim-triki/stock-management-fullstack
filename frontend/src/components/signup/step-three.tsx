@@ -83,9 +83,7 @@ function StepThree() {
         ...formData,
       };
       const resp = await signupHandler(data, apiRequest);
-      if (!resp || resp.success === false) {
-        return;
-      }
+      if (!resp || resp.success === false) return;
       const successResp = resp as ISuccessResponse;
       toast({
         variant: "success",

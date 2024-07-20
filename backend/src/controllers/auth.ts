@@ -1,4 +1,4 @@
-import { Response, Request } from 'express';
+import { Response, Request, CookieOptions } from 'express';
 import crypto from 'crypto';
 import { IUser, User } from '../models/User';
 import passport from '../config/passport';
@@ -47,11 +47,16 @@ export const login = async (req: Request, res: Response, next: any) => {
       }
       req.logIn(user, (err) => {
         if (err) return next(err);
-        User.findOne({ email: user.email }).then((user) => {
-          return res
-            .status(200)
-            .json(new SuccessResponse('Login successful', user));
-        });
+
+        logging.warning(
+          'cookie from login controller:',
+          'session',
+          req.cookies.session
+        );
+
+        return res
+          .status(200)
+          .json(new SuccessResponse('Login successful', user));
       });
     }
   )(req, res, next);

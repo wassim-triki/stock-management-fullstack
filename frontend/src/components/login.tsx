@@ -60,9 +60,7 @@ function Login() {
   const { loading, error, apiRequest } = useApi();
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const resp = await loginHandler(values, apiRequest);
-    if (!resp || resp.success === false) {
-      return;
-    }
+    if (!resp || resp.success === false) return;
     const successResp = resp as ISuccessResponse;
     // await message.success(successResp.payload.message);
     toast({
@@ -71,7 +69,7 @@ function Login() {
       // description: "Your being redirected to Home...",
       action: <ToastAction altText="Okay">Okay</ToastAction>,
     });
-    router.push("/");
+    router.push("/protected");
   }
   return (
     <>

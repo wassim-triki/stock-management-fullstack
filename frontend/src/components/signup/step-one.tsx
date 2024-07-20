@@ -69,12 +69,8 @@ function StepOne() {
     defaultValues,
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     const resp = await checkEmailAvailability(values, apiRequest);
-    if (!resp || resp.success === false) {
-      return;
-    }
+    if (!resp || resp.success === false) return;
     updateRegistrationData(values);
     handleNextStep();
   }

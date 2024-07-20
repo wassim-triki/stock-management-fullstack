@@ -77,9 +77,7 @@ function StepTwo() {
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const resp = await stepTwoHandler(values, apiRequest);
-    if (!resp || resp.success === false) {
-      return;
-    }
+    if (!resp || resp.success === false) return;
     updateRegistrationData(values);
     handleNextStep();
   }
