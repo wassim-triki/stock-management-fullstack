@@ -22,8 +22,7 @@ export type IApiResponse = IErrorResponse | ISuccessResponse;
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) =>
-    Promise.reject((error.response?.data as IErrorResponse).error),
+  (error: AxiosError) => Promise.reject(error.response?.data as IErrorResponse),
 );
 
 export default axiosInstance;

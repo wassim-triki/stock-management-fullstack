@@ -70,3 +70,11 @@ export async function loginHandler(
     return resp;
   });
 }
+
+export async function getAuthUserDetails(): Promise<{ email: string }> {
+  const response = await axios.get("/api/auth/me");
+  const data: unknown = response.data;
+  const resp: ISuccessResponse = data as ISuccessResponse;
+  console.log(resp, "🤣🤣🤣");
+  return resp.payload.data as { email: string };
+}

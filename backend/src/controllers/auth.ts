@@ -105,3 +105,11 @@ export const stepTwoHandler = async (
     next(error);
   }
 };
+
+export const getAuthUserDetails = async (
+  req: Request,
+  res: Response,
+  next: any
+) => {
+  return res.status(200).json(new SuccessResponse('Authorized', req.user));
+};

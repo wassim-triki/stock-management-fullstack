@@ -15,9 +15,7 @@ export function useApi() {
       const response = await request();
       return response;
     } catch (err) {
-      const errorResponse = (err as { response: { data: IErrorResponse } })
-        .response.data;
-      setError(errorResponse);
+      setError(err as IErrorResponse);
       return null;
     } finally {
       setLoading(false);
