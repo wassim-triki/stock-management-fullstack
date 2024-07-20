@@ -8,11 +8,9 @@ import LoginComponent from "@/components/login";
 function Login({ title, description }: { title: string; description: string }) {
   return (
     <MainLayout title={title}>
-      <RegistrationLayout>
-        <AuthLayout title={title} description={description}>
-          <LoginComponent />
-        </AuthLayout>
-      </RegistrationLayout>
+      <AuthLayout title={title} description={description}>
+        <LoginComponent />
+      </AuthLayout>
     </MainLayout>
   );
 }

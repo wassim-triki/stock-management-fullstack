@@ -69,7 +69,7 @@ function Login() {
       // description: "Your being redirected to Home...",
       action: <ToastAction altText="Okay">Okay</ToastAction>,
     });
-    router.push("/protected");
+    router.push("/dashboard");
   }
   return (
     <>
