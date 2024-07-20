@@ -1,23 +1,11 @@
-import MainLayout from "@/components/main-layout";
-import React, { useState } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import RegistrationLayout from "@/components/registration-layout";
-import AuthLayout from "@/components/auth-layout";
-import { z } from "zod";
-import { IErrorResponse, ISuccessResponse, loginHandler } from "@/api/auth";
+"use client";
+
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+
+import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { message } from "antd";
 import {
   Form,
   FormControl,
@@ -25,17 +13,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { AlertDestructive } from "./ui/alert-destructive";
-import { useRouter } from "next/navigation";
-import { useToast } from "./ui/use-toast";
-import { ToastAction } from "./ui/toast";
-import { useApi } from "@/hooks/useApi";
-import { LoadingSpinner } from "./ui/loading-spinner";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import SubmitButton from "@/components/ui/submit-button";
 import Link from "next/link";
-import SubmitButton from "./ui/submit-button";
-
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useAxios } from "@/lib/axios";
+import { AlertDestructive } from "./ui/alert-destructive";
+import { ToastAction } from "./ui/toast";
+import { ApiErrorResponse, ApiSuccessResponse } from "@/lib/types";
+import { AxiosError } from "axios";
 export interface ILoginForm {
   email: string;
   password: string;
@@ -57,17 +50,26 @@ function Login() {
     defaultValues,
   });
   const router = useRouter();
-  const { loading, error, apiRequest } = useApi();
+  const [{ loading: loginLoading, error: loginError }, executePut] = useAxios<
+    ApiSuccessResponse,
+    ILoginForm,
+    ApiErrorResponse
+  >(
+    {
+      url: "/api/auth/login",
+      method: "POST",
+    },
+    { manual: true },
+  );
+  // const { loading, error, apiRequest } = useApi();
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const resp = await loginHandler(values, apiRequest);
-    if (!resp || resp.success === false) return;
-    const successResp = resp as ISuccessResponse;
-    // await message.success(successResp.payload.message);
-    toast({
-      variant: "success",
-      title: successResp?.payload.message,
-      // description: "Your being redirected to Home...",
-      action: <ToastAction altText="Okay">Okay</ToastAction>,
+    console.log(values);
+    await executePut({ data: values }).then(({ data }) => {
+      toast({
+        variant: "success",
+        title: data.payload.message,
+        action: <ToastAction altText="Okay">Okay</ToastAction>,
+      });
     });
     // router.push("/dashboard");
     router.refresh();
@@ -118,8 +120,8 @@ function Login() {
               </FormItem>
             )}
           />
-          {error && <AlertDestructive error={error.error.message} />}
-          <SubmitButton loading={loading}>Login</SubmitButton>
+          {loginError && <AlertDestructive error={loginError.error.message} />}
+          <SubmitButton loading={loginLoading}>Login</SubmitButton>
         </form>
       </Form>
       <div className="text-center text-sm">

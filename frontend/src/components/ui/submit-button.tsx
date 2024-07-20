@@ -1,9 +1,9 @@
-import type { ButtonHTMLAttributes } from "react";
+import { ButtonHTMLAttributes } from 'react';
 import { Button } from "./button";
-import { LoadingSpinner } from "./loading-spinner";
 
 interface SubmitButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading: boolean;
+  children: React.ReactNode;
 }
 
 export default function SubmitButton({

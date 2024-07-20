@@ -1,14 +1,18 @@
 import axios, { AxiosError } from "axios";
-import { message } from "antd";
-import { IErrorResponse, ISuccessResponse } from "@/api/auth";
-
+import { ApiErrorResponse } from "./types";
+import config from "@/lib/config";
+import { makeUseAxios } from "axios-hooks";
 // Create a base URL
 const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000", // Set your API base URL
+  baseURL: config.apiUrl, // Set your API base URL,
   withCredentials: true, // Ensure credentials are sent
+});
+
+const useAxios = makeUseAxios({
+  axios: axiosInstance,
 });
 
 // Utility function to handle redirection
@@ -18,11 +22,10 @@ const redirectToLogin = () => {
   }
 };
 
-export type IApiResponse = IErrorResponse | ISuccessResponse;
-
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => Promise.reject(error.response?.data as IErrorResponse),
+  (error: AxiosError) =>
+    Promise.reject(error.response?.data as ApiErrorResponse),
 );
 
-export default axiosInstance;
+export { axiosInstance, useAxios };
