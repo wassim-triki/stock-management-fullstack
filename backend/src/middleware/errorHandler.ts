@@ -1,6 +1,6 @@
 // middleware/errorHandler.ts
 import { Request, Response, NextFunction } from 'express';
-import { ErrorResponse } from '../utils/response';
+import { ErrorResponse } from '../types/types';
 
 const errorHandler = (
   err: ErrorResponse,

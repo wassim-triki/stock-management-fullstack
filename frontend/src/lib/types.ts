@@ -67,10 +67,20 @@ export type User = {
 };
 
 export type Supplier = {
-  _id: number;
-  name: string;
-  email: string;
+  _id: string;
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
   phone: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+  active: boolean;
 };
 export type Product = {
   _id: number;

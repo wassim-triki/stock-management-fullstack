@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { User } from '../models/User';
 import mongoose from 'mongoose';
-import { ErrorResponse } from '../utils/response';
+import { ErrorResponse } from '../types/types';
 
 export const getAllUsers = async (
   _: Request,

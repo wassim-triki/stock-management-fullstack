@@ -1,9 +1,9 @@
 import { Response, Request, CookieOptions } from 'express';
 import crypto from 'crypto';
-import { IUser, User } from '../models/User';
 import passport from '../config/passport';
-import { ErrorResponse, SuccessResponse } from '../utils/response';
 import { validateStepOne, validateStepTwo } from '../schemas/userSchemas';
+import { ErrorResponse, IUser, SuccessResponse } from '../types/types';
+import { User } from '../models/User';
 
 export const signup = async (req: Request, res: Response, next: any) => {
   const {
@@ -40,7 +40,7 @@ export const signup = async (req: Request, res: Response, next: any) => {
 export const login = async (req: Request, res: Response, next: any) => {
   passport.authenticate(
     'local',
-    (err: Error, user: IUser, info: { message: string }) => {
+    (err: Error, user: any, info: { message: string }) => {
       if (err) return next(err);
       if (!user) {
         return next(new ErrorResponse(info.message, 401));

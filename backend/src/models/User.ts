@@ -1,69 +1,14 @@
-import mongoose from 'mongoose';
+// models/User.ts
+import mongoose, { Schema, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { model, Schema, Model, Document } from 'mongoose';
+import { Role, ROLES } from '../utils/constants';
+import { IUser } from '../types/types';
 
-// Declare point type
-export interface IPoint extends Document {
-  type: string;
-  coordinates: number[];
-}
-
-// Generate point schema
-const PointSchema: Schema = new Schema({
-  type: {
-    type: String,
-    enum: ['Point'],
-    required: true,
-  },
-  coordinates: {
-    type: [Number],
-    required: true,
-  },
-});
-
-// Declare user type
-export interface IUser extends Document {
-  getResetPasswordToken(): string;
-  getSignedToken(): string;
-  resetPasswordToken: string | undefined;
-  resetPasswordExpire: string | undefined;
-  matchPassword(password: string): boolean | PromiseLike<boolean>;
-  // username: string;
-  password: string;
-  email: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-    // avatar: string;
-    // bio: string;
-    phone: string;
-    // gender: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      // country: string;
-      zip: string;
-    };
-  };
-  role: string;
-  createdAt: Date;
-  updatedAt: Date;
-  active: boolean;
-}
-
-// Define user schema
+// Define the User schema
 const UserSchema: Schema = new Schema(
   {
-    // username: {
-    //   type: String,
-    //   lowercase: true,
-    //   unique: true,
-    //   required: [true, "Can't be blank"],
-    //   index: true,
-    // },
     password: {
       type: String,
       required: [true, "Can't be blank"],
@@ -81,15 +26,11 @@ const UserSchema: Schema = new Schema(
     profile: {
       firstName: { type: String },
       lastName: { type: String },
-      // avatar: { type: String },
-      // bio: { type: String },
       phone: { type: String },
-      // gender: { type: String },
       address: {
         street: { type: String },
         city: { type: String },
         state: { type: String },
-        // country: { type: String },
         zip: { type: String },
       },
     },
@@ -97,8 +38,8 @@ const UserSchema: Schema = new Schema(
     resetPasswordExpire: { type: String },
     role: {
       type: String,
-      enum: ['admin', 'manager', 'user'],
-      default: 'manager',
+      enum: Object.values(ROLES),
+      default: ROLES.MANAGER,
     },
     createdAt: {
       type: Date,
@@ -142,4 +83,4 @@ UserSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-export const User: Model<IUser> = model<IUser>('User', UserSchema);
+export const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);

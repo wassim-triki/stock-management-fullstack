@@ -1,3 +1,4 @@
+// server.ts
 import express from 'express';
 import http from 'http';
 import bodyParser from 'body-parser';
@@ -9,7 +10,7 @@ import { corsHandler } from './middleware/corsHandler';
 import { loggingHandler } from './middleware/loggingHandler';
 import authRouter from './routes/auth';
 import userRoutes from './routes/user';
-import { createTestUsers } from './utils/createTestUsers';
+import supplierRoutes from './routes/supplier';
 import errorHandler from './middleware/errorHandler';
 import { createRouteHandler } from 'uploadthing/express';
 import { uploadRouter } from './utils/uploadthing';
@@ -18,6 +19,7 @@ import passport from './config/passport';
 import { authHandler } from './middleware/authHandler';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { seedData } from './utils/seedData';
 
 export const app = express();
 export let httpServer: ReturnType<typeof http.createServer>;
@@ -32,6 +34,10 @@ export const Main = async () => {
   logging.log('Initializing API');
   logging.log('----------------------------------------');
   await connectDB();
+
+  // Call the seedData function
+  await seedData();
+
   app.use(cors(corsConfig));
   app.options('*', cors(corsConfig));
   app.use(bodyParser.json());
@@ -50,7 +56,6 @@ export const Main = async () => {
       saveUninitialized: false,
       cookie: {
         secure: config.environment === 'production',
-        // secure: config.environment === 'production',
         sameSite: 'lax',
         httpOnly: true,
       },
@@ -66,6 +71,7 @@ export const Main = async () => {
   logging.log('----------------------------------------');
   app.use('/api/auth', authRouter);
   app.use('/api/users', userRoutes);
+  app.use('/api/suppliers', supplierRoutes);
 
   app.use(
     '/api/uploadthing',
@@ -90,8 +96,6 @@ export const Main = async () => {
     logging.log(`Server started on ${config.hostname}:${config.port}`);
     logging.log('----------------------------------------');
   });
-
-  // await createTestUsers();
 };
 
 export const Shutdown = (callback: any) =>

@@ -1,7 +1,11 @@
+// config/passport.ts
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { User } from '../models/User';
+import { HydratedDocument } from 'mongoose';
+import { IUser } from '../types/types';
 
+// Configure Local Strategy
 passport.use(
   new LocalStrategy(
     { usernameField: 'email', passwordField: 'password' },
@@ -30,8 +34,8 @@ passport.use(
 );
 
 // Serialize user
-passport.serializeUser((user, done) => {
-  done(null, (user as any).id);
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
 });
 
 // Deserialize user

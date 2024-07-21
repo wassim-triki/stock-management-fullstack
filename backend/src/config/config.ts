@@ -7,9 +7,7 @@ export const DEVELOPMENT = process.env.NODE_ENV === 'development';
 export const TEST = process.env.NODE_ENV === 'test';
 
 const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || 'localhost';
-const SERVER_PORT = process.env.SERVER_PORT
-  ? Number(process.env.SERVER_PORT)
-  : 4000;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/db_test';
 
@@ -19,7 +17,7 @@ const config = {
   environment: process.env.NODE_ENV,
   hostname: SERVER_HOSTNAME,
   clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
-  port: SERVER_PORT,
+  port: PORT,
   mongo: {
     uri: MONGO_URI,
   },

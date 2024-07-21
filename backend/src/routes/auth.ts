@@ -12,7 +12,7 @@ import {
   stepTwoHandler,
 } from '../controllers/auth';
 import { authHandler } from '../middleware/authHandler';
-import { SuccessResponse } from '../utils/response';
+import { SuccessResponse } from '../types/types';
 
 // Routes
 router.get('/me', authHandler, getAuthUserDetails);
