@@ -52,6 +52,12 @@ export const createSupplier = async (
 ) => {
   const { companyName, contactName, contactEmail, phone, address } = req.body;
   try {
+    // Check if the email is already in use
+    const existingSupplier = await Supplier.findOne({ contactEmail });
+    if (existingSupplier) {
+      return next(new ErrorResponse('Email is already in use', 400));
+    }
+
     const supplier = await Supplier.create({
       companyName,
       contactName,
@@ -74,19 +80,31 @@ export const updateSupplier = async (
   next: NextFunction
 ) => {
   try {
-    console.log('🤞', req.params);
+    const { contactEmail } = req.body;
+
+    // Check if the email is already in use by another supplier
+    const existingSupplier = await Supplier.findOne({
+      contactEmail,
+      _id: { $ne: req.params.id },
+    });
+
+    if (existingSupplier) {
+      return next(new ErrorResponse('Email is already in use', 400));
+    }
+
     const supplier = await Supplier.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
+
     if (!supplier) {
       return next(new ErrorResponse('Supplier not found', 404));
     }
+
     res
       .status(200)
       .json(new SuccessResponse('Supplier updated successfully', supplier));
   } catch (error: any) {
-    // next(new ErrorResponse('Failed to update supplier', 500));
     next(new ErrorResponse(error, 500));
   }
 };
@@ -98,15 +116,16 @@ export const deleteSupplier = async (
   next: NextFunction
 ) => {
   try {
+    console.log('🔵', req.params);
     const supplier = await Supplier.findByIdAndDelete(req.params.id);
     if (!supplier) {
       return next(new ErrorResponse('Supplier not found', 404));
     }
     res
       .status(200)
-      .json(new SuccessResponse('Supplier deleted successfully', {}));
+      .json(new SuccessResponse('Supplier deleted successfully', supplier));
   } catch (error: any) {
-    next(new ErrorResponse('Failed to delete supplier', 500));
+    next(new ErrorResponse(error, 500));
   }
 };
 
@@ -118,13 +137,11 @@ export const getTotalSuppliers = async (
 ) => {
   try {
     const totalSuppliers = await Supplier.countDocuments();
-    res
-      .status(200)
-      .json(
-        new SuccessResponse('Total suppliers retrieved successfully', {
-          total: totalSuppliers,
-        })
-      );
+    res.status(200).json(
+      new SuccessResponse('Total suppliers retrieved successfully', {
+        total: totalSuppliers,
+      })
+    );
   } catch (error: any) {
     next(new ErrorResponse('Failed to retrieve total suppliers', 500));
   }

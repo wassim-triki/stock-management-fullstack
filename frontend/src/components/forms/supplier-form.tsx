@@ -23,6 +23,8 @@ import { PhoneInput } from "../ui/phone-input";
 import { updateSupplier } from "@/api/supplier";
 import { useAxios } from "@/lib/axios/axios-client";
 import { ApiErrorResponse, ApiSuccessResponse, Supplier } from "@/lib/types";
+import SubmitButton from "../ui/submit-button";
+import { AlertModal } from "../modal/alert-modal";
 
 const addressSchema = z.object({
   street: z.string().min(1, { message: "" }),
@@ -85,58 +87,107 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
     defaultValues,
   });
 
-  const [{ loading: updateLoading, error: updateError }, executePut] = useAxios<
-    ApiSuccessResponse<Supplier>,
-    Partial<Supplier>,
-    ApiErrorResponse
-  >(
-    {
-      url: "/api/suppliers/:id", // The URL will be set dynamically when calling executePut
-      method: "PUT",
-    },
-    { manual: true },
-  );
+  const [{ loading: updateLoading, error: updateError }, executeUpdate] =
+    useAxios<ApiSuccessResponse<Supplier>, Partial<Supplier>, ApiErrorResponse>(
+      {
+        url: "/api/suppliers/:id", // The URL will be set dynamically when calling executePut
+        method: "PUT",
+      },
+      { manual: true },
+    );
+  const [{ loading: createLoading, error: createError }, executeCreate] =
+    useAxios<ApiSuccessResponse<Supplier>, Partial<Supplier>, ApiErrorResponse>(
+      {
+        url: "/api/suppliers", // The URL will be set dynamically when calling executePut
+        method: "POST",
+      },
+      { manual: true },
+    );
+  const [{ data: res, loading: deleteLoading, error }, executeDelete] =
+    useAxios<ApiSuccessResponse<Supplier>, any, ApiErrorResponse>(
+      {
+        method: "DELETE",
+      },
+      { manual: true },
+    );
 
   const onSubmit = async (data: SupplierFormValues) => {
     setLoading(true);
-    if (!initialData) return;
+    if (initialData) {
+      // Update existing supplier
+      await executeUpdate({
+        url: `/api/suppliers/${params.supplierId}`,
+        data,
+      })
+        .then(({ data }) => {
+          toast({
+            variant: "success",
+            title: data.message,
+          });
+          router.push(`/dashboard/suppliers`);
+          // router.refresh();
+        })
+        .catch((error) => {
+          toast({
+            variant: "destructive",
+            title: error.message,
+          });
+        })
+        .finally(() => setLoading(false));
+    } else {
+      // Create new supplier
+      await executeCreate({
+        data,
+      })
+        .then(({ data }) => {
+          toast({
+            variant: "success",
+            title: data.message,
+          });
+          router.push(`/dashboard/suppliers`);
+          // router.refresh();
+        })
+        .catch((error) => {
+          toast({
+            variant: "destructive",
+            title: error.message,
+          });
+        })
+        .finally(() => setLoading(false));
+    }
+  };
 
-    // Update existing supplier
-    await executePut({
+  const onConfirmDelete = async () => {
+    executeDelete({
       url: `/api/suppliers/${params.supplierId}`,
-      data,
     })
       .then(({ data }) => {
         toast({
           variant: "success",
           title: data.message,
+          // TODO; add undo
         });
-        router.refresh();
-        router.push(`/dashboard/suppliers`);
       })
       .catch((error) => {
         toast({
           variant: "destructive",
           title: error.message,
         });
+      })
+      .finally(() => {
+        setOpen(false);
+        router.push(`/dashboard/suppliers`);
       });
-  };
-
-  const onDelete = async () => {
-    try {
-      setLoading(true);
-      //   await axios.delete(`/api/${params.storeId}/suppliers/${params.supplierId}`);
-      router.refresh();
-      router.push(`/${params.storeId}/suppliers`);
-    } catch (error: any) {
-    } finally {
-      setLoading(false);
-      setOpen(false);
-    }
   };
 
   return (
     <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={onConfirmDelete}
+        loading={deleteLoading}
+      />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
         {initialData && (
@@ -306,9 +357,13 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               )}
             />
           </div>
-          <Button disabled={updateLoading} className="ml-auto" type="submit">
-            {action}
-          </Button>
+          <div></div>
+
+          <div className="w-full md:w-20">
+            <SubmitButton loading={updateLoading} type="submit">
+              {action}
+            </SubmitButton>
+          </div>
         </form>
       </Form>
     </>

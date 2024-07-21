@@ -9,18 +9,16 @@ import {
 } from "@/lib/types";
 import { columns } from "@/components/tables/suppliers-table/columns";
 import { useParams } from "next/navigation";
+
 const SuppliersTable = () => {
   const [
     { data: res, loading: suppliersLoading, error: suppliersError },
-    executePut,
+    refetch,
   ] = useAxios<
     ApiSuccessResponseList<Supplier>,
     Partial<Supplier>,
     ApiErrorResponse
-  >({
-    url: "/api/suppliers",
-    method: "GET",
-  });
+  >("/api/suppliers", { useCache: false });
 
   const params = useParams();
 
@@ -32,6 +30,7 @@ const SuppliersTable = () => {
   const total = res?.data.total || 0;
   const pageCount = Math.ceil(total / pageLimit);
   const suppliers = res?.data.items || [];
+
   return suppliersLoading ? (
     <div>Loading...</div>
   ) : suppliersError ? (
