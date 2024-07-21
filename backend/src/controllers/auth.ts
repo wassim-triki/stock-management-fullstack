@@ -113,3 +113,10 @@ export const getAuthUserDetails = async (
 ) => {
   return res.status(200).json(new SuccessResponse('Authorized', req.user));
 };
+
+export const logout = async (req: Request, res: Response, next: any) => {
+  req.logout((err) => {
+    if (err) return next(err);
+    return res.status(200).json(new SuccessResponse('Logout successful'));
+  });
+};

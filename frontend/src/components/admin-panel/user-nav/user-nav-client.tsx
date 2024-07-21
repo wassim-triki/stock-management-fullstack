@@ -1,8 +1,9 @@
+// UserNavClient.tsx
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { LayoutGrid, LogOut, User as UserUI } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -20,20 +21,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getAuthUser } from "@/api/auth";
 import { getInitials } from "@/lib/utils";
 import { useAxios } from "@/lib/axios";
 import { ApiSuccessResponse, User } from "@/lib/types";
-import { useToast } from "../ui/use-toast";
-import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
-export function UserNav() {
-  const [{ data: data, loading: getLoading, error: getError }] =
-    useAxios<ApiSuccessResponse>("/api/auth/me");
+interface UserNavClientProps {
+  user: User | null;
+}
 
-  const user: User = data?.payload.data as User;
-
+export function UserNavClient({ user }: UserNavClientProps) {
   const [
     { data: signoutData, loading: signoutLoading, error: signoutError },
     executeLogout,
