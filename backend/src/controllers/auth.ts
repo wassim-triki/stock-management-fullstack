@@ -72,14 +72,14 @@ export const checkEmailAvailability = async (
   const valid = validateStepOne(req.body);
   try {
     if (!valid) {
-      throw new ErrorResponse('Validation failed', 400, validateStepOne.errors);
+      throw new ErrorResponse('Validation failed', 400);
     }
 
     const user = await User.findOne({ email });
     if (user) {
       throw new ErrorResponse('Email is already in use', 400);
     }
-    return res.status(200).json(new SuccessResponse('Email is available', {}));
+    return res.status(200).json(new SuccessResponse('Email is available'));
   } catch (error: any) {
     next(error);
   }
@@ -95,12 +95,12 @@ export const stepTwoHandler = async (
   const valid = validateStepTwo(req.body);
   try {
     if (!valid) {
-      throw new ErrorResponse('Validation failed', 400, validateStepOne.errors);
+      throw new ErrorResponse('Validation failed', 400);
     }
 
     return res
       .status(200)
-      .json(new SuccessResponse('Step 2 completed successfully', {}));
+      .json(new SuccessResponse('Step 2 completed successfully'));
   } catch (error: any) {
     next(error);
   }

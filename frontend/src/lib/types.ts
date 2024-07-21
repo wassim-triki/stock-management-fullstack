@@ -33,17 +33,20 @@ export type SidebarNavItem = NavItemWithChildren;
 
 export type ApiErrorResponse = {
   success: boolean;
-  error: {
-    message: string;
-    details?: string;
-  };
+  message: string;
+  statusCode: number;
+  data: [];
 };
-export type ApiSuccessResponse = {
+export type ApiSuccessResponse<T = {}> = {
   success: boolean;
-  payload: {
-    message: string;
-    data?: object;
-  };
+  message: string;
+  data: T;
+};
+
+export type ApiSuccessResponseList<T> = {
+  success: boolean;
+  message: string;
+  data: { total: number; items: T[] };
 };
 
 export type User = {

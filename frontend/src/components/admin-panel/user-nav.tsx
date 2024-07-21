@@ -32,7 +32,7 @@ export function UserNav() {
   const [{ data: data, loading: getLoading, error: getError }] =
     useAxios<ApiSuccessResponse>("/api/auth/me");
 
-  const user: User = data?.payload.data as User;
+  const user: User = data?.data as User;
 
   const [
     { data: signoutData, loading: signoutLoading, error: signoutError },
@@ -51,7 +51,7 @@ export function UserNav() {
     await executeLogout().then(({ data }) => {
       toast({
         variant: "success",
-        title: data.payload.message,
+        title: data.message,
         action: <ToastAction altText="Okay">Okay</ToastAction>,
       });
     });

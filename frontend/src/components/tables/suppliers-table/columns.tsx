@@ -25,19 +25,28 @@ export const columns: ColumnDef<Supplier>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "first_name",
+    accessorKey: "companyName",
+    header: "COMPANY NAME",
+  },
+  {
+    accessorKey: "contactName",
     header: "NAME",
   },
 
   {
-    accessorKey: "email",
-    header: "EMAIL",
+    accessorKey: "contactEmail",
+    header: "CONTACT EMAIL",
   },
 
   {
     accessorKey: "phone",
     header: "PHONE",
   },
+  {
+    accessorKey: "address.street",
+    header: "ADDRESS ",
+  },
+
   {
     id: "actions",
     cell: ({ row }) => <CellAction data={row.original} />,

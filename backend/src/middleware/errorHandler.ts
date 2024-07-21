@@ -15,15 +15,13 @@ const errorHandler = (
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Server Error';
   // const code = err.code || 'SERVER_ERROR';
-  const details = err.details || undefined;
+  const data = err.data || [];
 
   res.status(statusCode).json({
     success: false,
-    error: {
-      message,
-      // code,
-      ...(details && { details }),
-    },
+    message,
+    statusCode,
+    data,
   });
 };
 

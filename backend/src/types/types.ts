@@ -1,32 +1,61 @@
 import { Document } from 'mongoose';
 import { Role } from '../utils/constants';
 
-// utils/response.ts
-export class SuccessResponse<T> {
+// export class SuccessResponse<T> {
+//   success: boolean;
+//   message: string;
+//   data?: T | { total: number; items: T[] };
+
+//   constructor(message: string, data?: T | T[]) {
+//     this.success = true;
+//     this.message = message;
+//     this.data = Array.isArray(data)
+//       ? { total: data.length, items: data }
+//       : data;
+//   }
+// }
+export class SuccessResponse<T = {}> {
   success: boolean;
-  payload: {
-    message: string;
-    data?: T;
-  };
+  message: string;
+  data?: T;
 
   constructor(message: string, data?: T) {
     this.success = true;
-    this.payload = { message, data };
+    this.message = message;
+    this.data = data;
+  }
+}
+export class SuccessResponseList<T> {
+  success: boolean;
+  message: string;
+  data: { total: number; items: T[] };
+
+  constructor(message: string, items: T[]) {
+    this.success = true;
+    this.message = message;
+    this.data = {
+      total: items.length,
+      items,
+    };
   }
 }
 
+export type ApiSuccessResponseList<T> = {
+  success: boolean;
+  message: string;
+  data: { total: number; items: T[] };
+};
+
 export class ErrorResponse extends Error {
   success: boolean;
+  data: [];
   statusCode: number;
-  details?: any;
 
-  constructor(message: string, statusCode: number, details?: any) {
+  constructor(message: string, statusCode: number) {
     super(message);
     this.success = false;
     this.statusCode = statusCode;
-    if (details) {
-      this.details = details;
-    }
+    this.data = [];
   }
 }
 

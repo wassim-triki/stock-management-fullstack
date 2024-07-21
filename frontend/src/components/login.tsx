@@ -63,11 +63,10 @@ function Login() {
   );
   // const { loading, error, apiRequest } = useApi();
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     await executePut({ data: values }).then(({ data }) => {
       toast({
         variant: "success",
-        title: data.payload.message,
+        title: data.message,
         action: <ToastAction altText="Okay">Okay</ToastAction>,
       });
     });
@@ -120,11 +119,7 @@ function Login() {
               </FormItem>
             )}
           />
-          {loginError && (
-            <AlertDestructive
-              error={(loginError as unknown as ApiErrorResponse).error.message}
-            />
-          )}
+          {loginError && <AlertDestructive error={loginError.message} />}
           <SubmitButton loading={loginLoading}>Login</SubmitButton>
         </form>
       </Form>

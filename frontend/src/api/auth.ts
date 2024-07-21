@@ -1,21 +1,13 @@
-import config from "@/lib/config";
+import { axiosServer } from "@/lib/axios/axios-server";
 import { User } from "@/lib/types";
-import axios, { AxiosResponse } from "axios";
-import { cookies } from "next/headers";
+import { AxiosResponse } from "axios";
 
 export const getAuthUser = async (): Promise<User | null> => {
   try {
-    const cookieStore = cookies();
-    const cookieValue = cookieStore.get("session")?.value;
-    const resp: AxiosResponse = await axios.get("/api/auth/me", {
-      baseURL: config.apiUrl,
-      headers: {
-        Cookie: "session=" + cookieValue,
-      },
-    });
-    return resp.data.payload.data;
+    const resp: AxiosResponse = await axiosServer.get("/api/auth/me");
+    return resp.data;
   } catch (error) {
-    console.error(error);
+    console.error("getAuthUser:", error);
     return null;
   }
 };

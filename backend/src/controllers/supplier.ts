@@ -1,7 +1,11 @@
 // controllers/supplier.ts
 import { Request, Response, NextFunction } from 'express';
 import { Supplier } from '../models/Supplier';
-import { ErrorResponse, SuccessResponse } from '../types/types';
+import {
+  ErrorResponse,
+  SuccessResponse,
+  SuccessResponseList,
+} from '../types/types';
 
 // Get all suppliers
 export const getSuppliers = async (
@@ -10,10 +14,13 @@ export const getSuppliers = async (
   next: NextFunction
 ) => {
   try {
+    throw new Error('Test error');
     const suppliers = await Supplier.find();
     res
       .status(200)
-      .json(new SuccessResponse('Suppliers retrieved successfully', suppliers));
+      .json(
+        new SuccessResponseList('Suppliers retrieved successfully', suppliers)
+      );
   } catch (error: any) {
     next(new ErrorResponse('Failed to retrieve suppliers', 500));
   }
