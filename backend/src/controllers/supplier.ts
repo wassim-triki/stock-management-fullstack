@@ -26,7 +26,7 @@ export const getSuppliers = async (
 };
 
 // Get a single supplier by ID
-export const getSupplier = async (
+export const getSupplierById = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -74,6 +74,7 @@ export const updateSupplier = async (
   next: NextFunction
 ) => {
   try {
+    console.log('🤞', req.params);
     const supplier = await Supplier.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -85,7 +86,8 @@ export const updateSupplier = async (
       .status(200)
       .json(new SuccessResponse('Supplier updated successfully', supplier));
   } catch (error: any) {
-    next(new ErrorResponse('Failed to update supplier', 500));
+    // next(new ErrorResponse('Failed to update supplier', 500));
+    next(new ErrorResponse(error, 500));
   }
 };
 

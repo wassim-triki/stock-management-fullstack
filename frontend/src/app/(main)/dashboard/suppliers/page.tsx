@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: ParamsProps) {
 
   try {
     const res = await getSuppliers();
-    const suppliers: Supplier[] = res.data.items;
+    const suppliers = res.data.items;
     const totalUsers = res.data.total || 0;
     const pageCount = Math.ceil(totalUsers / pageLimit);
 

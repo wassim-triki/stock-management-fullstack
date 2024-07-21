@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Supplier } from "@/lib/types";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -42,10 +43,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-          <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/user/${data._id}`)}
-          >
-            <Edit className="mr-2 h-4 w-4" /> Update
+          <DropdownMenuItem>
+            <Link
+              className="flex w-full items-center"
+              href={`/dashboard/suppliers/${data._id}/edit`}
+            >
+              <Edit className="mr-2 h-4 w-4" /> Edit
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className="mr-2 h-4 w-4" /> Delete

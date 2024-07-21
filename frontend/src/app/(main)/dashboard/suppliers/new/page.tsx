@@ -1,12 +1,11 @@
 import { SupplierForm } from "@/components/forms/supplier-form";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import React from "react";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
   { title: "Suppliers", link: "/dashboard/suppliers" },
-  { title: "Edit", link: "/dashboard/suppliers/edit" },
+  { title: "Create", link: "/dashboard/suppliers/create" },
 ];
 
 export default function Page() {

@@ -20,6 +20,9 @@ import { Heading } from "@/components/ui/heading";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "../ui/use-toast";
 import { PhoneInput } from "../ui/phone-input";
+import { updateSupplier } from "@/api/supplier";
+import { useAxios } from "@/lib/axios/axios-client";
+import { ApiErrorResponse, ApiSuccessResponse, Supplier } from "@/lib/types";
 
 const addressSchema = z.object({
   street: z.string().min(1, { message: "" }),
@@ -82,31 +85,41 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
     defaultValues,
   });
 
+  const [{ loading: updateLoading, error: updateError }, executePut] = useAxios<
+    ApiSuccessResponse<Supplier>,
+    Partial<Supplier>,
+    ApiErrorResponse
+  >(
+    {
+      url: "/api/suppliers/:id", // The URL will be set dynamically when calling executePut
+      method: "PUT",
+    },
+    { manual: true },
+  );
+
   const onSubmit = async (data: SupplierFormValues) => {
-    try {
-      setLoading(true);
-      if (initialData) {
-        // await axios.post(`/api/suppliers/edit-supplier/${initialData._id}`, data);
-      } else {
-        // const res = await axios.post(`/api/suppliers/create-supplier`, data);
-        // console.log("supplier", res);
-      }
-      router.refresh();
-      router.push(`/dashboard/suppliers`);
-      toast({
-        variant: "success",
-        title: "Success!",
-        description: "Supplier information saved successfully.",
+    setLoading(true);
+    if (!initialData) return;
+
+    // Update existing supplier
+    await executePut({
+      url: `/api/suppliers/${params.supplierId}`,
+      data,
+    })
+      .then(({ data }) => {
+        toast({
+          variant: "success",
+          title: data.message,
+        });
+        router.refresh();
+        router.push(`/dashboard/suppliers`);
+      })
+      .catch((error) => {
+        toast({
+          variant: "destructive",
+          title: error.message,
+        });
       });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
-      });
-    } finally {
-      setLoading(false);
-    }
   };
 
   const onDelete = async () => {
@@ -143,7 +156,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full space-y-8"
         >
-          <div className="gap-8 md:grid md:grid-cols-2">
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
             <FormField
               control={form.control}
               name="companyName"
@@ -293,7 +306,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               )}
             />
           </div>
-          <Button disabled={loading} className="ml-auto" type="submit">
+          <Button disabled={updateLoading} className="ml-auto" type="submit">
             {action}
           </Button>
         </form>

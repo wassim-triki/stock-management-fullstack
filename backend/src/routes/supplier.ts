@@ -2,10 +2,10 @@
 import express from 'express';
 import {
   getSuppliers,
-  getSupplier,
   createSupplier,
   updateSupplier,
   deleteSupplier,
+  getSupplierById,
 } from '../controllers/supplier';
 import { authorizeRoles } from '../middleware/authorizeRoles';
 import { ROLES } from '../utils/constants';
@@ -26,7 +26,7 @@ router.get(
   '/:id',
   authHandler,
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
-  getSupplier
+  getSupplierById
 );
 
 // POST /api/suppliers - Create a new supplier

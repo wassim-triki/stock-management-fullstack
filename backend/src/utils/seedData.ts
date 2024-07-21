@@ -89,7 +89,7 @@ export const seedData = async () => {
         companyName: 'Supplier One',
         contactName: 'Supplier One Contact',
         contactEmail: 'supplier1@example.com',
-        phone: '123-456-7890',
+        phone: '+21624542649',
         address: {
           street: '123 Supplier St',
           city: 'Supplier City',
