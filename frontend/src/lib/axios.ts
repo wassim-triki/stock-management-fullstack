@@ -1,3 +1,4 @@
+"use client";
 import axios, { AxiosError } from "axios";
 import { ApiErrorResponse } from "./types";
 import config from "@/lib/config";

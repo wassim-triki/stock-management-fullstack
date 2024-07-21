@@ -120,7 +120,11 @@ function Login() {
               </FormItem>
             )}
           />
-          {loginError && <AlertDestructive error={loginError.error.message} />}
+          {loginError && (
+            <AlertDestructive
+              error={(loginError as unknown as ApiErrorResponse).error.message}
+            />
+          )}
           <SubmitButton loading={loginLoading}>Login</SubmitButton>
         </form>
       </Form>
