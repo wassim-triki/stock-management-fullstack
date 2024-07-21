@@ -14,7 +14,6 @@ export const getSuppliers = async (
   next: NextFunction
 ) => {
   try {
-    throw new Error('Test error');
     const suppliers = await Supplier.find();
     res
       .status(200)

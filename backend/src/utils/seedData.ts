@@ -13,6 +13,22 @@ export const seedData = async () => {
     // Create users
     const users = [
       {
+        email: 'wsmtriki@gmail.com',
+        password: 'wsmtriki1',
+        profile: {
+          firstName: 'Wassim',
+          lastName: 'Triki',
+          phone: '+21624542649',
+          address: {
+            street: '123 Admin St',
+            city: 'Kelibia',
+            state: 'Nabeul',
+            zip: '8090',
+          },
+        },
+        role: ROLES.ADMIN,
+      },
+      {
         email: 'admin@example.com',
         password: 'password123',
         profile: {

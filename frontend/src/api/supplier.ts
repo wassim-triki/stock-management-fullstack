@@ -13,10 +13,6 @@ import { cookies } from "next/headers";
 export const getSuppliers = async (): Promise<
   ApiSuccessResponseList<Supplier>
 > => {
-  try {
-    const resp: AxiosResponse = await axiosServer.get("/api/suppliers/");
-    return resp.data;
-  } catch (error) {
-    throw error;
-  }
+  const resp: AxiosResponse = await axiosServer.get("/api/suppliers/");
+  return resp.data;
 };
