@@ -1,28 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthUser } from "./api/auth";
+import { getAuthUser } from "./api/auth"; // Make sure this function checks authentication correctly
 
 const middleware = async (req: NextRequest) => {
+  const { pathname } = req.nextUrl;
+
   const isAuthenticated = await getAuthUser();
 
-  const protectedRoutes = ["/dashboard"];
-  const publicRoutes = ["/login"];
+  // Protect routes starting with /dashboard
+  if (pathname.startsWith("/dashboard")) {
+    if (!isAuthenticated) {
+      // Redirect to login if the user is not authenticated
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+  }
 
-  const url = req.nextUrl.clone();
-  const path = url.pathname;
-
-  if (isAuthenticated && publicRoutes.includes(path)) {
+  // Protect /login and /signup routes if the user is authenticated
+  if (isAuthenticated && (pathname === "/login" || pathname === "/signup")) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  if (!isAuthenticated && protectedRoutes.includes(path)) {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
-
+  // Continue if the path is not protected or the user is correctly authenticated
   return NextResponse.next();
 };
 
 export const config = {
-  matcher: ["/dashboard", "/login", "/signup"], // Add more routes as needed
+  matcher: ["/dashboard/:path*", "/login", "/signup"], // Protect routes under /dashboard and specific routes
 };
 
 export default middleware;

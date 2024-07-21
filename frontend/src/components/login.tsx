@@ -71,7 +71,7 @@ function Login() {
         action: <ToastAction altText="Okay">Okay</ToastAction>,
       });
     });
-    // router.push("/dashboard");
+    router.push("/dashboard");
     router.refresh();
   }
   return (
