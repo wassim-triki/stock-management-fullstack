@@ -40,7 +40,6 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   searchKey: string;
   pageNo: number;
-  totalUsers: number;
   pageSizeOptions?: number[];
   pageCount: number;
   searchParams?: {
@@ -53,7 +52,6 @@ export function DataTable<TData, TValue>({
   data,
   pageNo,
   searchKey,
-  totalUsers,
   pageCount,
   pageSizeOptions = [10, 20, 30, 40, 50],
 }: DataTableProps<TData, TValue>) {

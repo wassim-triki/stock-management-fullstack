@@ -109,3 +109,23 @@ export const deleteSupplier = async (
     next(new ErrorResponse('Failed to delete supplier', 500));
   }
 };
+
+// Get total number of suppliers
+export const getTotalSuppliers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const totalSuppliers = await Supplier.countDocuments();
+    res
+      .status(200)
+      .json(
+        new SuccessResponse('Total suppliers retrieved successfully', {
+          total: totalSuppliers,
+        })
+      );
+  } catch (error: any) {
+    next(new ErrorResponse('Failed to retrieve total suppliers', 500));
+  }
+};

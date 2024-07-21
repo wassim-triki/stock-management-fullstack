@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import config from "@/lib/config";
-import { makeUseAxios } from "axios-hooks";
+import { configure, makeUseAxios } from "axios-hooks";
 import { ApiErrorResponse } from "../types";
 import { toast } from "@/components/ui/use-toast";
 
@@ -14,6 +14,7 @@ const axiosClient = axios.create({
 
 const useAxios = makeUseAxios({
   axios: axiosClient,
+  cache: false,
 });
 
 axiosClient.interceptors.response.use(
@@ -27,9 +28,6 @@ axiosClient.interceptors.response.use(
         title: "Error",
         description: error.response?.data.message,
       });
-    } else {
-      // Handle generic errors
-      console.log("😁😁😁😁 generic");
     }
 
     // Ensure the error response is always returned in a consistent format

@@ -6,12 +6,15 @@ import {
   updateSupplier,
   deleteSupplier,
   getSupplierById,
+  getTotalSuppliers,
 } from '../controllers/supplier';
 import { authorizeRoles } from '../middleware/authorizeRoles';
 import { ROLES } from '../utils/constants';
 import { authHandler } from '../middleware/authHandler';
 
 const router = express.Router();
+
+router.get('/total', getTotalSuppliers);
 
 // GET /api/suppliers - Get all suppliers
 router.get(

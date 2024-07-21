@@ -24,11 +24,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAxios } from "@/lib/axios";
 import { AlertDestructive } from "./ui/alert-destructive";
 import { ToastAction } from "./ui/toast";
 import { ApiErrorResponse, ApiSuccessResponse } from "@/lib/types";
 import { AxiosError } from "axios";
+import { useAxios } from "@/lib/axios/axios-client";
 export interface ILoginForm {
   email: string;
   password: string;

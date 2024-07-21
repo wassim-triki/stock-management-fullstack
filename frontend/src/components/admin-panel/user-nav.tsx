@@ -22,11 +22,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getAuthUser } from "@/api/auth";
 import { getInitials } from "@/lib/utils";
-import { useAxios } from "@/lib/axios";
 import { ApiSuccessResponse, User } from "@/lib/types";
 import { useToast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
+import { useAxios } from "@/lib/axios/axios-client";
 
 export function UserNav() {
   const [{ data: data, loading: getLoading, error: getError }] =

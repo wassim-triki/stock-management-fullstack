@@ -2,7 +2,9 @@ import { columns } from "@/components/tables/suppliers-table/columns";
 import { ApiErrorResponse, Supplier } from "@/lib/types";
 import { DataTable } from "@/components/tables/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { getSuppliers } from "@/api/supplier";
+import { getSuppliers, getTotalSuppliers } from "@/api/supplier";
+import { unstable_noStore } from "next/cache";
+import SuppliersTable from "@/components/tables/suppliers-table/table";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -16,32 +18,18 @@ type ParamsProps = {
 };
 
 export default async function Page({ searchParams }: ParamsProps) {
-  const page = Number(searchParams.page) || 1;
-  const pageLimit = Number(searchParams.limit) || 10;
-  const country = searchParams.search || null;
-  const offset = (page - 1) * pageLimit;
-
   try {
-    const res = await getSuppliers();
-    const suppliers = res.data.items;
-    const totalUsers = res.data.total || 0;
-    const pageCount = Math.ceil(totalUsers / pageLimit);
+    const res = await getTotalSuppliers();
+    const total = res.data.total;
 
     return (
       <ContentPageLayout
         breadcrumbItems={breadcrumbItems}
-        title={`Suppliers (${totalUsers})`}
+        title={`Suppliers (${total})`}
         description="Manage employees (Server side table functionalities.)"
         addNewLink="/dashboard/suppliers/new"
       >
-        <DataTable
-          searchKey="name"
-          pageNo={page}
-          columns={columns}
-          totalUsers={totalUsers}
-          data={suppliers}
-          pageCount={pageCount}
-        />
+        <SuppliersTable />
       </ContentPageLayout>
     );
   } catch (error) {

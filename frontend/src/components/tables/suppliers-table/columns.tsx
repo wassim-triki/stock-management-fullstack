@@ -30,7 +30,7 @@ export const columns: ColumnDef<Supplier>[] = [
   },
   {
     accessorKey: "contactName",
-    header: "NAME",
+    header: "CONTACT NAME",
   },
 
   {

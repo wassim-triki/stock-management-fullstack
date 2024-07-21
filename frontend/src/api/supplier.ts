@@ -15,14 +15,7 @@ export const getSuppliers = async (): Promise<
   ApiSuccessResponseList<Supplier>
 > => {
   const resp: AxiosResponse<ApiSuccessResponseList<Supplier>> =
-    await axiosServer.get("/api/suppliers/", {
-      // query URL without using browser cache
-      headers: {
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-        Expires: "0",
-      },
-    });
+    await axiosServer.get("/api/suppliers/");
   return resp.data;
 };
 
@@ -49,5 +42,13 @@ export const updateSupplier = async (
 ): Promise<ApiSuccessResponse<Supplier>> => {
   const resp: AxiosResponse<ApiSuccessResponse<Supplier>> =
     await axiosServer.put(`/api/suppliers/${id}`, data);
+  return resp.data;
+};
+
+export const getTotalSuppliers = async (): Promise<
+  ApiSuccessResponse<{ total: number }>
+> => {
+  const resp: AxiosResponse<ApiSuccessResponse<{ total: number }>> =
+    await axiosServer.get("/api/suppliers/total");
   return resp.data;
 };
