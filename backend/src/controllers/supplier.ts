@@ -63,7 +63,7 @@ export const createSupplier = async (
       .status(201)
       .json(new SuccessResponse('Supplier created successfully', supplier));
   } catch (error: any) {
-    next(new ErrorResponse('Failed to create supplier', 500));
+    next(new ErrorResponse(error, 500));
   }
 };
 

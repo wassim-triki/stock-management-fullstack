@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,41 +17,27 @@ import {
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-// import FileUpload from "@/components/FileUpload";
 import { useToast } from "../ui/use-toast";
-// import FileUpload from '../file-upload';
-const ImgSchema = z.object({
-  fileName: z.string(),
-  name: z.string(),
-  fileSize: z.number(),
-  size: z.number(),
-  fileKey: z.string(),
-  key: z.string(),
-  fileUrl: z.string(),
-  url: z.string(),
+import { PhoneInput } from "../ui/phone-input";
+
+const addressSchema = z.object({
+  street: z.string().min(1, { message: "" }),
+  city: z.string().min(1, { message: "" }),
+  state: z.string().min(1, { message: "" }),
+  zip: z.string().min(1, { message: "" }),
 });
-export const IMG_MAX_LIMIT = 3;
+
 const formSchema = z.object({
-  name: z
+  companyName: z.string().min(1, { message: "" }),
+  contactName: z.string().min(1, { message: "" }),
+  contactEmail: z
     .string()
-    .min(3, { message: "Product Name must be at least 3 characters" }),
-  imgUrl: z
-    .array(ImgSchema)
-    .max(IMG_MAX_LIMIT, { message: "You can only add up to 3 images" })
-    .min(1, { message: "At least one image must be added." }),
-  description: z
-    .string()
-    .min(3, { message: "Product description must be at least 3 characters" }),
-  price: z.coerce.number(),
-  category: z.string().min(1, { message: "Please select a category" }),
+    .min(1, { message: "" })
+    .email({ message: "Invalid email address" }),
+  phone: z.string().regex(/^\+216\d{8}$/, ""),
+  address: addressSchema,
+  active: z.boolean(),
 });
 
 type SupplierFormValues = z.infer<typeof formSchema>;
@@ -61,14 +46,12 @@ interface SupplierFormProps {
   initialData?: SupplierFormValues | null;
   title: string;
   description: string;
-  categories: any;
   action: string;
 }
 
 export const SupplierForm: React.FC<SupplierFormProps> = ({
   title,
   description,
-  categories,
   action,
   initialData,
 }) => {
@@ -77,17 +60,21 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [imgLoading, setImgLoading] = useState(false);
-  const toastMessage = "toast message";
 
-  const defaultValues = initialData
+  const defaultValues: SupplierFormValues = initialData
     ? initialData
     : {
-        name: "",
-        description: "",
-        price: 0,
-        imgUrl: [],
-        category: "",
+        companyName: "",
+        contactName: "",
+        contactEmail: "",
+        phone: "",
+        address: {
+          street: "",
+          city: "",
+          state: "",
+          zip: "",
+        },
+        active: true,
       };
 
   const form = useForm<SupplierFormValues>({
@@ -99,17 +86,17 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
     try {
       setLoading(true);
       if (initialData) {
-        // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
+        // await axios.post(`/api/suppliers/edit-supplier/${initialData._id}`, data);
       } else {
-        // const res = await axios.post(`/api/products/create-product`, data);
-        // console.log("product", res);
+        // const res = await axios.post(`/api/suppliers/create-supplier`, data);
+        // console.log("supplier", res);
       }
       router.refresh();
-      router.push(`/dashboard/products`);
+      router.push(`/dashboard/suppliers`);
       toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
+        variant: "success",
+        title: "Success!",
+        description: "Supplier information saved successfully.",
       });
     } catch (error: any) {
       toast({
@@ -125,9 +112,9 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
   const onDelete = async () => {
     try {
       setLoading(true);
-      //   await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
+      //   await axios.delete(`/api/${params.storeId}/suppliers/${params.supplierId}`);
       router.refresh();
-      router.push(`/${params.storeId}/products`);
+      router.push(`/${params.storeId}/suppliers`);
     } catch (error: any) {
     } finally {
       setLoading(false);
@@ -135,16 +122,8 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
     }
   };
 
-  const triggerImgUrlValidation = () => form.trigger("imgUrl");
-
   return (
     <>
-      {/* <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onDelete}
-        loading={loading}
-      /> */}
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
         {initialData && (
@@ -164,34 +143,17 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full space-y-8"
         >
-          {/* <FormField
-            control={form.control}
-            name="imgUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Images</FormLabel>
-                <FormControl>
-                  <FileUpload
-                    onChange={field.onChange}
-                    value={field.value}
-                    onRemove={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
-          <div className="gap-8 md:grid md:grid-cols-3">
+          <div className="gap-8 md:grid md:grid-cols-2">
             <FormField
               control={form.control}
-              name="name"
+              name="companyName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Company Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Product name"
+                      placeholder="Company name"
                       {...field}
                     />
                   </FormControl>
@@ -201,14 +163,14 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="description"
+              name="contactName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Contact Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Product description"
+                      placeholder="Contact name"
                       {...field}
                     />
                   </FormControl>
@@ -218,12 +180,17 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="price"
+              name="contactEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>Contact Email</FormLabel>
                   <FormControl>
-                    <Input type="number" disabled={loading} {...field} />
+                    <Input
+                      type="email"
+                      disabled={loading}
+                      placeholder="Contact email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -231,33 +198,96 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="category"
+              name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select
-                    disabled={loading}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          defaultValue={field.value}
-                          placeholder="Select a category"
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {/* @ts-ignore  */}
-                      {categories.map((category) => (
-                        <SelectItem key={category._id} value={category._id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <FormLabel>Phone</FormLabel>
+                      </div>
+                      <PhoneInput
+                        defaultCountry="TN"
+                        placeholder="12 345 678"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="address.street"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="Street" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="address.city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="City" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="address.state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>State</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="State" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="address.zip"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zip Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Zip code"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="active"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        disabled={loading}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <FormLabel>Active</FormLabel>
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
