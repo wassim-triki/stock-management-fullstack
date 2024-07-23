@@ -2,7 +2,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { Product, Supplier } from "@/lib/types";
-import { CellAction } from "./cell-action";
+import { CellAction } from "../cell-action";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -38,8 +38,15 @@ export const columns: ColumnDef<Product>[] = [
     accessorKey: "price",
     header: "PRICE",
   },
-  {
-    id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />,
-  },
+  // {
+  //   id: "actions",
+  //   cell: ({ row }) => (
+  //     <CellAction
+  //       queryKey="users"
+  //       data={row.original}
+  //       deleteFunction={deleteProduct}
+  //       editUrl={(id) => `/dashboard/suppliers/${id}/edit`}
+  //     />
+  //   ),
+  // },
 ];

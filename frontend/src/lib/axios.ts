@@ -1,10 +1,9 @@
 import axios, { AxiosError } from "axios";
 import config from "@/lib/config";
-import { configure, makeUseAxios } from "axios-hooks";
-import { ApiErrorResponse } from "../types";
 import { toast } from "@/components/ui/use-toast";
+import { ApiErrorResponse } from "./types";
 
-const axiosClient = axios.create({
+const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
@@ -12,16 +11,17 @@ const axiosClient = axios.create({
   withCredentials: true, // Ensure credentials are sent
 });
 
-const useAxios = makeUseAxios({
-  axios: axiosClient,
-  cache: false,
-});
-
-axiosClient.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
+  (error: AxiosError<ApiErrorResponse>) => {
+    console.log(error);
+    toast({
+      variant: "destructive",
+      title: error.response?.data?.message || error.message || "Server error",
+    });
+
     // Ensure the error response is always returned in a consistent format
-    return Promise.reject(error.response?.data as ApiErrorResponse);
+    return Promise.reject(error.response?.data);
   },
 );
-export { axiosClient, useAxios };
+export { axiosInstance };

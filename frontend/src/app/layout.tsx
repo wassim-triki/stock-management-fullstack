@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { GeistSans } from "geist/font/sans";
 import "../styles/globals.css";
 import { Toaster } from "@/components/ui/toaster";
-
+import ReactQueryProvider from "@/providers/react-query-provider";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -13,10 +13,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <ReactQueryProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

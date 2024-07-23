@@ -1,43 +1,37 @@
-import { columns } from "@/components/tables/suppliers-table/columns";
-import { ApiErrorResponse, Supplier } from "@/lib/types";
-import { DataTable } from "@/components/tables/data-table";
+import { getUsers } from "@/api/user";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { getSuppliers, getTotalSuppliers } from "@/api/supplier";
-import { unstable_noStore } from "next/cache";
+import { DataTable } from "@/components/tables/data-table";
 import SuppliersTable from "@/components/tables/suppliers-table/supplier-table";
-import getQueryClient from "@/lib/getQueryClient";
+import UsersTable from "@/components/tables/users-table/users-table";
 import { queryKeys } from "@/lib/constants";
+import getQueryClient from "@/lib/getQueryClient";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import React from "react";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
+  { title: "Users", link: "/dashboard/users" },
 ];
 
-type ParamsProps = {
-  searchParams: {
-    [key: string]: string | string[] | undefined;
-  };
-};
-
-export default async function Page({ searchParams }: ParamsProps) {
+const Page = async () => {
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     queryKey: [queryKeys.user],
-    queryFn: getSuppliers,
+    queryFn: getUsers,
   });
   const dehydratedState = dehydrate(queryClient);
-
   return (
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
+      title={`Users (${0})`}
+      description="Manage employees (Server side table functionalities.)"
       addNewLink="/dashboard/suppliers/new"
-      title="Error"
-      description="There was an error loading the suppliers."
     >
       <HydrationBoundary state={dehydratedState}>
-        <SuppliersTable />
+        <UsersTable />
       </HydrationBoundary>
     </ContentPageLayout>
   );
-}
+};
+
+export default Page;

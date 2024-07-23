@@ -9,54 +9,66 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
-import { useAxios } from "@/lib/axios/axios-client";
-import { ApiErrorResponse, ApiSuccessResponse, Supplier } from "@/lib/types";
+import getQueryClient from "@/lib/getQueryClient";
+import { ApiSuccessResponse } from "@/lib/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-interface CellActionProps {
-  data: Supplier;
+interface CellActionProps<T> {
+  data: T;
+  deleteFunction: (id: string) => Promise<ApiSuccessResponse<T>>;
+  editUrl: (id: string) => string;
+  queryKey: string;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }) => {
-  const [{ data: res, loading, error }, executeDelete] = useAxios<
-    ApiSuccessResponse<Supplier>,
-    any,
-    ApiErrorResponse
-  >(
-    {
-      method: "DELETE",
-    },
-    { manual: true },
-  );
+export const CellAction = <T extends { _id: string }>({
+  data,
+  deleteFunction,
+  editUrl,
+  queryKey,
+}: CellActionProps<T>) => {
   const { toast } = useToast();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { mutate } = useMutation({
+    mutationFn: deleteFunction,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      toast({
+        variant: "success",
+        title: data.message,
+      });
+      setOpen(false);
+    },
+  });
 
   const onConfirm = async () => {
-    executeDelete({
-      url: `/api/suppliers/${data._id}`,
-    })
-      .then(({ data }) => {
-        toast({
-          variant: "success",
-          title: data.message,
-          // TODO; add undo
-        });
-      })
-      .catch((error) => {
-        toast({
-          variant: "destructive",
-          title: error.message,
-        });
-      })
-      .finally(() => {
-        setOpen(false);
-        // TODO: add better way to refresh the table
-        window.location.reload();
-      });
+    setLoading(true);
+    // try {
+    // const response = await deleteFunction(data._id);
+    // toast({
+    //   variant: "success",
+    //   title: response.message,
+    //   // TODO: add undo
+    // });
+    mutate(data._id);
+    // setOpen(false);
+    // TODO: add better way to refresh the table
+    // window.location.reload();
+    // } catch (error: any) {
+    // toast({
+    //   variant: "destructive",
+    //   title: error.message,
+    // });
+    // } finally {
+    setLoading(false);
+    // }
   };
 
   return (
@@ -78,10 +90,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
           <DropdownMenuItem>
-            <Link
-              className="flex w-full items-center"
-              href={`/dashboard/suppliers/${data._id}/edit`}
-            >
+            <Link className="flex w-full items-center" href={editUrl(data._id)}>
               <Edit className="mr-2 h-4 w-4" /> Edit
             </Link>
           </DropdownMenuItem>

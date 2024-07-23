@@ -1,38 +1,36 @@
-// import { axiosSSR } from "@/lib/axios";
-import { axiosServer } from "@/lib/axios/axios-server";
-import config from "@/lib/config";
+import { axiosInstance } from "@/lib/axios";
 import {
-  ApiErrorResponse,
   ApiSuccessResponse,
   ApiSuccessResponseList,
   Supplier,
 } from "@/lib/types";
 import { AxiosResponse } from "axios";
-import { cookies } from "next/headers";
 
 // Function to get all suppliers
-export const getSuppliers = async (): Promise<
-  ApiSuccessResponseList<Supplier>
-> => {
-  const resp: AxiosResponse<ApiSuccessResponseList<Supplier>> =
-    await axiosServer.get("/api/suppliers/");
-  return resp.data;
+export const getSuppliers = async (): Promise<Supplier[]> => {
+  return axiosInstance
+    .get("/api/suppliers")
+    .then(
+      (response: AxiosResponse<ApiSuccessResponseList<Supplier>>) =>
+        response.data.data.items,
+    );
 };
 
 // Function to get supplier by ID
 export const getSupplierById = async (
   id: string,
 ): Promise<ApiSuccessResponse<Supplier>> => {
-  const resp: AxiosResponse<ApiSuccessResponse<Supplier>> =
-    await axiosServer.get(`/api/suppliers/${id}`, {
-      // query URL without using browser cache
+  return axiosInstance
+    .get(`/api/suppliers/${id}`, {
       headers: {
         "Cache-Control": "no-cache",
         Pragma: "no-cache",
         Expires: "0",
       },
-    });
-  return resp.data;
+    })
+    .then(
+      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
+    );
 };
 
 // Function to update supplier by ID
@@ -40,15 +38,32 @@ export const updateSupplier = async (
   id: string,
   data: Partial<Supplier>,
 ): Promise<ApiSuccessResponse<Supplier>> => {
-  const resp: AxiosResponse<ApiSuccessResponse<Supplier>> =
-    await axiosServer.put(`/api/suppliers/${id}`, data);
-  return resp.data;
+  return axiosInstance
+    .put(`/api/suppliers/${id}`, data)
+    .then(
+      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
+    );
 };
 
+// Function to get the total number of suppliers
 export const getTotalSuppliers = async (): Promise<
   ApiSuccessResponse<{ total: number }>
 > => {
-  const resp: AxiosResponse<ApiSuccessResponse<{ total: number }>> =
-    await axiosServer.get("/api/suppliers/total");
-  return resp.data;
+  return axiosInstance
+    .get("/api/suppliers/total")
+    .then(
+      (response: AxiosResponse<ApiSuccessResponse<{ total: number }>>) =>
+        response.data,
+    );
+};
+
+// Function to delete supplier by ID
+export const deleteSupplier = async (
+  supplierId: string,
+): Promise<ApiSuccessResponse<Supplier>> => {
+  return axiosInstance
+    .delete(`/api/suppliers/${supplierId}`)
+    .then(
+      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
+    );
 };

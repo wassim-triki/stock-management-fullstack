@@ -1,11 +1,11 @@
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
+import { User } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { CellAction } from "../cell-action";
-import { Supplier } from "@/lib/types";
-import { deleteSupplier } from "@/api/supplier";
+import { deleteUser } from "@/api/user";
 
-export const columns: ColumnDef<Supplier>[] = [
+export const columns: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -26,35 +26,33 @@ export const columns: ColumnDef<Supplier>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "companyName",
-    header: "COMPANY NAME",
+    accessorKey: "profile.firstName",
+    header: "FIRST NAME",
   },
   {
-    accessorKey: "contactName",
-    header: "CONTACT NAME",
+    accessorKey: "profile.lastName",
+    header: "LAST NAME",
   },
-
   {
-    accessorKey: "contactEmail",
-    header: "CONTACT EMAIL",
-  },
-
-  {
-    accessorKey: "phone",
+    accessorKey: "profile.phone",
     header: "PHONE",
   },
   {
-    accessorKey: "address.street",
-    header: "ADDRESS ",
+    accessorKey: "profile.address.street",
+    header: "ADDRESS",
+  },
+  {
+    accessorKey: "role",
+    header: "ROLE",
   },
 
   {
     id: "actions",
     cell: ({ row }) => (
       <CellAction
-        queryKey="suppliers"
+        queryKey="users"
         data={row.original}
-        deleteFunction={deleteSupplier}
+        deleteFunction={deleteUser}
         editUrl={(id) => `/dashboard/suppliers/${id}/edit`}
       />
     ),
