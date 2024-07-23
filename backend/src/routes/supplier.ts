@@ -14,7 +14,7 @@ import { authHandler } from '../middleware/authHandler';
 
 const router = express.Router();
 
-router.get('/total', getTotalSuppliers);
+router.get('/total', authHandler, getTotalSuppliers);
 
 // GET /api/suppliers - Get all suppliers
 router.get(

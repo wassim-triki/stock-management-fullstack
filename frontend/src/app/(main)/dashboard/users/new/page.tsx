@@ -15,10 +15,11 @@ export default function Page() {
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
         <UserForm
-          // categories={[
-          //   { _id: "shirts", name: "shirts" },
-          //   { _id: "pants", name: "pants" },
-          // ]}
+          roles={[
+            { _id: "admin", name: "Admin" },
+            // { _id: "user", name: "pants" },
+            { _id: "manager", name: "Manager" },
+          ]}
           action="Create"
           description="Create a new user"
           title="Create user"

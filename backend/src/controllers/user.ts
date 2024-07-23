@@ -3,6 +3,7 @@ import { User } from '../models/User';
 import mongoose from 'mongoose';
 import {
   ErrorResponse,
+  IUser,
   SuccessResponse,
   SuccessResponseList,
 } from '../types/types';
@@ -62,6 +63,28 @@ export const deleteUser = async (
       .status(200)
       .json(new SuccessResponse('User deleted successfully', user));
   } catch (error) {
+    next(error);
+  }
+};
+
+export const createUser = async (req: Request, res: Response, next: any) => {
+  const { email, password, profile, address, role, active } = req.body;
+  try {
+    const userWithEmail = await User.findOne({ email });
+    if (userWithEmail) {
+      throw new ErrorResponse('Email is already in use', 400);
+    }
+    const user: IUser = await User.create({
+      email,
+      profile,
+      address,
+      password: 'password123',
+      role,
+      active,
+    });
+    console.log('user created');
+    return res.status(201).json(new SuccessResponse('Account created', user));
+  } catch (error: any) {
     next(error);
   }
 };

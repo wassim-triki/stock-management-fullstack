@@ -30,6 +30,11 @@ export default async function Page({ params }: Props) {
         <Breadcrumbs items={breadcrumbItems} />
         <UserForm
           // initialData={res.data}
+          roles={[
+            { _id: "admin", name: "Admin" },
+            // { _id: "user", name: "pants" },
+            { _id: "manager", name: "Manager" },
+          ]}
           userId={userId}
           action="Save Changes"
           description="Edit user information"

@@ -26,6 +26,13 @@ import SubmitButton from "../ui/submit-button";
 import { AlertModal } from "../modal/alert-modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const addressSchema = z.object({
   street: z.string().min(1, { message: "" }),
@@ -58,6 +65,7 @@ interface UserFormProps {
   description: string;
   action: string;
   userId?: string | undefined;
+  roles: { _id: string; name: string }[];
 }
 
 export const UserForm: React.FC<UserFormProps> = ({
@@ -65,6 +73,7 @@ export const UserForm: React.FC<UserFormProps> = ({
   description,
   action,
   userId = "",
+  roles,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -344,7 +353,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="role"
                 render={({ field }) => (
@@ -357,6 +366,39 @@ export const UserForm: React.FC<UserFormProps> = ({
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
+                      disabled={loading}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            defaultValue={field.value}
+                            placeholder="Select a category"
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {/* @ts-ignore  */}
+                        {roles.map((category) => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

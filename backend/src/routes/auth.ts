@@ -18,7 +18,7 @@ import { SuccessResponse } from '../types/types';
 router.get('/me', authHandler, getAuthUserDetails);
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/check-email', checkEmailAvailability);
+router.post('/check-email', authHandler, checkEmailAvailability);
 router.post('/step-two', stepTwoHandler);
 router.get('/check-session', authHandler, (req, res) =>
   res.status(200).json(new SuccessResponse('Authorized'))
