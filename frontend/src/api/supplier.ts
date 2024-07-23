@@ -8,7 +8,6 @@ import { AxiosResponse } from "axios";
 
 // Function to get all suppliers
 export const getSuppliers = async (): Promise<Supplier[]> => {
-  console.log("getSuppliers 🤞🤞🤞🤞");
   return axiosInstance
     .get("/api/suppliers")
     .then(
@@ -18,13 +17,12 @@ export const getSuppliers = async (): Promise<Supplier[]> => {
 };
 
 // Function to get supplier by ID
-export const getSupplierById = async (
-  id: string,
-): Promise<ApiSuccessResponse<Supplier>> => {
+export const getSupplierById = async (id: string): Promise<Supplier> => {
   return axiosInstance
     .get(`/api/suppliers/${id}`)
     .then(
-      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
+      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) =>
+        response.data.data,
     );
 };
 

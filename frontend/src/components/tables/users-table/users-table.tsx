@@ -8,7 +8,7 @@ import { queryKeys } from "@/lib/constants";
 
 const UsersTable = () => {
   const { data } = useQuery({
-    queryKey: [queryKeys.user],
+    queryKey: [queryKeys.users],
     queryFn: getUsers,
   });
   return (

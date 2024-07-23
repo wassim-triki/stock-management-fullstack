@@ -22,32 +22,23 @@ export const getAllUsers = async (
   }
 };
 
-//get user by id
 export const getUserById = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    // Check if the provided ID is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return next(new ErrorResponse('Invalid user ID', 400));
-    }
-
+    console.log('👍👍👍👍👍👍', req.params);
     const user = await User.findById(req.params.id);
+    console.log('🤞🤞🤞🤞🤞🤞🤞', user?._id);
     if (!user) {
       return next(new ErrorResponse('User not found', 404));
     }
-    res.json(user);
-  } catch (error) {
-    // Handle CastError specifically
-    if (
-      error instanceof mongoose.Error.CastError &&
-      error.kind === 'ObjectId'
-    ) {
-      return next(new ErrorResponse('Invalid user ID format', 400));
-    }
-    next(error);
+    res
+      .status(200)
+      .json(new SuccessResponse('User retrieved successfully', user));
+  } catch (error: any) {
+    next(new ErrorResponse('Failed to retrieve user', 500));
   }
 };
 

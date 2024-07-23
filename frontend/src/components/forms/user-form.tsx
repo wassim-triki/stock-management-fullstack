@@ -20,13 +20,8 @@ import { Heading } from "@/components/ui/heading";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "../ui/use-toast";
 import { PhoneInput } from "../ui/phone-input";
-import {
-  createSupplier,
-  deleteSupplier,
-  getSupplierById,
-  updateSupplier,
-} from "@/api/supplier";
-import { ApiErrorResponse, ApiSuccessResponse, Supplier } from "@/lib/types";
+import { createUser, deleteUser, getUserById, updateUser } from "@/api/user";
+import { ApiErrorResponse, ApiSuccessResponse, User } from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
 import { AlertModal } from "../modal/alert-modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -39,33 +34,37 @@ const addressSchema = z.object({
   zip: z.string().min(1, { message: "" }),
 });
 
+const profileSchema = z.object({
+  firstName: z.string().min(1, { message: "" }),
+  lastName: z.string().min(1, { message: "" }),
+  phone: z.string().regex(/^\+216\d{8}$/, ""),
+  address: addressSchema,
+});
+
 const formSchema = z.object({
-  companyName: z.string().min(1, { message: "" }),
-  contactEmail: z
+  email: z
     .string()
     .min(1, { message: "" })
     .email({ message: "Invalid email address" }),
-  phone: z.string().regex(/^\+216\d{8}$/, ""),
-  address: addressSchema,
+  profile: profileSchema,
+  role: z.string().min(1, { message: "" }),
   active: z.boolean(),
 });
 
-type SupplierFormValues = z.infer<typeof formSchema>;
+type UserFormValues = z.infer<typeof formSchema>;
 
-interface SupplierFormProps {
-  // initialData?: SupplierFormValues | null;
+interface UserFormProps {
   title: string;
   description: string;
   action: string;
-  supplierId?: string;
+  userId?: string | undefined;
 }
 
-export const SupplierForm: React.FC<SupplierFormProps> = ({
+export const UserForm: React.FC<UserFormProps> = ({
   title,
   description,
   action,
-  supplierId = "",
-  // initialData,
+  userId = "",
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -81,88 +80,89 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
     isError,
     error,
   } = useQuery({
-    queryKey: [queryKeys.suppliers, supplierId],
-    queryFn: () => getSupplierById(supplierId),
-    enabled: !!supplierId,
+    queryKey: [queryKeys.users, userId],
+    queryFn: () => getUserById(userId),
+    enabled: !!userId,
   });
 
   const { mutate: update, isPending: isUpdating } = useMutation({
-    mutationFn: updateSupplier,
+    mutationFn: updateUser,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.suppliers],
-      });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.users] });
       toast({
         variant: "success",
         title: data.message,
       });
       setOpen(false);
-      router.push("/dashboard/suppliers");
-    },
-  });
-  const { mutate: deletee, isPending: isDeleting } = useMutation({
-    mutationFn: deleteSupplier,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.suppliers],
-      });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/suppliers");
-    },
-  });
-  const { mutate: create, isPending: isCreating } = useMutation({
-    mutationFn: createSupplier,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.suppliers],
-      });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/suppliers");
+      router.push("/dashboard/users");
     },
   });
 
-  const allLaoding = isCreating || isLoading || isUpdating || isDeleting;
+  const { mutate: deletee, isPending: isDeleting } = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.users],
+      });
+      toast({
+        variant: "success",
+        title: data.message,
+      });
+      setOpen(false);
+      router.push("/dashboard/users");
+    },
+  });
+  const { mutate: create, isPending: isCreating } = useMutation({
+    mutationFn: createUser,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.users] });
+      toast({
+        variant: "success",
+        title: data.message,
+      });
+      setOpen(false);
+      router.push("/dashboard/users");
+    },
+  });
+
+  const allLoading = isCreating || isLoading || isUpdating || isDeleting;
 
   const defaultValues = initialData
     ? initialData
     : {
-        companyName: "",
-        contactEmail: "",
-        phone: "",
-        address: {
-          street: "",
-          city: "",
-          state: "",
-          zip: "",
+        email: "",
+        profile: {
+          firstName: "",
+          lastName: "",
+          phone: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            zip: "",
+          },
         },
+        role: "",
         active: false,
       };
 
-  const form = useForm<SupplierFormValues>({
+  const form = useForm<UserFormValues>({
     resolver: zodResolver(formSchema),
+    // defaultValues,
     values: defaultValues,
   });
 
-  const onSubmit = async (data: SupplierFormValues) => {
+  const onSubmit = async (data: UserFormValues) => {
     setLoading(true);
-    if (initialData && params.supplierId) {
-      update({ id: params.supplierId as string, data });
+    if (initialData && params.userId) {
+      update({ id: params.userId as string, data });
     } else {
-      // Create new supplier
       create(data);
     }
   };
 
   const onConfirmDelete = async () => {
-    deletee(supplierId);
+    deletee(userId);
   };
 
   return (
@@ -171,13 +171,13 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={onConfirmDelete}
-        loading={allLaoding}
+        loading={allLoading}
       />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
         {initialData && (
           <Button
-            disabled={allLaoding}
+            disabled={allLoading}
             variant="destructive"
             size="sm"
             onClick={() => setOpen(true)}
@@ -197,14 +197,14 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
               <FormField
                 control={form.control}
-                name="companyName"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company Name</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
-                        placeholder="Company name"
+                        disabled={allLoading}
+                        placeholder="Email"
                         {...field}
                       />
                     </FormControl>
@@ -215,15 +215,14 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
 
               <FormField
                 control={form.control}
-                name="contactEmail"
+                name="profile.firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Email</FormLabel>
+                    <FormLabel>First Name</FormLabel>
                     <FormControl>
                       <Input
-                        type="email"
-                        disabled={allLaoding}
-                        placeholder="Contact email"
+                        disabled={allLoading}
+                        placeholder="First Name"
                         {...field}
                       />
                     </FormControl>
@@ -231,9 +230,28 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="phone"
+                name="profile.lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={allLoading}
+                        placeholder="Last Name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="profile.phone"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -245,7 +263,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                           defaultCountry="TN"
                           placeholder="12 345 678"
                           {...field}
-                          disabled={allLaoding}
+                          disabled={allLoading}
                         />
                       </div>
                     </FormControl>
@@ -253,15 +271,16 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="address.street"
+                name="profile.address.street"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Street</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
+                        disabled={allLoading}
                         placeholder="Street"
                         {...field}
                       />
@@ -270,15 +289,16 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="address.city"
+                name="profile.address.city"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
+                        disabled={allLoading}
                         placeholder="City"
                         {...field}
                       />
@@ -287,15 +307,16 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="address.state"
+                name="profile.address.state"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>State</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
+                        disabled={allLoading}
                         placeholder="State"
                         {...field}
                       />
@@ -304,15 +325,16 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="address.zip"
+                name="profile.address.zip"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Zip Code</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
+                        disabled={allLoading}
                         placeholder="Zip code"
                         {...field}
                       />
@@ -321,6 +343,25 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={allLoading}
+                        placeholder="Role"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="active"
@@ -329,7 +370,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                     <FormControl>
                       <div className="flex items-center space-x-2">
                         <Checkbox
-                          disabled={allLaoding}
+                          disabled={allLoading}
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
@@ -344,7 +385,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             <div></div>
 
             <div className="w-full md:w-20">
-              <SubmitButton loading={allLaoding} type="submit">
+              <SubmitButton loading={allLoading} type="submit">
                 {action}
               </SubmitButton>
             </div>

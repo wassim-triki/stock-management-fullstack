@@ -1,10 +1,5 @@
 import { axiosInstance } from "@/lib/axios";
-import {
-  ApiErrorResponse,
-  ApiSuccessResponse,
-  ApiSuccessResponseList,
-  User,
-} from "@/lib/types";
+import { ApiSuccessResponse, ApiSuccessResponseList, User } from "@/lib/types";
 import { AxiosResponse } from "axios";
 
 export async function getUsers(): Promise<User[]> {
@@ -22,3 +17,32 @@ export async function deleteUser(
     .delete(`/api/users/${userId}`)
     .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
 }
+
+// Function to get supplier by ID
+export const getUserById = async (id: string): Promise<User> => {
+  return axiosInstance
+    .get(`/api/users/${id}`)
+    .then(
+      (response: AxiosResponse<ApiSuccessResponse<User>>) => response.data.data,
+    );
+};
+
+export const createUser = async (
+  data: Partial<User>,
+): Promise<ApiSuccessResponse<User>> => {
+  return axiosInstance
+    .post("/api/users", data)
+    .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
+};
+
+export const updateUser = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: Partial<User>;
+}): Promise<ApiSuccessResponse<User>> => {
+  return axiosInstance
+    .put(`/api/users/${id}`, data)
+    .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
+};

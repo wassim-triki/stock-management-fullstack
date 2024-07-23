@@ -53,7 +53,7 @@ export const columns: ColumnDef<User>[] = [
         queryKey="users"
         data={row.original}
         deleteFunction={deleteUser}
-        editUrl={(id) => `/dashboard/suppliers/${id}/edit`}
+        editUrl={(id) => `/dashboard/users/${id}/edit`}
       />
     ),
   },

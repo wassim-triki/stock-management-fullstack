@@ -1,4 +1,4 @@
 export const queryKeys = {
-  user: "users",
+  users: "users",
   suppliers: "suppliers",
 };

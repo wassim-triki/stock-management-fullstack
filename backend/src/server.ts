@@ -45,7 +45,6 @@ export const Main = async () => {
   app.use(cookieParser());
   // app.use(corsHandler);
   app.use((req, res, next) => {
-    console.log('✅Session✅:', req.cookies.session);
     next();
   });
   app.use(

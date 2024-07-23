@@ -1,40 +1,39 @@
-import { SupplierForm } from "@/components/forms/supplier-form";
+import { getUserById } from "@/api/user";
+import { UserForm } from "@/components/forms/user-form";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getSupplierById } from "@/api/supplier";
-import { Supplier, ApiErrorResponse } from "@/lib/types";
-import { QueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants";
+import { QueryClient } from "@tanstack/react-query";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
+  { title: "Users", link: "/dashboard/users" },
   { title: "Edit", link: "" },
 ];
 
 type Props = {
-  params: { supplierId: string };
+  params: { userId: string };
 };
 
 export default async function Page({ params }: Props) {
-  const supplierId = params.supplierId;
+  const userId = params.userId;
 
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.suppliers, supplierId],
-    queryFn: () => getSupplierById(supplierId),
+    queryKey: [queryKeys.users, userId],
+    queryFn: () => getUserById(userId),
   });
 
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
-        <SupplierForm
+        <UserForm
           // initialData={res.data}
-          supplierId={supplierId}
+          userId={userId}
           action="Save Changes"
-          description="Edit supplier information"
-          title="Edit Supplier"
+          description="Edit user information"
+          title="Edit User"
         />
       </div>
     </ScrollArea>

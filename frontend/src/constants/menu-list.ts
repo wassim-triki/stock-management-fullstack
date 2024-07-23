@@ -121,7 +121,7 @@ export function getMenuList(pathname: string): Group[] {
       groupLabel: "Settings",
       menus: [
         {
-          href: "/users",
+          href: "/dashboard/users",
           label: "Users",
           active: pathname.includes("/users"),
           icon: Users,

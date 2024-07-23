@@ -17,7 +17,7 @@ const breadcrumbItems = [
 const Page = async () => {
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.user],
+    queryKey: [queryKeys.users],
     queryFn: getUsers,
   });
   const dehydratedState = dehydrate(queryClient);

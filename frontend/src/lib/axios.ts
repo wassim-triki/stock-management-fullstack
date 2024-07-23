@@ -14,23 +14,22 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiErrorResponse>) => {
-    // if (error.response?.status === 401) {
-    //   if (
-    //     typeof window !== "undefined" &&
-    //     window.location.pathname !== "/login"
-    //   ) {
-    //     toast({
-    //       variant: "destructive",
-    //       title: error.response.data.message || "Unauthorized. Please login",
-    //     });
-    //     window.location.href = "/login";
-    //   }
-    // } else {
-    //   toast({
-    //     variant: "destructive",
-    //     title: error.response?.data?.message || error.message || "Server error",
-    //   });
-    // }
+    if (error.response?.status === 401) {
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login"
+      ) {
+        toast({
+          variant: "destructive",
+          title: error.response.data.message || "Unauthorized. Please login",
+        });
+      }
+    } else {
+      // toast({
+      //   variant: "destructive",
+      //   title: error.response?.data?.message || error.message || "Server error",
+      // });
+    }
 
     // Ensure the error response is always returned in a consistent format
     return Promise.reject(error.response?.data);
