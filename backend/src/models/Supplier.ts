@@ -10,10 +10,6 @@ const SupplierSchema: Schema = new Schema(
       type: String,
       required: [true, 'Company name is required'],
     },
-    contactName: {
-      type: String,
-      required: [true, 'Contact name is required'],
-    },
     contactEmail: {
       type: String,
       required: [true, 'Contact email is required'],

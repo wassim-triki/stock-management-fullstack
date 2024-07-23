@@ -28,7 +28,9 @@ import { AlertDestructive } from "./ui/alert-destructive";
 import { ToastAction } from "./ui/toast";
 import { ApiErrorResponse, ApiSuccessResponse } from "@/lib/types";
 import { AxiosError } from "axios";
-import { useAxios } from "@/lib/axios/axios-client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/constants";
+import { loginUser } from "@/api/auth";
 export interface ILoginForm {
   email: string;
   password: string;
@@ -50,28 +52,30 @@ function Login() {
     defaultValues,
   });
   const router = useRouter();
-  const [{ loading: loginLoading, error: loginError }, executePut] = useAxios<
-    ApiSuccessResponse,
-    ILoginForm,
-    ApiErrorResponse
-  >(
-    {
-      url: "/api/auth/login",
-      method: "POST",
-    },
-    { manual: true },
-  );
-  // const { loading, error, apiRequest } = useApi();
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    await executePut({ data: values }).then(({ data }) => {
+
+  const queryClient = useQueryClient();
+
+  const {
+    mutate: login,
+    isPending: isLoggingIn,
+    error,
+    isError,
+  } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.suppliers] });
       toast({
         variant: "success",
         title: data.message,
-        action: <ToastAction altText="Okay">Okay</ToastAction>,
       });
-    });
-    router.push("/dashboard");
-    router.refresh();
+      router.refresh();
+      // router.push("/dashboard");
+    },
+  });
+
+  // const { loading, error, apiRequest } = useApi();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    login(values);
   }
   return (
     <>
@@ -119,8 +123,8 @@ function Login() {
               </FormItem>
             )}
           />
-          {loginError && <AlertDestructive error={loginError.message} />}
-          <SubmitButton loading={loginLoading}>Login</SubmitButton>
+          {isError && <AlertDestructive error={error.message} />}
+          <SubmitButton loading={isLoggingIn}>Login</SubmitButton>
         </form>
       </Form>
       <div className="text-center text-sm">

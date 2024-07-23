@@ -1,25 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthUser } from "./api/auth"; // Make sure this function checks authentication correctly
+import appConfig from "./lib/config";
+import { cookies } from "next/headers";
+const getAuthUser = async (): Promise<boolean> => {
+  try {
+    const cookieStore = cookies();
+    const cookieValue = cookieStore.get("session")?.value;
+    const response = await fetch(`${appConfig.apiUrl}/api/auth/me`, {
+      credentials: "include", // Ensure credentials are sent
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: "session=" + cookieValue,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("User not authenticated");
+    }
+
+    const data = await response.json();
+    return !!data; // Return true if user data exists, indicating authenticated user
+  } catch (error) {
+    console.log(error);
+    return false; // Return false if there was an error or user is not authenticated
+  }
+};
 
 const middleware = async (req: NextRequest) => {
   const { pathname } = req.nextUrl;
 
   const isAuthenticated = await getAuthUser();
+  console.log(isAuthenticated);
 
-  // Protect routes starting with /dashboard
   if (pathname.startsWith("/dashboard")) {
     if (!isAuthenticated) {
-      // Redirect to login if the user is not authenticated
-      return NextResponse.redirect(new URL("/login", req.url));
+      req.nextUrl.pathname = "/login";
+      return NextResponse.redirect(req.nextUrl);
     }
   }
 
-  // Protect /login and /signup routes if the user is authenticated
   if (isAuthenticated && (pathname === "/login" || pathname === "/signup")) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    req.nextUrl.pathname = "/dashboard";
+    return NextResponse.redirect(req.nextUrl);
   }
 
-  // Continue if the path is not protected or the user is correctly authenticated
   return NextResponse.next();
 };
 

@@ -86,7 +86,6 @@ export interface IUser extends Document {
 
 export interface ISupplier extends Document {
   companyName: string;
-  contactName: string;
   contactEmail: string;
   phone: string;
   address: {

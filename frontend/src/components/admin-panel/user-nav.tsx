@@ -20,42 +20,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getAuthUser } from "@/api/auth";
+import { getAuthUser, logoutUser } from "@/api/auth";
 import { getInitials } from "@/lib/utils";
 import { ApiSuccessResponse, User } from "@/lib/types";
 import { useToast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
-import { useAxios } from "@/lib/axios/axios-client";
+import { useMutation } from "@tanstack/react-query";
 
 export function UserNav() {
-  const [{ data: data, loading: getLoading, error: getError }] =
-    useAxios<ApiSuccessResponse>("/api/auth/me");
-
-  const user: User = data?.data as User;
-
-  const [
-    { data: signoutData, loading: signoutLoading, error: signoutError },
-    executeLogout,
-  ] = useAxios<ApiSuccessResponse>(
-    {
-      url: "/api/auth/logout",
-      method: "POST",
+  const user: Partial<User> = {
+    email: "wsmtriki@gmail.com",
+    profile: {
+      firstName: "Wassim",
+      lastName: "Triki",
+      phone: "+21624542649",
+      address: {
+        street: "123 Admin St",
+        city: "Kelibia",
+        state: "Nabeul",
+        zip: "8090",
+      },
     },
-    { manual: true },
-  );
-  const { toast } = useToast();
-  const router = useRouter();
+    role: "user",
+  };
 
-  const handleLogout = async () => {
-    await executeLogout().then(({ data }) => {
+  const { mutate: logout, isPending: isSigningOut } = useMutation({
+    mutationFn: logoutUser,
+    onSuccess: (data) => {
       toast({
         variant: "success",
         title: data.message,
         action: <ToastAction altText="Okay">Okay</ToastAction>,
       });
-    });
-    router.push("/login");
+      router.refresh();
+    },
+  });
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    logout();
   };
 
   return (

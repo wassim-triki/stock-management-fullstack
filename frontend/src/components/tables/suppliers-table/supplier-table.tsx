@@ -4,10 +4,9 @@ import { DataTable } from "../data-table";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants";
 import { getSuppliers } from "@/api/supplier";
-import { Supplier } from "@/lib/types";
 import { columns } from "./columns";
 
-const UsersTable = () => {
+const SuppliersTable = () => {
   const { data } = useQuery({
     queryKey: [queryKeys.suppliers],
     queryFn: getSuppliers,
@@ -23,4 +22,4 @@ const UsersTable = () => {
   );
 };
 
-export default UsersTable;
+export default SuppliersTable;

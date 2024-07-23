@@ -8,6 +8,7 @@ import { AxiosResponse } from "axios";
 
 // Function to get all suppliers
 export const getSuppliers = async (): Promise<Supplier[]> => {
+  console.log("getSuppliers 🤞🤞🤞🤞");
   return axiosInstance
     .get("/api/suppliers")
     .then(
@@ -21,23 +22,20 @@ export const getSupplierById = async (
   id: string,
 ): Promise<ApiSuccessResponse<Supplier>> => {
   return axiosInstance
-    .get(`/api/suppliers/${id}`, {
-      headers: {
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-        Expires: "0",
-      },
-    })
+    .get(`/api/suppliers/${id}`)
     .then(
       (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
     );
 };
 
 // Function to update supplier by ID
-export const updateSupplier = async (
-  id: string,
-  data: Partial<Supplier>,
-): Promise<ApiSuccessResponse<Supplier>> => {
+export const updateSupplier = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: Partial<Supplier>;
+}): Promise<ApiSuccessResponse<Supplier>> => {
   return axiosInstance
     .put(`/api/suppliers/${id}`, data)
     .then(
@@ -63,6 +61,16 @@ export const deleteSupplier = async (
 ): Promise<ApiSuccessResponse<Supplier>> => {
   return axiosInstance
     .delete(`/api/suppliers/${supplierId}`)
+    .then(
+      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
+    );
+};
+
+export const createSupplier = async (
+  data: Partial<Supplier>,
+): Promise<ApiSuccessResponse<Supplier>> => {
+  return axiosInstance
+    .post("/api/suppliers", data)
     .then(
       (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
     );

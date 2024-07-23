@@ -2,7 +2,6 @@
 import React from "react";
 import { DataTable } from "../data-table";
 import { columns } from "@/components/tables/users-table/columns";
-import { User } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "@/api/user";
 import { queryKeys } from "@/lib/constants";

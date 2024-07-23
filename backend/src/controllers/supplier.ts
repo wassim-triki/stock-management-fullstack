@@ -50,7 +50,7 @@ export const createSupplier = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { companyName, contactName, contactEmail, phone, address } = req.body;
+  const { companyName, contactEmail, phone, address } = req.body;
   try {
     // Check if the email is already in use
     const existingSupplier = await Supplier.findOne({ contactEmail });
@@ -60,7 +60,6 @@ export const createSupplier = async (
 
     const supplier = await Supplier.create({
       companyName,
-      contactName,
       contactEmail,
       phone,
       address,

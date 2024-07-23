@@ -20,11 +20,12 @@ import { Heading } from "@/components/ui/heading";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "../ui/use-toast";
 import { PhoneInput } from "../ui/phone-input";
-import { updateSupplier } from "@/api/supplier";
-import { useAxios } from "@/lib/axios/axios-client";
+import { createSupplier, deleteSupplier, updateSupplier } from "@/api/supplier";
 import { ApiErrorResponse, ApiSuccessResponse, Supplier } from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
 import { AlertModal } from "../modal/alert-modal";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/constants";
 
 const addressSchema = z.object({
   street: z.string().min(1, { message: "" }),
@@ -66,6 +67,33 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const queryClient = useQueryClient();
+
+  const { mutate: update, isPending: isUpdating } = useMutation({
+    mutationFn: updateSupplier,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.suppliers] });
+      toast({
+        variant: "success",
+        title: data.message,
+      });
+      setOpen(false);
+      router.push("/dashboard/suppliers");
+    },
+  });
+  const { mutate: create, isPending: isCreating } = useMutation({
+    mutationFn: createSupplier,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.suppliers] });
+      toast({
+        variant: "success",
+        title: data.message,
+      });
+      setOpen(false);
+      router.push("/dashboard/suppliers");
+    },
+  });
+
   const defaultValues: SupplierFormValues = initialData
     ? initialData
     : {
@@ -87,98 +115,18 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
     defaultValues,
   });
 
-  const [{ loading: updateLoading, error: updateError }, executeUpdate] =
-    useAxios<ApiSuccessResponse<Supplier>, Partial<Supplier>, ApiErrorResponse>(
-      {
-        url: "/api/suppliers/:id", // The URL will be set dynamically when calling executePut
-        method: "PUT",
-      },
-      { manual: true },
-    );
-  const [{ loading: createLoading, error: createError }, executeCreate] =
-    useAxios<ApiSuccessResponse<Supplier>, Partial<Supplier>, ApiErrorResponse>(
-      {
-        url: "/api/suppliers", // The URL will be set dynamically when calling executePut
-        method: "POST",
-      },
-      { manual: true },
-    );
-  const [{ data: res, loading: deleteLoading, error }, executeDelete] =
-    useAxios<ApiSuccessResponse<Supplier>, any, ApiErrorResponse>(
-      {
-        method: "DELETE",
-      },
-      { manual: true },
-    );
-
   const onSubmit = async (data: SupplierFormValues) => {
     setLoading(true);
-    if (initialData) {
-      // Update existing supplier
-      await executeUpdate({
-        url: `/api/suppliers/${params.supplierId}`,
-        data,
-      })
-        .then(({ data }) => {
-          toast({
-            variant: "success",
-            title: data.message,
-          });
-          router.push(`/dashboard/suppliers`);
-          // router.refresh();
-        })
-        .catch((error) => {
-          toast({
-            variant: "destructive",
-            title: error.message,
-          });
-        })
-        .finally(() => setLoading(false));
+    if (initialData && params.supplierId) {
+      update({ id: params.supplierId as string, data });
     } else {
       // Create new supplier
-      await executeCreate({
-        data,
-      })
-        .then(({ data }) => {
-          toast({
-            variant: "success",
-            title: data.message,
-          });
-          router.push(`/dashboard/suppliers`);
-          // router.refresh();
-        })
-        .catch((error) => {
-          toast({
-            variant: "destructive",
-            title: error.message,
-          });
-        })
-        .finally(() => setLoading(false));
+      create(data);
     }
+    setLoading(false);
   };
 
-  const onConfirmDelete = async () => {
-    executeDelete({
-      url: `/api/suppliers/${params.supplierId}`,
-    })
-      .then(({ data }) => {
-        toast({
-          variant: "success",
-          title: data.message,
-          // TODO; add undo
-        });
-      })
-      .catch((error) => {
-        toast({
-          variant: "destructive",
-          title: error.message,
-        });
-      })
-      .finally(() => {
-        setOpen(false);
-        router.push(`/dashboard/suppliers`);
-      });
-  };
+  const onConfirmDelete = async () => {};
 
   return (
     <>
@@ -186,7 +134,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={onConfirmDelete}
-        loading={deleteLoading}
+        loading={true}
       />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
@@ -345,7 +293,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   <FormControl>
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        disabled={loading}
+                        disabled={isUpdating || isCreating}
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
@@ -360,7 +308,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
           <div></div>
 
           <div className="w-full md:w-20">
-            <SubmitButton loading={updateLoading} type="submit">
+            <SubmitButton loading={isUpdating || isCreating} type="submit">
               {action}
             </SubmitButton>
           </div>

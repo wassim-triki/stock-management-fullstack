@@ -1,13 +1,12 @@
-import { columns } from "@/components/tables/suppliers-table/columns";
-import { ApiErrorResponse, Supplier } from "@/lib/types";
-import { DataTable } from "@/components/tables/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { getSuppliers, getTotalSuppliers } from "@/api/supplier";
-import { unstable_noStore } from "next/cache";
+import { getSuppliers } from "@/api/supplier";
 import SuppliersTable from "@/components/tables/suppliers-table/supplier-table";
-import getQueryClient from "@/lib/getQueryClient";
 import { queryKeys } from "@/lib/constants";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -21,9 +20,9 @@ type ParamsProps = {
 };
 
 export default async function Page({ searchParams }: ParamsProps) {
-  const queryClient = getQueryClient();
+  const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.user],
+    queryKey: [queryKeys.suppliers],
     queryFn: getSuppliers,
   });
   const dehydratedState = dehydrate(queryClient);
@@ -32,8 +31,8 @@ export default async function Page({ searchParams }: ParamsProps) {
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
       addNewLink="/dashboard/suppliers/new"
-      title="Error"
-      description="There was an error loading the suppliers."
+      title={`Suppliers (${0})`}
+      description="Manage suppliers"
     >
       <HydrationBoundary state={dehydratedState}>
         <SuppliersTable />
