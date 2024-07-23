@@ -34,7 +34,7 @@ const SuppliersTable = () => {
   return suppliersLoading ? (
     <div>Loading...</div>
   ) : suppliersError ? (
-    <div>Error: {suppliersError.message}</div>
+    <div>Error: {suppliersError?.message}</div>
   ) : (
     <DataTable
       searchKey="name"

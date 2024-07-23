@@ -22,11 +22,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getInitials } from "@/lib/utils";
-import { useAxios } from "@/lib/axios";
 import { ApiSuccessResponse, User } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { useAxios } from "@/lib/axios/axios-client";
 
 interface UserNavClientProps {
   user: User | null;
@@ -50,7 +50,7 @@ export function UserNavClient({ user }: UserNavClientProps) {
     await executeLogout().then(({ data }) => {
       toast({
         variant: "success",
-        title: data.payload.message,
+        title: data.message,
         action: <ToastAction altText="Okay">Okay</ToastAction>,
       });
     });

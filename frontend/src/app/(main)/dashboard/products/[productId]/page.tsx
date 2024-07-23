@@ -15,10 +15,10 @@ export default function Page() {
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
         <SupplierForm
-          categories={[
-            { _id: "shirts", name: "shirts" },
-            { _id: "pants", name: "pants" },
-          ]}
+          // categories={[
+          //   { _id: "shirts", name: "shirts" },
+          //   { _id: "pants", name: "pants" },
+          // ]}
           action="Create"
           description="Create a new product"
           title="Create product"

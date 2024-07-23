@@ -44,7 +44,7 @@ export default async function Page({ searchParams }: ParamsProps) {
       >
         {/* TODO: change styles */}
         <div className="flex items-center justify-center py-48 text-slate-500">
-          {(error as ApiErrorResponse).message}
+          {(error as ApiErrorResponse)?.message}
         </div>
       </ContentPageLayout>
     );
