@@ -8,7 +8,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +39,6 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchKey: string;
-  pageNo: number;
   pageSizeOptions?: number[];
   pageCount: number;
   searchParams?: {
@@ -50,7 +49,6 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  pageNo,
   searchKey,
   pageCount,
   pageSizeOptions = [10, 20, 30, 40, 50],
@@ -66,9 +64,6 @@ export function DataTable<TData, TValue>({
   const per_page = searchParams?.get("limit") ?? "10";
   const perPageAsNumber = Number(per_page);
   const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber;
-
-  /* this can be used to get the selectedrows 
-  console.log("value", table.getFilteredSelectedRowModel()); */
 
   // Create query string
   const createQueryString = React.useCallback(
@@ -123,7 +118,11 @@ export function DataTable<TData, TValue>({
     manualPagination: true,
     manualFiltering: true,
   });
-
+  // this can be used to get the selectedrows
+  console.log(
+    "value",
+    table.getFilteredSelectedRowModel().rows.map((rows) => rows.original),
+  );
   const searchValue = table.getColumn(searchKey)?.getFilterValue() as string;
 
   // React.useEffect(() => {
@@ -154,6 +153,7 @@ export function DataTable<TData, TValue>({
   // }, [debounceValue, filterVariety, selectedOption.value])
 
   React.useEffect(() => {
+    console.log(searchValue);
     if (searchValue?.length > 0) {
       router.push(
         `${pathname}?${createQueryString({
@@ -178,7 +178,6 @@ export function DataTable<TData, TValue>({
         },
       );
     }
-
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

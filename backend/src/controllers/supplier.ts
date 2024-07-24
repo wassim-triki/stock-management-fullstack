@@ -14,7 +14,22 @@ export const getSuppliers = async (
   next: NextFunction
 ) => {
   try {
-    const suppliers = await Supplier.find();
+    const { limit = 10, offset = 0, search = '' } = req.query;
+
+    // Convert limit and offset to numbers
+    const limitNum = parseInt(limit as string, 10);
+    const offsetNum = parseInt(offset as string, 10);
+
+    // Build the query to be "like" search
+    const query = search
+      ? {
+          companyName: { $regex: new RegExp(search as string, 'i') },
+        }
+      : {};
+
+    const suppliers = await Supplier.find(query)
+      .skip(offsetNum)
+      .limit(limitNum);
     res
       .status(200)
       .json(

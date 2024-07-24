@@ -83,33 +83,18 @@ export const seedData = async () => {
       await user.save();
     }
 
-    // Create suppliers
-    const suppliers = [
-      {
-        companyName: 'Supplier One',
-        contactName: 'Supplier One Contact',
-        contactEmail: 'supplier1@example.com',
-        phone: '+21624542649',
-        address: {
-          street: '123 Supplier St',
-          city: 'Supplier City',
-          state: 'Supplier State',
-          zip: '12345',
-        },
+    //arrya of 100 items of suppliers
+    const suppliers = Array.from({ length: 100 }, (_, index) => ({
+      companyName: `Supplier ${index + 1}`,
+      contactEmail: `supplier${index + 1}@gmail.com`,
+      phone: `+21624542649`,
+      address: {
+        street: `${index + 1} Supplier St`,
+        city: 'Supplier City',
+        state: 'Supplier State',
+        zip: '12345',
       },
-      {
-        companyName: 'Supplier Two',
-        contactName: 'Supplier Two Contact',
-        contactEmail: 'supplier2@example.com',
-        phone: '123-456-7890',
-        address: {
-          street: '456 Supplier St',
-          city: 'Supplier City',
-          state: 'Supplier State',
-          zip: '67890',
-        },
-      },
-    ];
+    }));
 
     for (const supplierData of suppliers) {
       const supplier = new Supplier(supplierData);
@@ -117,6 +102,7 @@ export const seedData = async () => {
     }
 
     logging.log('Seed data created successfully.');
+    logging.log('----------------------------------------');
   } catch (error) {
     logging.error('Error creating seed data:', error);
   }

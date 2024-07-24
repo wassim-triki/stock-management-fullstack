@@ -7,11 +7,34 @@ import {
 } from "@/lib/types";
 import { AxiosResponse } from "axios";
 
-export const getSuppliers = async (): Promise<Supplier[]> => {
-  const response: ApiSuccessResponseList<Supplier> =
-    await fetchHelper("/api/suppliers");
+export type ApiSearchFilter = {
+  offset?: number;
+  limit?: number;
+  search?: string;
+};
+export const buildQueryParams = (filter: ApiSearchFilter) => {
+  const queryParams = new URLSearchParams();
+
+  if (filter.limit !== undefined)
+    queryParams.append("limit", filter.limit.toString());
+  if (filter.offset !== undefined)
+    queryParams.append("offset", filter.offset.toString());
+  if (filter.search !== undefined) queryParams.append("search", filter.search);
+
+  return queryParams;
+};
+
+export const getSuppliers = async (
+  filter: ApiSearchFilter,
+): Promise<Supplier[]> => {
+  const queryParams = buildQueryParams(filter);
+
+  const response: ApiSuccessResponseList<Supplier> = await fetchHelper(
+    `/api/suppliers?${queryParams.toString()}`,
+  );
   return response.data.items;
 };
+
 export const getSupplierById = async (id: string): Promise<Supplier> => {
   const response = await fetchHelper<ApiSuccessResponse<Supplier>>(
     `/api/suppliers/${id}`,
