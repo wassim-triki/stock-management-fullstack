@@ -26,35 +26,32 @@ import { ApiSuccessResponse, User } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { useAxios } from "@/lib/axios/axios-client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getAuthUser, logoutUser } from "@/api/auth";
+import { queryKeys } from "@/lib/constants";
 
-interface UserNavClientProps {
-  user: User | null;
-}
-
-export function UserNavClient({ user }: UserNavClientProps) {
-  const [
-    { data: signoutData, loading: signoutLoading, error: signoutError },
-    executeLogout,
-  ] = useAxios<ApiSuccessResponse>(
-    {
-      url: "/api/auth/logout",
-      method: "POST",
+export function UserNavClient() {
+  const { data } = useQuery({
+    queryKey: [queryKeys.users],
+    queryFn: getAuthUser,
+  });
+  const queryClient = useQueryClient();
+  const { mutate: logout, isPending: isLoggingOut } = useMutation({
+    mutationFn: logoutUser,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.auth] });
+      toast({
+        variant: "success",
+        title: data.message,
+      });
+      router.refresh();
     },
-    { manual: true },
-  );
+  });
   const { toast } = useToast();
   const router = useRouter();
 
   const handleLogout = async () => {
-    await executeLogout().then(({ data }) => {
-      toast({
-        variant: "success",
-        title: data.message,
-        action: <ToastAction altText="Okay">Okay</ToastAction>,
-      });
-    });
-    router.push("/login");
+    logout();
   };
 
   return (
@@ -71,7 +68,9 @@ export function UserNavClient({ user }: UserNavClientProps) {
                   <AvatarImage src="#" alt="Avatar" />
                   <AvatarFallback className="bg-transparent">
                     {getInitials(
-                      user?.profile?.firstName + " " + user?.profile?.lastName,
+                      data?.data?.profile?.firstName +
+                        " " +
+                        data?.data?.profile?.lastName,
                     )}
                   </AvatarFallback>
                 </Avatar>
@@ -86,10 +85,10 @@ export function UserNavClient({ user }: UserNavClientProps) {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user?.profile?.firstName} {user?.profile?.lastName}
+              {data?.data.profile?.firstName} {data?.data.profile?.lastName}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
+              {data?.data.email}
             </p>
           </div>
         </DropdownMenuLabel>

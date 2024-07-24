@@ -25,10 +25,10 @@ axiosInstance.interceptors.response.use(
         });
       }
     } else {
-      // toast({
-      //   variant: "destructive",
-      //   title: error.response?.data?.message || error.message || "Server error",
-      // });
+      toast({
+        variant: "destructive",
+        title: error.response?.data?.message || error.message || "Server error",
+      });
     }
 
     // Ensure the error response is always returned in a consistent format

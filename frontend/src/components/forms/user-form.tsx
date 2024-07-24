@@ -20,7 +20,13 @@ import { Heading } from "@/components/ui/heading";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "../ui/use-toast";
 import { PhoneInput } from "../ui/phone-input";
-import { createUser, deleteUser, getUserById, updateUser } from "@/api/user";
+import {
+  createUser,
+  CreateUserData,
+  deleteUser,
+  getUserById,
+  updateUser,
+} from "@/api/user";
 import { ApiErrorResponse, ApiSuccessResponse, User } from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
 import { AlertModal } from "../modal/alert-modal";
@@ -53,6 +59,7 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "" })
     .email({ message: "Invalid email address" }),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   profile: profileSchema,
   role: z.string().min(1, { message: "" }),
   active: z.boolean(),
@@ -144,6 +151,7 @@ export const UserForm: React.FC<UserFormProps> = ({
           firstName: "",
           lastName: "",
           phone: "",
+          password: "",
           address: {
             street: "",
             city: "",
@@ -155,13 +163,14 @@ export const UserForm: React.FC<UserFormProps> = ({
         active: false,
       };
 
-  const form = useForm<UserFormValues>({
+  const form = useForm<CreateUserData>({
     resolver: zodResolver(formSchema),
     // defaultValues,
     values: defaultValues,
   });
 
-  const onSubmit = async (data: UserFormValues) => {
+  const onSubmit = async (data: CreateUserData) => {
+    console.log(data);
     setLoading(true);
     if (initialData && params.userId) {
       update({ id: params.userId as string, data });
@@ -216,6 +225,23 @@ export const UserForm: React.FC<UserFormProps> = ({
                         placeholder="Email"
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="grid gap-2">
+                        <div className="flex items-center">
+                          <FormLabel>Password</FormLabel>
+                        </div>
+                        <Input type="password" {...field} />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -377,7 +403,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                   <FormItem>
                     <FormLabel>Role</FormLabel>
                     <Select
-                      disabled={loading}
+                      disabled={allLoading}
                       onValueChange={field.onChange}
                       value={field.value}
                       defaultValue={field.value}
@@ -386,7 +412,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                         <SelectTrigger>
                           <SelectValue
                             defaultValue={field.value}
-                            placeholder="Select a category"
+                            placeholder="Role"
                           />
                         </SelectTrigger>
                       </FormControl>
@@ -426,7 +452,7 @@ export const UserForm: React.FC<UserFormProps> = ({
             </div>
             <div></div>
 
-            <div className="w-full md:w-20">
+            <div className="w-full md:w-min">
               <SubmitButton loading={allLoading} type="submit">
                 {action}
               </SubmitButton>

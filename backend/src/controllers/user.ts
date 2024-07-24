@@ -78,7 +78,7 @@ export const createUser = async (req: Request, res: Response, next: any) => {
       email,
       profile,
       address,
-      password: 'password123',
+      password,
       role,
       active,
     });

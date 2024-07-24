@@ -3,8 +3,13 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "./ui/button";
 import { getAuthUser } from "@/api/auth";
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/constants";
 const Header = async () => {
-  const user = await getAuthUser();
+  const { data } = useQuery({
+    queryKey: [queryKeys.users],
+    queryFn: getAuthUser,
+  });
   return (
     <header className="sticky top-0 z-10 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -15,9 +20,9 @@ const Header = async () => {
           {/* <Link href="/register/manager">Register your business</Link> */}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2">
-          {user ? (
+          {data?.data ? (
             <div className="flex items-center gap-2">
-              <p>Welcome, {user.profile.firstName}</p>
+              <p>Welcome, {data?.data.profile.firstName}</p>
               <Button>Sign Out</Button>
             </div>
           ) : (

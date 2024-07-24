@@ -27,8 +27,26 @@ export const getUserById = async (id: string): Promise<User> => {
     );
 };
 
+export type CreateUserData = {
+  email: string;
+  password?: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+  };
+  role: string;
+  active: boolean;
+};
+
 export const createUser = async (
-  data: Partial<User>,
+  data: CreateUserData,
 ): Promise<ApiSuccessResponse<User>> => {
   return axiosInstance
     .post("/api/users", data)

@@ -21,6 +21,6 @@ export const loginUser = async ({
 
 export const logoutUser = async (): Promise<ApiSuccessResponse> => {
   return axiosInstance
-    .post("/api/auth/logout")
+    .get("/api/auth/logout")
     .then((response: AxiosResponse<ApiSuccessResponse>) => response.data);
 };

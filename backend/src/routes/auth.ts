@@ -23,7 +23,7 @@ router.post('/step-two', stepTwoHandler);
 router.get('/check-session', authHandler, (req, res) =>
   res.status(200).json(new SuccessResponse('Authorized'))
 );
-router.post('/logout', authHandler, logout); // Add the logout route
+router.get('/logout', authHandler, logout); // Add the logout route
 
 // router.post('/forgotpassword', forgotPassword);
 // router.post('/resetpassword/:resetToken', resetPassword);
