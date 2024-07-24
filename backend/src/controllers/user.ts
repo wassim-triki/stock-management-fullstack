@@ -88,3 +88,20 @@ export const createUser = async (req: Request, res: Response, next: any) => {
     next(error);
   }
 };
+
+export const getTotalUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    res.status(200).json(
+      new SuccessResponse('Total users retrieved successfully', {
+        total: totalUsers,
+      })
+    );
+  } catch (error: any) {
+    next(new ErrorResponse('Failed to retrieve total users', 500));
+  }
+};

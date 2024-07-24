@@ -1,5 +1,5 @@
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { getSuppliers } from "@/api/supplier";
+import { getSuppliers, getTotalSuppliers } from "@/api/supplier";
 import SuppliersTable from "@/components/tables/suppliers-table/supplier-table";
 import { queryKeys } from "@/lib/constants";
 import {
@@ -25,18 +25,23 @@ export default async function Page({ searchParams }: ParamsProps) {
     queryKey: [queryKeys.suppliers],
     queryFn: getSuppliers,
   });
-  const dehydratedState = dehydrate(queryClient);
 
+  const total = await queryClient.fetchQuery({
+    queryKey: [queryKeys.totalSuppliers],
+    queryFn: getTotalSuppliers,
+  });
+
+  const dehydratedState = dehydrate(queryClient);
   return (
-    <ContentPageLayout
-      breadcrumbItems={breadcrumbItems}
-      addNewLink="/dashboard/suppliers/new"
-      title={`Suppliers (${0})`}
-      description="Manage suppliers"
-    >
-      <HydrationBoundary state={dehydratedState}>
+    <HydrationBoundary state={dehydratedState}>
+      <ContentPageLayout
+        breadcrumbItems={breadcrumbItems}
+        addNewLink="/dashboard/suppliers/new"
+        title={`Suppliers (${total})`}
+        description="Manage suppliers"
+      >
         <SuppliersTable />
-      </HydrationBoundary>
-    </ContentPageLayout>
+      </ContentPageLayout>
+    </HydrationBoundary>
   );
 }

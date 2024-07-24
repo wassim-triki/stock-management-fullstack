@@ -1,14 +1,3 @@
-import Link from "next/link";
-
-import { ContentLayout } from "@/components/admin-panel/content-layout";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/admin-panel/date-range-picker";
@@ -24,6 +13,7 @@ import { BarGraph } from "@/components/admin-panel/charts/bar-graph";
 import { PieGraph } from "@/components/admin-panel/charts/pie-graph";
 import { AreaGraph } from "@/components/admin-panel/charts/area-graph";
 import { RecentSales } from "@/components/admin-panel/recent-sales";
+
 export default function DashboardPage() {
   return (
     <ScrollArea className="h-full">

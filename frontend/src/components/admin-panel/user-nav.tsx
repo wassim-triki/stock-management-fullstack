@@ -26,24 +26,16 @@ import { ApiSuccessResponse, User } from "@/lib/types";
 import { useToast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/constants";
 
-export function UserNav() {
-  const user: Partial<User> = {
-    email: "wsmtriki@gmail.com",
-    profile: {
-      firstName: "Wassim",
-      lastName: "Triki",
-      phone: "+21624542649",
-      address: {
-        street: "123 Admin St",
-        city: "Kelibia",
-        state: "Nabeul",
-        zip: "8090",
-      },
-    },
-    role: "user",
-  };
+export default function UserNav() {
+  const { data } = useQuery({
+    queryKey: [queryKeys.auth],
+    queryFn: getAuthUser,
+  });
+
+  const user = data?.data;
 
   const { mutate: logout, isPending: isSigningOut } = useMutation({
     mutationFn: logoutUser,
@@ -77,7 +69,7 @@ export function UserNav() {
                   <AvatarImage src="#" alt="Avatar" />
                   <AvatarFallback className="bg-transparent">
                     {getInitials(
-                      user?.profile?.firstName + " " + user?.profile?.lastName,
+                      user?.profile.firstName + " " + user?.profile.lastName,
                     )}
                   </AvatarFallback>
                 </Avatar>
@@ -92,7 +84,7 @@ export function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user?.profile?.firstName} {user?.profile?.lastName}
+              {user?.profile.firstName} {user?.profile.lastName}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}

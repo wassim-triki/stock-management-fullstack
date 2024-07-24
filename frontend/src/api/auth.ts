@@ -1,11 +1,10 @@
 import { axiosInstance } from "@/lib/axios";
+import fetchHelper from "@/lib/fetchInstance";
 import { ApiSuccessResponse, User } from "@/lib/types";
 import { AxiosResponse } from "axios";
 
 export const getAuthUser = async (): Promise<ApiSuccessResponse<User>> => {
-  const resp: AxiosResponse<ApiSuccessResponse<User>> =
-    await axiosInstance.get("/api/auth/me");
-  return resp.data;
+  return fetchHelper("/api/auth/me");
 };
 export const loginUser = async ({
   email,
@@ -20,7 +19,5 @@ export const loginUser = async ({
 };
 
 export const logoutUser = async (): Promise<ApiSuccessResponse> => {
-  return axiosInstance
-    .get("/api/auth/logout")
-    .then((response: AxiosResponse<ApiSuccessResponse>) => response.data);
+  return fetchHelper("/api/auth/logout");
 };

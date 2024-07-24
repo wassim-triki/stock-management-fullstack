@@ -343,7 +343,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             </div>
             <div></div>
 
-            <div className="w-full md:w-20">
+            <div className="w-full md:w-min">
               <SubmitButton loading={allLaoding} type="submit">
                 {action}
               </SubmitButton>

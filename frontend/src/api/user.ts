@@ -1,14 +1,12 @@
 import { axiosInstance } from "@/lib/axios";
+import fetchHelper from "@/lib/fetchInstance";
 import { ApiSuccessResponse, ApiSuccessResponseList, User } from "@/lib/types";
 import { AxiosResponse } from "axios";
 
 export async function getUsers(): Promise<User[]> {
-  return axiosInstance
-    .get(`/api/users`)
-    .then(
-      (response: AxiosResponse<ApiSuccessResponseList<User>>) =>
-        response.data.data.items,
-    );
+  const response: ApiSuccessResponseList<User> =
+    await fetchHelper(`/api/users`);
+  return response.data.items;
 }
 export async function deleteUser(
   userId: string,
@@ -19,13 +17,12 @@ export async function deleteUser(
 }
 
 // Function to get supplier by ID
-export const getUserById = async (id: string): Promise<User> => {
-  return axiosInstance
-    .get(`/api/users/${id}`)
-    .then(
-      (response: AxiosResponse<ApiSuccessResponse<User>>) => response.data.data,
-    );
-};
+export async function getUserById(id: string): Promise<User> {
+  const response: ApiSuccessResponse<User> = await fetchHelper(
+    `/api/users/${id}`,
+  );
+  return response.data;
+}
 
 export type CreateUserData = {
   email: string;
@@ -63,4 +60,11 @@ export const updateUser = async ({
   return axiosInstance
     .put(`/api/users/${id}`, data)
     .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
+};
+
+// Function to get the total number of suppliers
+export const getTotalUsers = async (): Promise<number> => {
+  const response: ApiSuccessResponse<{ total: number }> =
+    await fetchHelper("/api/users/total");
+  return response.data.total;
 };

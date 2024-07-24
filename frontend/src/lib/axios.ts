@@ -15,6 +15,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiErrorResponse>) => {
     if (error.response?.status === 401) {
+      console.log("🤞🤞🤞🤞🤞");
       if (
         typeof window !== "undefined" &&
         window.location.pathname !== "/login"

@@ -1,4 +1,4 @@
-import { getUsers } from "@/api/user";
+import { getTotalUsers, getUsers } from "@/api/user";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 import UsersTable from "@/components/tables/users-table/users-table";
 import { queryKeys } from "@/lib/constants";
@@ -20,11 +20,18 @@ const Page = async () => {
     queryKey: [queryKeys.users],
     queryFn: getUsers,
   });
+
+  const total = await queryClient.fetchQuery({
+    queryKey: [queryKeys.totalUsers],
+    queryFn: getTotalUsers,
+  });
+
   const dehydratedState = dehydrate(queryClient);
+
   return (
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
-      title={`Users (${0})`}
+      title={`Users (${total})`}
       description="Manage employees (Server side table functionalities.)"
       addNewLink="/dashboard/users/new"
     >
