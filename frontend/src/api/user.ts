@@ -1,19 +1,24 @@
+"use server";
 import { axiosInstance } from "@/lib/axios";
 import fetchHelper from "@/lib/fetchInstance";
 import { ApiSuccessResponse, ApiSuccessResponseList, User } from "@/lib/types";
 import { AxiosResponse } from "axios";
+import { ApiSearchFilter, buildQueryParams } from "./supplier";
 
-export async function getUsers(): Promise<User[]> {
-  const response: ApiSuccessResponseList<User> =
-    await fetchHelper(`/api/users`);
+export async function getUsers(filter: ApiSearchFilter): Promise<User[]> {
+  "use server";
+  const queryParams = await buildQueryParams(filter);
+  const response: ApiSuccessResponseList<User> = await fetchHelper(
+    `/api/users?${queryParams.toString()}`,
+  );
   return response.data.items;
 }
 export async function deleteUser(
   userId: string,
 ): Promise<ApiSuccessResponse<User>> {
-  return axiosInstance
-    .delete(`/api/users/${userId}`)
-    .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
+  return await fetchHelper(`/api/users/${userId}`, {
+    method: "DELETE",
+  });
 }
 
 // Function to get supplier by ID
@@ -45,9 +50,10 @@ export type CreateUserData = {
 export const createUser = async (
   data: CreateUserData,
 ): Promise<ApiSuccessResponse<User>> => {
-  return axiosInstance
-    .post("/api/users", data)
-    .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
+  return await fetchHelper("/api/users", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };
 
 export const updateUser = async ({
@@ -57,9 +63,10 @@ export const updateUser = async ({
   id: string;
   data: Partial<User>;
 }): Promise<ApiSuccessResponse<User>> => {
-  return axiosInstance
-    .put(`/api/users/${id}`, data)
-    .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
+  return await fetchHelper(`/api/users/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 };
 
 // Function to get the total number of suppliers

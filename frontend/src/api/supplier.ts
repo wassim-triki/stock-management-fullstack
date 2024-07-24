@@ -29,7 +29,6 @@ export const getSuppliers = async (
   "use server";
 
   const queryParams = await buildQueryParams(filter);
-  console.log("❤️❤️❤️❤️❤️");
 
   const response: ApiSuccessResponseList<Supplier> = await fetchHelper(
     `/api/suppliers?${queryParams.toString()}`,

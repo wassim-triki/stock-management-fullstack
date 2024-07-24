@@ -16,20 +16,21 @@ export const getSuppliers = async (
   try {
     const { limit = 10, page = 1, search = '' } = req.query;
 
-    // Convert limit and offset to numbers
     const limitNum = Number(limit);
     const pageNum = Number(page);
 
     const skipNum = (pageNum - 1) * limitNum;
 
-    // Build the query to be "like" search
     const query = search
       ? {
           companyName: { $regex: new RegExp(search as string, 'i') },
         }
       : {};
 
-    const suppliers = await Supplier.find(query).skip(skipNum).limit(limitNum);
+    const suppliers = await Supplier.find(query)
+      .skip(skipNum)
+      .limit(limitNum)
+      .sort({ createdAt: -1 });
 
     res
       .status(200)

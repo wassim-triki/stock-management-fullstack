@@ -64,7 +64,6 @@ export function DataTable<TData, TValue>({
   const { data } = useQuery<TData[]>({
     queryKey: [rQPrams.queryKey, debouncedFilter],
     queryFn: () => rQPrams.queryFn(debouncedFilter),
-    // enabled: !!filter,
   });
 
   const router = useRouter();

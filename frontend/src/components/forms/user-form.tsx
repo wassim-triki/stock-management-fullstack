@@ -112,6 +112,12 @@ export const UserForm: React.FC<UserFormProps> = ({
       setOpen(false);
       router.push("/dashboard/users");
     },
+    onError(error, variables, context) {
+      toast({
+        variant: "destructive",
+        title: error.message,
+      });
+    },
   });
 
   const { mutate: deletee, isPending: isDeleting } = useMutation({
@@ -127,6 +133,12 @@ export const UserForm: React.FC<UserFormProps> = ({
       setOpen(false);
       router.push("/dashboard/users");
     },
+    onError(error, variables, context) {
+      toast({
+        variant: "destructive",
+        title: error.message,
+      });
+    },
   });
   const { mutate: create, isPending: isCreating } = useMutation({
     mutationFn: createUser,
@@ -138,6 +150,12 @@ export const UserForm: React.FC<UserFormProps> = ({
       });
       setOpen(false);
       router.push("/dashboard/users");
+    },
+    onError(error, variables, context) {
+      toast({
+        variant: "destructive",
+        title: error.message,
+      });
     },
   });
 

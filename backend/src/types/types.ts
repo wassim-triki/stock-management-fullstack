@@ -59,6 +59,26 @@ export class ErrorResponse extends Error {
   }
 }
 
+export type User = {
+  password: string;
+  email: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+  };
+  role: Role;
+  createdAt: Date;
+  updatedAt: Date;
+  active: boolean;
+};
+
 export interface IUser extends Document {
   getResetPasswordToken(): string;
   getSignedToken(): string;

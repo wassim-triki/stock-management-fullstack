@@ -1,5 +1,8 @@
+import { ApiSearchFilter } from "@/api/supplier";
 import { getTotalUsers, getUsers } from "@/api/user";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
+import { DataTable } from "@/components/tables/data-table";
+import { columns } from "@/components/tables/users-table/columns";
 import UsersTable from "@/components/tables/users-table/users-table";
 import { queryKeys } from "@/lib/constants";
 import {
@@ -14,17 +17,32 @@ const breadcrumbItems = [
   { title: "Users", link: "/dashboard/users" },
 ];
 
-const Page = async () => {
+type ParamsProps = {
+  searchParams: {
+    [key: string]: string | string[] | undefined;
+  };
+};
+
+const Page = async ({ searchParams }: ParamsProps) => {
+  const page = Number(searchParams.page) || 1;
+  const limit = Number(searchParams.limit) || 5;
+  const search = searchParams.search?.toString() || "";
+  const filter: ApiSearchFilter = {
+    limit,
+    page,
+    search,
+  };
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.users],
-    queryFn: getUsers,
+    queryKey: [queryKeys.users, filter],
+    queryFn: () => getUsers(filter),
   });
 
   const total = await queryClient.fetchQuery({
     queryKey: [queryKeys.totalUsers],
     queryFn: getTotalUsers,
   });
+  const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
 
@@ -36,7 +54,16 @@ const Page = async () => {
       addNewLink="/dashboard/users/new"
     >
       <HydrationBoundary state={dehydratedState}>
-        <UsersTable />
+        <DataTable
+          rQPrams={{
+            queryKey: queryKeys.users,
+            queryFn: getUsers,
+          }}
+          searchKey="email"
+          columns={columns}
+          pageCount={pageCount}
+          filter={filter}
+        />
       </HydrationBoundary>
     </ContentPageLayout>
   );

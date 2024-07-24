@@ -9,12 +9,27 @@ import {
 } from '../types/types';
 
 export const getAllUsers = async (
-  _: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const users = await User.find();
+    const { limit = 10, page = 1, search = '' } = req.query;
+
+    const limitNum = Number(limit);
+    const pageNum = Number(page);
+
+    const skipNum = (pageNum - 1) * limitNum;
+
+    const query = search
+      ? {
+          email: { $regex: new RegExp(search as string, 'i') },
+        }
+      : {};
+    const users = await User.find(query, {}, { sort: { created_at: -1 } })
+      .skip(skipNum)
+      .limit(limitNum)
+      .sort({ createdAt: -1 });
     return res
       .status(200)
       .json(new SuccessResponseList('Users retrived successfully', users));

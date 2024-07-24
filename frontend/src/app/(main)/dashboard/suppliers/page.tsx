@@ -4,7 +4,7 @@ import {
   getSuppliers,
   getTotalSuppliers,
 } from "@/api/supplier";
-import SuppliersTable from "@/components/tables/suppliers-table/supplier-table";
+
 import { queryKeys } from "@/lib/constants";
 import {
   dehydrate,
@@ -52,11 +52,6 @@ export default async function Page({ searchParams }: ParamsProps) {
 
   const dehydratedState = dehydrate(queryClient);
 
-  // const { data } = useQuery({
-  //   queryKey: [queryKeys.suppliers, debouncedFilter],
-  //   queryFn: () => getSuppliers(debouncedFilter),
-  // });
-
   return (
     <HydrationBoundary state={dehydratedState}>
       <ContentPageLayout
@@ -65,10 +60,6 @@ export default async function Page({ searchParams }: ParamsProps) {
         title={`Suppliers (${total})`}
         description="Manage suppliers"
       >
-        {/* <SuppliersTable
-          pageCount={pageCount}
-          filter={{ limit, offset, search }}
-        /> */}
         <DataTable
           rQPrams={{
             queryKey: queryKeys.suppliers,
