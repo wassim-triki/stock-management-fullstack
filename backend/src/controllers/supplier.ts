@@ -14,11 +14,13 @@ export const getSuppliers = async (
   next: NextFunction
 ) => {
   try {
-    const { limit = 10, offset = 0, search = '' } = req.query;
+    const { limit = 10, page = 1, search = '' } = req.query;
 
     // Convert limit and offset to numbers
-    const limitNum = parseInt(limit as string, 10);
-    const offsetNum = parseInt(offset as string, 10);
+    const limitNum = Number(limit);
+    const pageNum = Number(page);
+
+    const skipNum = (pageNum - 1) * limitNum;
 
     // Build the query to be "like" search
     const query = search
@@ -27,9 +29,8 @@ export const getSuppliers = async (
         }
       : {};
 
-    const suppliers = await Supplier.find(query)
-      .skip(offsetNum)
-      .limit(limitNum);
+    const suppliers = await Supplier.find(query).skip(skipNum).limit(limitNum);
+
     res
       .status(200)
       .json(

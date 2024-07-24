@@ -1,3 +1,4 @@
+"use server";
 import { axiosInstance } from "@/lib/axios";
 import fetchHelper from "@/lib/fetchInstance";
 import {
@@ -8,30 +9,32 @@ import {
 import { AxiosResponse } from "axios";
 
 export type ApiSearchFilter = {
-  offset?: number;
+  page?: number;
   limit?: number;
   search?: string;
 };
-export const buildQueryParams = (filter: ApiSearchFilter) => {
-  const queryParams = new URLSearchParams();
+export const buildQueryParams = (filter: ApiSearchFilter): string => {
+  const params: string[] = [];
 
-  if (filter.limit !== undefined)
-    queryParams.append("limit", filter.limit.toString());
-  if (filter.offset !== undefined)
-    queryParams.append("offset", filter.offset.toString());
-  if (filter.search !== undefined) queryParams.append("search", filter.search);
+  if (filter.limit) params.push(`limit=${filter.limit}`);
+  if (filter.page) params.push(`page=${filter.page}`);
+  if (filter.search) params.push(`search=${filter.search}`);
 
-  return queryParams;
+  return params.join("&");
 };
 
 export const getSuppliers = async (
   filter: ApiSearchFilter,
 ): Promise<Supplier[]> => {
-  const queryParams = buildQueryParams(filter);
+  "use server";
+
+  const queryParams = await buildQueryParams(filter);
+  console.log("❤️❤️❤️❤️❤️");
 
   const response: ApiSuccessResponseList<Supplier> = await fetchHelper(
     `/api/suppliers?${queryParams.toString()}`,
   );
+
   return response.data.items;
 };
 
@@ -49,11 +52,10 @@ export const updateSupplier = async ({
   id: string;
   data: Partial<Supplier>;
 }): Promise<ApiSuccessResponse<Supplier>> => {
-  return axiosInstance
-    .put(`/api/suppliers/${id}`, data)
-    .then(
-      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
-    );
+  return await fetchHelper(`/api/suppliers/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 };
 
 // Function to get the total number of suppliers
@@ -67,19 +69,23 @@ export const getTotalSuppliers = async (): Promise<number> => {
 export const deleteSupplier = async (
   supplierId: string,
 ): Promise<ApiSuccessResponse<Supplier>> => {
-  return axiosInstance
-    .delete(`/api/suppliers/${supplierId}`)
-    .then(
-      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
-    );
+  return await fetchHelper(`/api/suppliers/${supplierId}`, {
+    method: "DELETE",
+  });
 };
 
 export const createSupplier = async (
   data: Partial<Supplier>,
 ): Promise<ApiSuccessResponse<Supplier>> => {
-  return axiosInstance
-    .post("/api/suppliers", data)
-    .then(
-      (response: AxiosResponse<ApiSuccessResponse<Supplier>>) => response.data,
-    );
+  return await fetchHelper("/api/suppliers", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };
+
+// export const getSupplierById = async (id: string): Promise<Supplier> => {
+//   const response = await fetchHelper<ApiSuccessResponse<Supplier>>(
+//     `/api/suppliers/${id}`,
+//   );
+//   return response.data;
+// };

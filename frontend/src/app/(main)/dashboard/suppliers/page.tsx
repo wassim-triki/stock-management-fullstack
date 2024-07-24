@@ -11,6 +11,8 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
+import { DataTable } from "@/components/tables/data-table";
+import { columns } from "@/components/tables/suppliers-table/columns";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -28,14 +30,13 @@ export default async function Page({ searchParams }: ParamsProps) {
 
   const limit = Number(searchParams.limit) || 5;
   const search = searchParams.search?.toString() || "";
-  const offset = (page - 1) * limit;
+  // const offset = (page - 1) * limit;
 
   const filter: ApiSearchFilter = {
     limit,
-    offset,
+    page,
     search,
   };
-
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
     queryKey: [queryKeys.suppliers, filter],
@@ -50,6 +51,12 @@ export default async function Page({ searchParams }: ParamsProps) {
   const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
+
+  // const { data } = useQuery({
+  //   queryKey: [queryKeys.suppliers, debouncedFilter],
+  //   queryFn: () => getSuppliers(debouncedFilter),
+  // });
+
   return (
     <HydrationBoundary state={dehydratedState}>
       <ContentPageLayout
@@ -58,9 +65,19 @@ export default async function Page({ searchParams }: ParamsProps) {
         title={`Suppliers (${total})`}
         description="Manage suppliers"
       >
-        <SuppliersTable
+        {/* <SuppliersTable
           pageCount={pageCount}
           filter={{ limit, offset, search }}
+        /> */}
+        <DataTable
+          rQPrams={{
+            queryKey: queryKeys.suppliers,
+            queryFn: getSuppliers,
+          }}
+          searchKey="companyName"
+          columns={columns}
+          pageCount={pageCount}
+          filter={filter}
         />
       </ContentPageLayout>
     </HydrationBoundary>

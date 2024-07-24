@@ -34,34 +34,48 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useQuery } from "@tanstack/react-query";
+import { ApiSearchFilter } from "@/api/supplier";
+import { useDebounce } from "@uidotdev/usehooks";
 
+export type RQParams<T> = {
+  queryKey: string;
+  queryFn: (filter: ApiSearchFilter) => Promise<T>;
+};
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
   searchKey: string;
   pageSizeOptions?: number[];
   pageCount: number;
-  searchParams?: {
-    [key: string]: string | string[] | undefined;
-  };
+  filter: ApiSearchFilter;
+  rQPrams: RQParams<TData[]>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data,
+  rQPrams,
   searchKey,
   pageCount,
-  pageSizeOptions = [10, 20, 30, 40, 50],
+  filter,
+  pageSizeOptions = [5, 10, 20, 30, 40, 50],
 }: DataTableProps<TData, TValue>) {
+  const debouncedFilter = useDebounce(filter, 500);
+
+  const { data } = useQuery<TData[]>({
+    queryKey: [rQPrams.queryKey, debouncedFilter],
+    queryFn: () => rQPrams.queryFn(debouncedFilter),
+    // enabled: !!filter,
+  });
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   // Search params
-  const page = searchParams?.get("page") ?? "1";
+  const page = filter.page || 1;
   const pageAsNumber = Number(page);
   const fallbackPage =
     isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber;
-  const per_page = searchParams?.get("limit") ?? "10";
+  const per_page = filter.limit || 10;
   const perPageAsNumber = Number(per_page);
   const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber;
 
@@ -105,7 +119,7 @@ export function DataTable<TData, TValue>({
   }, [pageIndex, pageSize]);
 
   const table = useReactTable({
-    data,
+    data: data || [],
     columns,
     pageCount: pageCount ?? -1,
     getCoreRowModel: getCoreRowModel(),
@@ -119,41 +133,16 @@ export function DataTable<TData, TValue>({
     manualFiltering: true,
   });
   // this can be used to get the selectedrows
-  console.log(
-    "value",
-    table.getFilteredSelectedRowModel().rows.map((rows) => rows.original),
-  );
+  // console.log(
+  //   "value",
+  //   table.getFilteredSelectedRowModel().rows.map((rows) => rows.original),
+  // );
+
+  // Get the search value from the table filter
   const searchValue = table.getColumn(searchKey)?.getFilterValue() as string;
 
-  // React.useEffect(() => {
-  //   if (debounceValue.length > 0) {
-  //     router.push(
-  //       `${pathname}?${createQueryString({
-  //         [selectedOption.value]: `${debounceValue}${
-  //           debounceValue.length > 0 ? `.${filterVariety}` : ""
-  //         }`,
-  //       })}`,
-  //       {
-  //         scroll: false,
-  //       }
-  //     )
-  //   }
-
-  //   if (debounceValue.length === 0) {
-  //     router.push(
-  //       `${pathname}?${createQueryString({
-  //         [selectedOption.value]: null,
-  //       })}`,
-  //       {
-  //         scroll: false,
-  //       }
-  //     )
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [debounceValue, filterVariety, selectedOption.value])
-
+  //set the url query string when the search value changes
   React.useEffect(() => {
-    console.log(searchValue);
     if (searchValue?.length > 0) {
       router.push(
         `${pathname}?${createQueryString({

@@ -99,6 +99,12 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
       setOpen(false);
       router.push("/dashboard/suppliers");
     },
+    onError(error, variables, context) {
+      toast({
+        variant: "destructive",
+        title: error.message,
+      });
+    },
   });
   const { mutate: deletee, isPending: isDeleting } = useMutation({
     mutationFn: deleteSupplier,
@@ -113,6 +119,12 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
       setOpen(false);
       router.push("/dashboard/suppliers");
     },
+    onError(error, variables, context) {
+      toast({
+        variant: "destructive",
+        title: error.message,
+      });
+    },
   });
   const { mutate: create, isPending: isCreating } = useMutation({
     mutationFn: createSupplier,
@@ -126,6 +138,12 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
       });
       setOpen(false);
       router.push("/dashboard/suppliers");
+    },
+    onError(error, variables, context) {
+      toast({
+        variant: "destructive",
+        title: error.message,
+      });
     },
   });
 
