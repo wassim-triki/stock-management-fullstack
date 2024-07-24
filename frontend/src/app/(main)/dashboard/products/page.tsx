@@ -35,13 +35,14 @@ export default async function page({ searchParams }: paramsProps) {
         description="Manage employees (Server side table functionalities.)"
         addNewLink="/dashboard/products/new"
       >
-        <DataTable
+        {/* <DataTable
           searchKey="name"
           pageNo={page}
           columns={columns}
           data={product}
           pageCount={pageCount}
-        />
+        /> */}
+        products
       </ContentPageLayout>
     </>
   );

@@ -3,7 +3,6 @@ import { getTotalUsers, getUsers } from "@/api/user";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 import { DataTable } from "@/components/tables/data-table";
 import { columns } from "@/components/tables/users-table/columns";
-import UsersTable from "@/components/tables/users-table/users-table";
 import { queryKeys } from "@/lib/constants";
 import {
   dehydrate,
