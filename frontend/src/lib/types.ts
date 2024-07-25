@@ -102,3 +102,10 @@ export type Category = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type ApiSearchFilter = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  noFilters?: boolean;
+};

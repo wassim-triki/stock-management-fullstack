@@ -1,5 +1,4 @@
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { ApiSearchFilter } from "@/api/supplier";
 
 import { queryKeys } from "@/lib/constants";
 import {
@@ -10,6 +9,7 @@ import {
 import { DataTable } from "@/components/tables/data-table";
 import { getCategories, getTotalCategories } from "@/api/category";
 import { columns } from "@/components/tables/categories-table/columns";
+import { ApiSearchFilter } from "@/lib/types";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },

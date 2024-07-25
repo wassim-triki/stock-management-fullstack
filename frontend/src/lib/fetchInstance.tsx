@@ -10,7 +10,7 @@ async function fetchHelper<T>(
 ): Promise<T> {
   const cookieStore = cookies();
   const cookieValue = cookieStore.get("session")?.value;
-
+  console.log("😂😂😂😂😂😂😂😂😂");
   const response = await fetch(`${config.apiUrl}${url}`, {
     credentials: "include", // Ensure credentials are sent
     headers: {
@@ -23,11 +23,11 @@ async function fetchHelper<T>(
 
   if (!response.ok) {
     const errorData: ApiErrorResponse = await response.json();
-    if (response.status === 401) {
-      console.log("Unauthorized. Please login.");
-    } else {
-      console.log(errorData.message || "Server error");
-    }
+    // if (response.status === 401) {
+    //   console.log("Unauthorized. Please login.");
+    // } else {
+    //   console.log(errorData.message || "Server error");
+    // }
     throw new Error(errorData.message || "Server error");
     return Promise.reject(errorData);
   }

@@ -35,8 +35,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
-import { ApiSearchFilter } from "@/api/supplier";
 import { useDebounce } from "@uidotdev/usehooks";
+import { ApiSearchFilter } from "@/lib/types";
 
 export type RQParams<T> = {
   queryKey: string;

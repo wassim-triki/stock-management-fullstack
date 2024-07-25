@@ -56,7 +56,7 @@ export const columns: ColumnDef<Category>[] = [
         queryKey={queryKeys.categories}
         data={row.original}
         deleteFunction={deleteSupplier}
-        editUrl={(id) => `/dashboard/categories/${id}/edit`}
+        editUrl={(id) => `/dashboard/stock/categories/${id}/edit`}
       />
     ),
   },

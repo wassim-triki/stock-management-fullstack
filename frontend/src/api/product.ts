@@ -1,10 +1,11 @@
 import {
+  ApiSearchFilter,
   ApiSuccessResponse,
   ApiSuccessResponseList,
   Product,
 } from "@/lib/types";
-import { ApiSearchFilter, buildQueryParams } from "./supplier";
 import fetchHelper from "@/lib/fetchInstance";
+import { buildQueryParams } from "@/lib/utils";
 
 export const getProducts = async (
   filter: ApiSearchFilter,

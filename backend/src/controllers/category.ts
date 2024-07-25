@@ -8,7 +8,6 @@ import {
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
 
-// Get all categories
 export const getCategories = async (
   req: Request,
   res: Response,
@@ -20,18 +19,25 @@ export const getCategories = async (
       page = 1,
       search = '',
       sort = { createdAt: -1 },
+      noFilters = false,
     } = req.query;
 
-    const { items } = await paginateAndSearch(
-      Category,
-      'name',
-      search as string,
-      Number(limit),
-      Number(page),
-      sort as any
-    );
-
-    const categories = await Category.populate(items, 'parentCategory');
+    let categories;
+    if (noFilters) {
+      categories = await Category.find()
+        .sort(sort as any)
+        .populate('parentCategory');
+    } else {
+      const { items } = await paginateAndSearch(
+        Category,
+        'name',
+        search as string,
+        Number(limit),
+        Number(page),
+        sort as any
+      );
+      categories = await Category.populate(items, 'parentCategory');
+    }
 
     res
       .status(200)
@@ -50,7 +56,9 @@ export const getCategoryById = async (
   next: NextFunction
 ) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const category = await Category.findById(req.params.id).populate(
+      'parentCategory'
+    );
     if (!category) {
       return next(new ErrorResponse('Category not found', 404));
     }
@@ -63,12 +71,23 @@ export const getCategoryById = async (
 };
 
 // Create a new category
+
 export const createCategory = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    const { name } = req.body;
+    const existingCategory = await Category.findOne({
+      name: { $regex: new RegExp(`^${name}$`, 'i') },
+    });
+    if (existingCategory) {
+      return next(
+        new ErrorResponse('Category with this name already exists', 400)
+      );
+    }
+
     const category = await Category.create(req.body);
     res
       .status(201)
@@ -85,6 +104,16 @@ export const updateCategory = async (
   next: NextFunction
 ) => {
   try {
+    const { name } = req.body;
+    const existingCategory = await Category.findOne({
+      name: { $regex: new RegExp(`^${name}$`, 'i') },
+    });
+    if (existingCategory) {
+      return next(
+        new ErrorResponse('Category with this name already exists', 400)
+      );
+    }
+
     const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,

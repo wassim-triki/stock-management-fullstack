@@ -1,9 +1,5 @@
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import {
-  ApiSearchFilter,
-  getSuppliers,
-  getTotalSuppliers,
-} from "@/api/supplier";
+import { getSuppliers, getTotalSuppliers } from "@/api/supplier";
 
 import { queryKeys } from "@/lib/constants";
 import {
@@ -13,6 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { DataTable } from "@/components/tables/data-table";
 import { columns } from "@/components/tables/suppliers-table/columns";
+import { ApiSearchFilter } from "@/lib/types";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },

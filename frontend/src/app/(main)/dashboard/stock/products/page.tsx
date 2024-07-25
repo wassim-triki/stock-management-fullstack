@@ -1,8 +1,7 @@
-import { Product } from "@/lib/types";
+import { ApiSearchFilter, Product } from "@/lib/types";
 import { DataTable } from "@/components/tables/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 import { columns } from "@/components/tables/products-table/columns";
-import { ApiSearchFilter } from "@/api/supplier";
 import {
   dehydrate,
   HydrationBoundary,

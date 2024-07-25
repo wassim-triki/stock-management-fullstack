@@ -2,35 +2,43 @@ import { SupplierForm } from "@/components/forms/supplier-form";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getSupplierById } from "@/api/supplier";
+import { Supplier, ApiErrorResponse } from "@/lib/types";
 import { QueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants";
+import { getCategories, getCategoryById } from "@/api/category";
+import { CategoryForm } from "@/components/forms/category-form";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
+  { title: "Categories", link: "/dashboard/stock/categories" },
   { title: "Edit", link: "" },
 ];
 
 type Props = {
-  params: { supplierId: string };
+  params: { categoryId: string };
 };
 
 export default async function Page({ params }: Props) {
-  const supplierId = params.supplierId;
+  const categoryId = params.categoryId;
 
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.suppliers, supplierId],
-    queryFn: () => getSupplierById(supplierId),
+    queryKey: [queryKeys.categories, categoryId],
+    queryFn: () => getCategoryById(categoryId),
   });
+  const categories = await queryClient.fetchQuery({
+    queryKey: [queryKeys.totalSuppliers],
+    queryFn: () => getCategories({ noFilters: true }),
+  });
+  console.log(categories.length);
 
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
-        <SupplierForm
-          // initialData={res.data}
-          supplierId={supplierId}
+        <CategoryForm
+          categories={categories}
+          categoryId={categoryId}
           action="Save Changes"
           description="Edit supplier information"
           title="Edit Supplier"

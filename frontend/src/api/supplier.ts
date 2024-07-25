@@ -2,26 +2,13 @@
 import { axiosInstance } from "@/lib/axios";
 import fetchHelper from "@/lib/fetchInstance";
 import {
+  ApiSearchFilter,
   ApiSuccessResponse,
   ApiSuccessResponseList,
   Supplier,
 } from "@/lib/types";
+import { buildQueryParams } from "@/lib/utils";
 import { AxiosResponse } from "axios";
-
-export type ApiSearchFilter = {
-  page?: number;
-  limit?: number;
-  search?: string;
-};
-export const buildQueryParams = (filter: ApiSearchFilter): string => {
-  const params: string[] = [];
-
-  if (filter.limit) params.push(`limit=${filter.limit}`);
-  if (filter.page) params.push(`page=${filter.page}`);
-  if (filter.search) params.push(`search=${filter.search}`);
-
-  return params.join("&");
-};
 
 export const getSuppliers = async (
   filter: ApiSearchFilter,

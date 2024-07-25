@@ -7,6 +7,7 @@ const CategorySchema: Schema = new Schema(
     name: {
       type: String,
       required: [true, 'Category name is required'],
+      unique: [true, 'Category name already exists'],
     },
     parentCategory: {
       type: Schema.Types.ObjectId,

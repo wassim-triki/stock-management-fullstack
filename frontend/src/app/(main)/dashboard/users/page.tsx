@@ -1,9 +1,9 @@
-import { ApiSearchFilter } from "@/api/supplier";
 import { getTotalUsers, getUsers } from "@/api/user";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 import { DataTable } from "@/components/tables/data-table";
 import { columns } from "@/components/tables/users-table/columns";
 import { queryKeys } from "@/lib/constants";
+import { ApiSearchFilter } from "@/lib/types";
 import {
   dehydrate,
   HydrationBoundary,
