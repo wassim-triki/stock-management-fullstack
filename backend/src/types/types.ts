@@ -79,13 +79,6 @@ export type User = {
   active: boolean;
 };
 
-export interface ICategory extends Document {
-  name: string;
-  parentCategory?: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface IUser extends Document {
   getResetPasswordToken(): string;
   getSignedToken(): string;
@@ -124,4 +117,21 @@ export interface ISupplier extends Document {
   createdAt: Date;
   updatedAt: Date;
   active: boolean;
+}
+
+export interface ICategory extends Document {
+  name: string;
+  parentCategory?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface IProduct extends Document {
+  productName: string;
+  category: mongoose.Types.ObjectId;
+  supplier: string;
+  quantityInStock: number;
+  // reorderLevel: number;
+  price: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

@@ -5,7 +5,7 @@ import { columns } from "@/components/tables/products-table/columns";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Products", link: "/dashboard/products" },
+  { title: "Products", link: "/dashboard/stock/products" },
 ];
 
 type paramsProps = {

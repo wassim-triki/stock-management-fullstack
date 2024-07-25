@@ -6,7 +6,9 @@ import {
   SquarePen,
   LayoutGrid,
   LucideIcon,
+  Package,
   Container,
+  PackageOpen,
   Layers,
   Boxes,
   Truck,
@@ -68,15 +70,21 @@ export function getMenuList(pathname: string): Group[] {
           ],
         },
         {
-          href: "/dashboard/products",
-          label: "Products",
-          active: pathname.includes("/products"),
+          href: "#",
+          label: "Stock",
+          active: pathname.includes("/stock"),
           icon: Boxes,
           submenus: [
             {
-              href: "/dashboard/products/categories",
+              href: "/dashboard/stock/products",
+              label: "Products",
+              active: pathname === "/dashboard/stock/products",
+              icon: PackageOpen,
+            },
+            {
+              href: "/dashboard/stock/categories",
               label: "Categories",
-              active: pathname === "/dashboard/products/categories",
+              active: pathname === "/dashboard/stock/categories",
               icon: Layers,
             },
             // {

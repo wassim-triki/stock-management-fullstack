@@ -13,8 +13,7 @@ import { columns } from "@/components/tables/categories-table/columns";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Products", link: "/dashboard/products" },
-  { title: "Categories", link: "/dashboard/categories" },
+  { title: "Categories", link: "/dashboard/stock/categories" },
 ];
 
 type ParamsProps = {
@@ -54,7 +53,7 @@ export default async function Page({ searchParams }: ParamsProps) {
     <HydrationBoundary state={dehydratedState}>
       <ContentPageLayout
         breadcrumbItems={breadcrumbItems}
-        addNewLink="/dashboard/products/categories/new"
+        addNewLink="/dashboard/stock/categories/new"
         title={`Categories (${total})`}
         description="Manage categories"
       >
