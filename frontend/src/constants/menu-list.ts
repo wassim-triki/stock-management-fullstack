@@ -7,14 +7,16 @@ import {
   LayoutGrid,
   LucideIcon,
   Container,
+  Layers,
   Boxes,
   Truck,
 } from "lucide-react";
 
-type Submenu = {
+export type Submenu = {
   href: string;
   label: string;
   active: boolean;
+  icon?: LucideIcon;
 };
 
 type Menu = {
@@ -71,11 +73,12 @@ export function getMenuList(pathname: string): Group[] {
           active: pathname.includes("/products"),
           icon: Boxes,
           submenus: [
-            // {
-            //   href: "/posts",
-            //   label: "All Posts",
-            //   active: pathname === "/posts"
-            // },
+            {
+              href: "/dashboard/products/categories",
+              label: "Categories",
+              active: pathname === "/dashboard/products/categories",
+              icon: Layers,
+            },
             // {
             //   href: "/posts/new",
             //   label: "New Post",
@@ -83,6 +86,7 @@ export function getMenuList(pathname: string): Group[] {
             // }
           ],
         },
+
         // {
         //   href: "",
         //   label: "Posts",

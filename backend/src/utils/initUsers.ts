@@ -5,7 +5,7 @@ import { User } from '../types/types';
 const initUsers = async () => {
   await UserModel.deleteMany({});
 
-  const users: Partial<User>[] = Array.from({ length: 100 }, (_, index) => ({
+  const users: Partial<User>[] = Array.from({ length: 20 }, (_, index) => ({
     email: `user${index + 1}@example.com`,
     password: 'password123',
     profile: {

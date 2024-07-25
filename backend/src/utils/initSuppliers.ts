@@ -3,7 +3,7 @@ import { Supplier } from '../models/Supplier';
 const initSuppliers = async () => {
   await Supplier.deleteMany({});
 
-  const suppliers = Array.from({ length: 100 }, (_, index) => ({
+  const suppliers = Array.from({ length: 20 }, (_, index) => ({
     name: `Supplier ${index + 1}`,
     email: `supplier${index + 1}@gmail.com`,
     phone: `+21624542649`,

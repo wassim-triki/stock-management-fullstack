@@ -6,6 +6,7 @@ import {
   SuccessResponse,
   SuccessResponseList,
 } from '../types/types';
+import { paginateAndSearch } from '../utils/paginateAndSearch';
 
 // Get all suppliers
 export const getSuppliers = async (
@@ -14,29 +15,25 @@ export const getSuppliers = async (
   next: NextFunction
 ) => {
   try {
-    const { limit = 10, page = 1, search = '' } = req.query;
+    const {
+      limit = 10,
+      page = 1,
+      search = '',
+      sort = { createdAt: -1 },
+    } = req.query;
 
-    const limitNum = Number(limit);
-    const pageNum = Number(page);
-
-    const skipNum = (pageNum - 1) * limitNum;
-
-    const query = search
-      ? {
-          companyName: { $regex: new RegExp(search as string, 'i') },
-        }
-      : {};
-
-    const suppliers = await Supplier.find(query)
-      .skip(skipNum)
-      .limit(limitNum)
-      .sort({ createdAt: -1 });
+    const { items } = await paginateAndSearch(
+      Supplier,
+      'name',
+      search as string,
+      Number(limit),
+      Number(page),
+      sort as any
+    );
 
     res
       .status(200)
-      .json(
-        new SuccessResponseList('Suppliers retrieved successfully', suppliers)
-      );
+      .json(new SuccessResponseList('Suppliers retrieved successfully', items));
   } catch (error: any) {
     next(new ErrorResponse('Failed to retrieve suppliers', 500));
   }

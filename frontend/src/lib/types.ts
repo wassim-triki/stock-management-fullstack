@@ -90,3 +90,11 @@ export type Product = {
   price: number;
   description: string;
 };
+
+export type Category = {
+  _id: string;
+  name: string;
+  parentCategory?: Category;
+  createdAt: Date;
+  updatedAt: Date;
+};

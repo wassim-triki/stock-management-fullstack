@@ -6,6 +6,7 @@ import {
   SuccessResponse,
   SuccessResponseList,
 } from '../types/types';
+import { paginateAndSearch } from '../utils/paginateAndSearch';
 
 // Get all categories
 export const getCategories = async (
@@ -14,22 +15,23 @@ export const getCategories = async (
   next: NextFunction
 ) => {
   try {
-    const { limit = 10, page = 1, search = '' } = req.query;
+    const {
+      limit = 10,
+      page = 1,
+      search = '',
+      sort = { createdAt: -1 },
+    } = req.query;
 
-    const limitNum = Number(limit);
-    const pageNum = Number(page);
-    const skipNum = (pageNum - 1) * limitNum;
+    const { items } = await paginateAndSearch(
+      Category,
+      'name',
+      search as string,
+      Number(limit),
+      Number(page),
+      sort as any
+    );
 
-    const query = search
-      ? {
-          categoryName: { $regex: new RegExp(search as string, 'i') },
-        }
-      : {};
-
-    const categories = await Category.find(query)
-      .skip(skipNum)
-      .limit(limitNum)
-      .sort({ createdAt: -1 });
+    const categories = await Category.populate(items, 'parentCategory');
 
     res
       .status(200)
