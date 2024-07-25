@@ -9,7 +9,7 @@ export const TEST = process.env.NODE_ENV === 'test';
 const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || 'localhost';
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/db_test';
+const MONGO_URI = process.env.MONGO_URI || `mongodb://localhost:27017/db_test`;
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jwt_secret';
 

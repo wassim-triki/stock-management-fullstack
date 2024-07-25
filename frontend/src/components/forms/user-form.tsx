@@ -1,3 +1,4 @@
+//user-form.tsx
 "use client";
 import * as z from "zod";
 import { useEffect, useState } from "react";
@@ -223,7 +224,7 @@ export const UserForm: React.FC<UserFormProps> = ({
         )}
       </div>
       <Separator />
-      {isError && <div>{error.message}</div>}
+      {isError && <div>{error?.message}</div>}
       {!isError && (
         <Form {...form}>
           <form

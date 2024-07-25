@@ -40,8 +40,8 @@ const addressSchema = z.object({
 });
 
 const formSchema = z.object({
-  companyName: z.string().min(1, { message: "" }),
-  contactEmail: z
+  name: z.string().min(1, { message: "" }),
+  email: z
     .string()
     .min(1, { message: "" })
     .email({ message: "Invalid email address" }),
@@ -152,8 +152,8 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
   const defaultValues = initialData
     ? initialData
     : {
-        companyName: "",
-        contactEmail: "",
+        name: "",
+        email: "",
         phone: "",
         address: {
           street: "",
@@ -205,7 +205,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
         )}
       </div>
       <Separator />
-      {isError && <div>{error.message}</div>}
+      {isError && <div>{error?.message}</div>}
       {!isError && (
         <Form {...form}>
           <form
@@ -215,7 +215,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
               <FormField
                 control={form.control}
-                name="companyName"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Company Name</FormLabel>
@@ -233,7 +233,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
 
               <FormField
                 control={form.control}
-                name="contactEmail"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contact Email</FormLabel>

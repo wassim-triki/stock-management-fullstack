@@ -4,4 +4,8 @@ export const queryKeys = {
   totalSuppliers: "totalSuppliers",
   totalUsers: "totalUsers",
   auth: "auth",
+  categories: "categories",
+  totalCategoreis: "totalCategoreis",
+  products: "products",
+  totalProducts: "totalProducts",
 };

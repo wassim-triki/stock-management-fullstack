@@ -11,6 +11,8 @@ import { loggingHandler } from './middleware/loggingHandler';
 import authRouter from './routes/auth';
 import userRoutes from './routes/user';
 import supplierRoutes from './routes/supplier';
+import categoryRoutes from './routes/category';
+import productRoutes from './routes/product';
 import errorHandler from './middleware/errorHandler';
 import { createRouteHandler } from 'uploadthing/express';
 import { uploadRouter } from './utils/uploadthing';
@@ -23,7 +25,7 @@ import { seedData } from './utils/seedData';
 
 export const app = express();
 export let httpServer: ReturnType<typeof http.createServer>;
-const origin = config.clientUrl || 'http://localhost:3000';
+const origin = config.clientUrl;
 const corsConfig = {
   origin,
   credentials: true,
@@ -39,12 +41,11 @@ export const Main = async () => {
   await seedData();
 
   app.use(cors(corsConfig));
-  app.options('*', cors(corsConfig));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header(
       'Access-Control-Allow-Headers',
@@ -52,10 +53,7 @@ export const Main = async () => {
     );
     next();
   });
-  // app.use(corsHandler);
-  app.use((req, res, next) => {
-    next();
-  });
+
   app.use(
     session({
       name: 'session',
@@ -80,6 +78,8 @@ export const Main = async () => {
   app.use('/api/auth', authRouter);
   app.use('/api/users', userRoutes);
   app.use('/api/suppliers', supplierRoutes);
+  app.use('/api/categories', categoryRoutes);
+  app.use('/api/products', productRoutes);
 
   app.use(
     '/api/uploadthing',

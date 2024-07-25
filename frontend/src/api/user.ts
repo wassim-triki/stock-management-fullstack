@@ -1,9 +1,14 @@
 "use server";
 import { axiosInstance } from "@/lib/axios";
 import fetchHelper from "@/lib/fetchInstance";
-import { ApiSuccessResponse, ApiSuccessResponseList, User } from "@/lib/types";
+import {
+  ApiSearchFilter,
+  ApiSuccessResponse,
+  ApiSuccessResponseList,
+  User,
+} from "@/lib/types";
+import { buildQueryParams } from "@/lib/utils";
 import { AxiosResponse } from "axios";
-import { ApiSearchFilter, buildQueryParams } from "./supplier";
 
 export async function getUsers(filter: ApiSearchFilter): Promise<User[]> {
   "use server";

@@ -1,11 +1,12 @@
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { CellAction } from "../cell-action";
-import { deleteUser } from "@/api/user";
+import { Category, Supplier } from "@/lib/types";
+import { deleteSupplier } from "@/api/supplier";
+import { queryKeys } from "@/lib/constants";
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<Category>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -26,28 +27,13 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "profile.firstName",
-    header: "FIRST NAME",
+    accessorKey: "name",
+    header: "NAME",
   },
+
   {
-    accessorKey: "profile.lastName",
-    header: "LAST NAME",
-  },
-  {
-    accessorKey: "email",
-    header: "EMAIL",
-  },
-  {
-    accessorKey: "profile.phone",
-    header: "PHONE",
-  },
-  {
-    accessorKey: "profile.address.street",
-    header: "ADDRESS",
-  },
-  {
-    accessorKey: "role",
-    header: "ROLE",
+    accessorKey: "parentCategory.name",
+    header: "PARENT CATEGORY",
   },
   {
     accessorKey: "updatedAt",
@@ -67,10 +53,10 @@ export const columns: ColumnDef<User>[] = [
     id: "actions",
     cell: ({ row }) => (
       <CellAction
-        queryKey="users"
+        queryKey={queryKeys.categories}
         data={row.original}
-        deleteFunction={deleteUser}
-        editUrl={(id) => `/dashboard/users/${id}/edit`}
+        deleteFunction={deleteSupplier}
+        editUrl={(id) => `/dashboard/stock/categories/${id}/edit`}
       />
     ),
   },

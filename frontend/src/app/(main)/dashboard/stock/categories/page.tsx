@@ -1,5 +1,4 @@
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { getSuppliers, getTotalSuppliers } from "@/api/supplier";
 
 import { queryKeys } from "@/lib/constants";
 import {
@@ -8,12 +7,13 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { DataTable } from "@/components/tables/data-table";
-import { columns } from "@/components/tables/suppliers-table/columns";
+import { getCategories, getTotalCategories } from "@/api/category";
+import { columns } from "@/components/tables/categories-table/columns";
 import { ApiSearchFilter } from "@/lib/types";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
+  { title: "Categories", link: "/dashboard/stock/categories" },
 ];
 
 type ParamsProps = {
@@ -36,13 +36,13 @@ export default async function Page({ searchParams }: ParamsProps) {
   };
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.suppliers, filter],
-    queryFn: () => getSuppliers(filter),
+    queryKey: [queryKeys.categories, filter],
+    queryFn: () => getCategories(filter),
   });
 
   const total = await queryClient.fetchQuery({
-    queryKey: [queryKeys.totalSuppliers],
-    queryFn: getTotalSuppliers,
+    queryKey: [queryKeys.totalCategoreis],
+    queryFn: getTotalCategories,
   });
 
   const pageCount = Math.ceil(total / limit);
@@ -53,14 +53,14 @@ export default async function Page({ searchParams }: ParamsProps) {
     <HydrationBoundary state={dehydratedState}>
       <ContentPageLayout
         breadcrumbItems={breadcrumbItems}
-        addNewLink="/dashboard/suppliers/new"
-        title={`Suppliers (${total})`}
-        description="Manage suppliers"
+        addNewLink="/dashboard/stock/categories/new"
+        title={`Categories (${total})`}
+        description="Manage categories"
       >
         <DataTable
           rQPrams={{
-            queryKey: queryKeys.suppliers,
-            queryFn: getSuppliers,
+            queryKey: queryKeys.categories,
+            queryFn: getCategories,
           }}
           searchKey="name"
           columns={columns}

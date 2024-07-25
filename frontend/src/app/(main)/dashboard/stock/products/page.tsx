@@ -1,28 +1,27 @@
+import { ApiSearchFilter, Product } from "@/lib/types";
+import { DataTable } from "@/components/tables/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { getSuppliers, getTotalSuppliers } from "@/api/supplier";
-
-import { queryKeys } from "@/lib/constants";
+import { columns } from "@/components/tables/products-table/columns";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { DataTable } from "@/components/tables/data-table";
-import { columns } from "@/components/tables/suppliers-table/columns";
-import { ApiSearchFilter } from "@/lib/types";
+import { getProducts, getTotalProducts } from "@/api/product";
+import { queryKeys } from "@/lib/constants";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
+  { title: "Products", link: "/dashboard/stock/products" },
 ];
 
-type ParamsProps = {
+type paramsProps = {
   searchParams: {
     [key: string]: string | string[] | undefined;
   };
 };
 
-export default async function Page({ searchParams }: ParamsProps) {
+export default async function page({ searchParams }: paramsProps) {
   const page = Number(searchParams.page) || 1;
 
   const limit = Number(searchParams.limit) || 5;
@@ -36,31 +35,30 @@ export default async function Page({ searchParams }: ParamsProps) {
   };
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.suppliers, filter],
-    queryFn: () => getSuppliers(filter),
+    queryKey: [queryKeys.products, filter],
+    queryFn: () => getProducts(filter),
   });
 
   const total = await queryClient.fetchQuery({
-    queryKey: [queryKeys.totalSuppliers],
-    queryFn: getTotalSuppliers,
+    queryKey: [queryKeys.totalProducts],
+    queryFn: getTotalProducts,
   });
 
   const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
-
   return (
     <HydrationBoundary state={dehydratedState}>
       <ContentPageLayout
         breadcrumbItems={breadcrumbItems}
-        addNewLink="/dashboard/suppliers/new"
-        title={`Suppliers (${total})`}
-        description="Manage suppliers"
+        addNewLink="/dashboard/stock/products/new"
+        title={`Products (${total})`}
+        description="Manage products"
       >
         <DataTable
           rQPrams={{
-            queryKey: queryKeys.suppliers,
-            queryFn: getSuppliers,
+            queryKey: queryKeys.products,
+            queryFn: getProducts,
           }}
           searchKey="name"
           columns={columns}

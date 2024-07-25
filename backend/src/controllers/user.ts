@@ -7,6 +7,7 @@ import {
   SuccessResponse,
   SuccessResponseList,
 } from '../types/types';
+import { paginateAndSearch } from '../utils/paginateAndSearch';
 
 export const getAllUsers = async (
   req: Request,
@@ -14,25 +15,24 @@ export const getAllUsers = async (
   next: NextFunction
 ) => {
   try {
-    const { limit = 10, page = 1, search = '' } = req.query;
+    const {
+      limit = 10,
+      page = 1,
+      search = '',
+      sort = { createdAt: -1 },
+    } = req.query;
 
-    const limitNum = Number(limit);
-    const pageNum = Number(page);
-
-    const skipNum = (pageNum - 1) * limitNum;
-
-    const query = search
-      ? {
-          email: { $regex: new RegExp(search as string, 'i') },
-        }
-      : {};
-    const users = await User.find(query, {}, { sort: { created_at: -1 } })
-      .skip(skipNum)
-      .limit(limitNum)
-      .sort({ createdAt: -1 });
+    const { items } = await paginateAndSearch(
+      User,
+      'email',
+      search as string,
+      Number(limit),
+      Number(page),
+      sort as any
+    );
     return res
       .status(200)
-      .json(new SuccessResponseList('Users retrived successfully', users));
+      .json(new SuccessResponseList('Users retrived successfully', items));
   } catch (error) {
     next(error);
   }

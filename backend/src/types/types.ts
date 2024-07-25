@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { Role } from '../utils/constants';
 
 // export class SuccessResponse<T> {
@@ -105,8 +105,8 @@ export interface IUser extends Document {
 }
 
 export interface ISupplier extends Document {
-  companyName: string;
-  contactEmail: string;
+  name: string;
+  email: string;
   phone: string;
   address: {
     street: string;
@@ -117,4 +117,21 @@ export interface ISupplier extends Document {
   createdAt: Date;
   updatedAt: Date;
   active: boolean;
+}
+
+export interface ICategory extends Document {
+  name: string;
+  parentCategory?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface IProduct extends Document {
+  name: string;
+  category: mongoose.Types.ObjectId;
+  supplier: string;
+  quantityInStock: number;
+  // reorderLevel: number;
+  price: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

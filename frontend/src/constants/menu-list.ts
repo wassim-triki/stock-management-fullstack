@@ -6,15 +6,19 @@ import {
   SquarePen,
   LayoutGrid,
   LucideIcon,
+  Package,
   Container,
+  PackageOpen,
+  Layers,
   Boxes,
   Truck,
 } from "lucide-react";
 
-type Submenu = {
+export type Submenu = {
   href: string;
   label: string;
   active: boolean;
+  icon?: LucideIcon;
 };
 
 type Menu = {
@@ -66,16 +70,23 @@ export function getMenuList(pathname: string): Group[] {
           ],
         },
         {
-          href: "/dashboard/products",
-          label: "Products",
-          active: pathname.includes("/products"),
+          href: "#",
+          label: "Stock",
+          active: pathname.includes("/stock"),
           icon: Boxes,
           submenus: [
-            // {
-            //   href: "/posts",
-            //   label: "All Posts",
-            //   active: pathname === "/posts"
-            // },
+            {
+              href: "/dashboard/stock/products",
+              label: "Products",
+              active: pathname === "/dashboard/stock/products",
+              icon: PackageOpen,
+            },
+            {
+              href: "/dashboard/stock/categories",
+              label: "Categories",
+              active: pathname === "/dashboard/stock/categories",
+              icon: Layers,
+            },
             // {
             //   href: "/posts/new",
             //   label: "New Post",
@@ -83,6 +94,7 @@ export function getMenuList(pathname: string): Group[] {
             // }
           ],
         },
+
         // {
         //   href: "",
         //   label: "Posts",

@@ -63,7 +63,7 @@ function Login() {
   } = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.suppliers] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.auth] });
       toast({
         variant: "success",
         title: data.message,
@@ -123,7 +123,7 @@ function Login() {
               </FormItem>
             )}
           />
-          {isError && <AlertDestructive error={error.message} />}
+          {isError && <AlertDestructive error={error?.message} />}
           <SubmitButton loading={isLoggingIn}>Login</SubmitButton>
         </form>
       </Form>

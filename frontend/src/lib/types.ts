@@ -71,8 +71,8 @@ export type User = {
 
 export type Supplier = {
   _id: string;
-  companyName: string;
-  contactEmail: string;
+  name: string;
+  email: string;
   phone: string;
   address: {
     street: string;
@@ -87,6 +87,25 @@ export type Supplier = {
 export type Product = {
   _id: number;
   name: string;
+  category: Category;
+  supplier: Supplier;
   price: number;
-  description: string;
+  quantityInStock: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Category = {
+  _id: string;
+  name: string;
+  parentCategory?: Category;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type ApiSearchFilter = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  noFilters?: boolean;
 };

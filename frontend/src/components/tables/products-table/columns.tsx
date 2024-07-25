@@ -30,13 +30,34 @@ export const columns: ColumnDef<Product>[] = [
   },
 
   {
-    accessorKey: "description",
-    header: "DESCRIPTION",
+    accessorKey: "price",
+    header: "PRICE",
   },
 
   {
-    accessorKey: "price",
-    header: "PRICE",
+    accessorKey: "category.name",
+    header: "CATEGORY",
+  },
+  {
+    accessorKey: "supplier.name",
+    header: "SUPPLIER",
+  },
+  {
+    accessorKey: "quantityInStock",
+    header: "QUANTITY",
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "LAST UPDATED",
+    cell: ({ cell }) => {
+      const date = new Date(cell.getValue() as string);
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(date);
+      return <span>{formattedDate}</span>;
+    },
   },
   // {
   //   id: "actions",

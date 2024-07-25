@@ -6,11 +6,11 @@ import { ISupplier } from '../types/types';
 // Define the Supplier schema
 const SupplierSchema: Schema = new Schema(
   {
-    companyName: {
+    name: {
       type: String,
       required: [true, 'Company name is required'],
     },
-    contactEmail: {
+    email: {
       type: String,
       required: [true, 'Contact email is required'],
       match: [
