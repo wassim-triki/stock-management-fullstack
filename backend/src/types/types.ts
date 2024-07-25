@@ -126,7 +126,7 @@ export interface ICategory extends Document {
   updatedAt: Date;
 }
 export interface IProduct extends Document {
-  productName: string;
+  name: string;
   category: mongoose.Types.ObjectId;
   supplier: string;
   quantityInStock: number;

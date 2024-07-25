@@ -87,8 +87,12 @@ export type Supplier = {
 export type Product = {
   _id: number;
   name: string;
+  category: Category;
+  supplier: Supplier;
   price: number;
-  description: string;
+  quantityInStock: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type Category = {

@@ -12,6 +12,7 @@ import authRouter from './routes/auth';
 import userRoutes from './routes/user';
 import supplierRoutes from './routes/supplier';
 import categoryRoutes from './routes/category';
+import productRoutes from './routes/product';
 import errorHandler from './middleware/errorHandler';
 import { createRouteHandler } from 'uploadthing/express';
 import { uploadRouter } from './utils/uploadthing';
@@ -78,6 +79,7 @@ export const Main = async () => {
   app.use('/api/users', userRoutes);
   app.use('/api/suppliers', supplierRoutes);
   app.use('/api/categories', categoryRoutes);
+  app.use('/api/products', productRoutes);
 
   app.use(
     '/api/uploadthing',

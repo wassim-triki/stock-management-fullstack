@@ -6,4 +6,6 @@ export const queryKeys = {
   auth: "auth",
   categories: "categories",
   totalCategoreis: "totalCategoreis",
+  products: "products",
+  totalProducts: "totalProducts",
 };

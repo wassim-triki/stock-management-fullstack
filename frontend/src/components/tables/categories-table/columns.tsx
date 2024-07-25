@@ -35,6 +35,19 @@ export const columns: ColumnDef<Category>[] = [
     accessorKey: "parentCategory.name",
     header: "PARENT CATEGORY",
   },
+  {
+    accessorKey: "updatedAt",
+    header: "LAST UPDATED",
+    cell: ({ cell }) => {
+      const date = new Date(cell.getValue() as string);
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(date);
+      return <span>{formattedDate}</span>;
+    },
+  },
 
   {
     id: "actions",

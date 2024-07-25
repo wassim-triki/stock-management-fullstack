@@ -4,7 +4,7 @@ import { IProduct } from '../types/types';
 
 const ProductSchema: Schema = new Schema(
   {
-    productName: {
+    name: {
       type: String,
       required: [true, 'Product name is required'],
     },

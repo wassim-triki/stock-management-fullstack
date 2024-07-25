@@ -2,6 +2,14 @@ import { Product } from "@/lib/types";
 import { DataTable } from "@/components/tables/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 import { columns } from "@/components/tables/products-table/columns";
+import { ApiSearchFilter } from "@/api/supplier";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getProducts, getTotalProducts } from "@/api/product";
+import { queryKeys } from "@/lib/constants";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -16,34 +24,49 @@ type paramsProps = {
 
 export default async function page({ searchParams }: paramsProps) {
   const page = Number(searchParams.page) || 1;
-  const pageLimit = Number(searchParams.limit) || 10;
-  const country = searchParams.search || null;
-  const offset = (page - 1) * pageLimit;
 
-  const res = await fetch(
-    `https://api.slingacademy.com/v1/sample-data/products?offset=${offset}&limit=${pageLimit}`,
-  );
-  const dataRes = await res.json();
-  const totalUsers = dataRes.total_products; //1000
-  const pageCount = Math.ceil(totalUsers / pageLimit);
-  const product: Product[] = dataRes.products;
+  const limit = Number(searchParams.limit) || 5;
+  const search = searchParams.search?.toString() || "";
+  // const offset = (page - 1) * limit;
+
+  const filter: ApiSearchFilter = {
+    limit,
+    page,
+    search,
+  };
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: [queryKeys.products, filter],
+    queryFn: () => getProducts(filter),
+  });
+
+  const total = await queryClient.fetchQuery({
+    queryKey: [queryKeys.totalProducts],
+    queryFn: getTotalProducts,
+  });
+
+  const pageCount = Math.ceil(total / limit);
+
+  const dehydratedState = dehydrate(queryClient);
   return (
-    <>
+    <HydrationBoundary state={dehydratedState}>
       <ContentPageLayout
         breadcrumbItems={breadcrumbItems}
-        title={`Products (${totalUsers})`}
-        description="Manage employees (Server side table functionalities.)"
-        addNewLink="/dashboard/products/new"
+        addNewLink="/dashboard/stock/products/new"
+        title={`Products (${total})`}
+        description="Manage products"
       >
-        {/* <DataTable
+        <DataTable
+          rQPrams={{
+            queryKey: queryKeys.products,
+            queryFn: getProducts,
+          }}
           searchKey="name"
-          pageNo={page}
           columns={columns}
-          data={product}
           pageCount={pageCount}
-        /> */}
-        products
+          filter={filter}
+        />
       </ContentPageLayout>
-    </>
+    </HydrationBoundary>
   );
 }

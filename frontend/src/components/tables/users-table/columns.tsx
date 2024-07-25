@@ -49,6 +49,19 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "role",
     header: "ROLE",
   },
+  {
+    accessorKey: "updatedAt",
+    header: "LAST UPDATED",
+    cell: ({ cell }) => {
+      const date = new Date(cell.getValue() as string);
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(date);
+      return <span>{formattedDate}</span>;
+    },
+  },
 
   {
     id: "actions",
