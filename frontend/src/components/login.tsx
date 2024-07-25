@@ -123,7 +123,7 @@ function Login() {
               </FormItem>
             )}
           />
-          {isError && <AlertDestructive error={error.message} />}
+          {isError && <AlertDestructive error={error?.message} />}
           <SubmitButton loading={isLoggingIn}>Login</SubmitButton>
         </form>
       </Form>

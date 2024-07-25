@@ -39,12 +39,11 @@ export const Main = async () => {
   await seedData();
 
   app.use(cors(corsConfig));
-  app.options('*', cors(corsConfig));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header(
       'Access-Control-Allow-Headers',
@@ -52,10 +51,7 @@ export const Main = async () => {
     );
     next();
   });
-  // app.use(corsHandler);
-  app.use((req, res, next) => {
-    next();
-  });
+
   app.use(
     session({
       name: 'session',
