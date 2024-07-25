@@ -23,7 +23,7 @@ import { seedData } from './utils/seedData';
 
 export const app = express();
 export let httpServer: ReturnType<typeof http.createServer>;
-const origin = config.clientUrl || 'http://localhost:3000';
+const origin = config.clientUrl;
 const corsConfig = {
   origin,
   credentials: true,
@@ -43,7 +43,7 @@ export const Main = async () => {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header(
       'Access-Control-Allow-Headers',

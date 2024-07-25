@@ -63,7 +63,7 @@ function Login() {
   } = useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.suppliers] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.auth] });
       toast({
         variant: "success",
         title: data.message,

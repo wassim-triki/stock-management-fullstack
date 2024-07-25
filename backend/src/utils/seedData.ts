@@ -10,6 +10,7 @@ export const seedData = async () => {
     // Clear existing data
     await UserModel.deleteMany({});
     await Supplier.deleteMany({});
+    console.log('Deleted data. ✅✅✅✅');
 
     // Create users
     const users: Partial<User>[] = Array.from({ length: 100 }, (_, index) => ({
