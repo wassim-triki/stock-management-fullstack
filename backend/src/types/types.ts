@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { Role } from '../utils/constants';
 
 // export class SuccessResponse<T> {
@@ -78,6 +78,13 @@ export type User = {
   updatedAt: Date;
   active: boolean;
 };
+
+export interface ICategory extends Document {
+  name: string;
+  parentCategory?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export interface IUser extends Document {
   getResetPasswordToken(): string;
