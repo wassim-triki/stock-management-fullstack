@@ -57,8 +57,8 @@ export const seedData = async () => {
     //creat
 
     const suppliers = Array.from({ length: 100 }, (_, index) => ({
-      companyName: `Supplier ${index + 1}`,
-      contactEmail: `supplier${index + 1}@gmail.com`,
+      name: `Supplier ${index + 1}`,
+      email: `supplier${index + 1}@gmail.com`,
       phone: `+21624542649`,
       address: {
         street: `${index + 1} Supplier St`,

@@ -105,8 +105,8 @@ export interface IUser extends Document {
 }
 
 export interface ISupplier extends Document {
-  companyName: string;
-  contactEmail: string;
+  name: string;
+  email: string;
   phone: string;
   address: {
     street: string;

@@ -26,17 +26,13 @@ export const columns: ColumnDef<Supplier>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "companyName",
-    header: "COMPANY NAME",
-  },
-  {
-    accessorKey: "contactName",
-    header: "CONTACT NAME",
+    accessorKey: "name",
+    header: "NAME",
   },
 
   {
-    accessorKey: "contactEmail",
-    header: "CONTACT EMAIL",
+    accessorKey: "email",
+    header: "EMAIL",
   },
 
   {

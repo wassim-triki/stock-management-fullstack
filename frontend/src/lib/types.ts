@@ -71,8 +71,8 @@ export type User = {
 
 export type Supplier = {
   _id: string;
-  companyName: string;
-  contactEmail: string;
+  name: string;
+  email: string;
   phone: string;
   address: {
     street: string;
