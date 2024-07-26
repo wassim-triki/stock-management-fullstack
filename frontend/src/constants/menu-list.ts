@@ -9,6 +9,7 @@ import {
   Package,
   Container,
   PackageOpen,
+  ShoppingCart,
   Layers,
   Boxes,
   Truck,
@@ -56,18 +57,7 @@ export function getMenuList(pathname: string): Group[] {
           label: "Suppliers",
           active: pathname.includes("/suppliers"),
           icon: Truck,
-          submenus: [
-            // {
-            //   href: "/posts",
-            //   label: "All Posts",
-            //   active: pathname === "/posts"
-            // },
-            // {
-            //   href: "/posts/new",
-            //   label: "New Post",
-            //   active: pathname === "/posts/new"
-            // }
-          ],
+          submenus: [],
         },
         {
           href: "#",
@@ -93,6 +83,13 @@ export function getMenuList(pathname: string): Group[] {
             //   active: pathname === "/posts/new"
             // }
           ],
+        },
+        {
+          href: "/dashboard/purchase-orders",
+          label: "Purchase Orders",
+          active: pathname.includes("/purchase-orders"),
+          icon: ShoppingCart,
+          submenus: [],
         },
 
         // {

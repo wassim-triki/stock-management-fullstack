@@ -277,7 +277,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <SelectTrigger>
                           <SelectValue
                             defaultValue={field.value}
-                            placeholder="Category"
+                            placeholder="Select a category"
                           />
                         </SelectTrigger>
                       </FormControl>
@@ -310,7 +310,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <SelectTrigger>
                           <SelectValue
                             defaultValue={field.value}
-                            placeholder="Supplier"
+                            placeholder="Select a supplier"
                           />
                         </SelectTrigger>
                       </FormControl>

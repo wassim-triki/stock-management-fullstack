@@ -10,7 +10,6 @@ async function fetchHelper<T>(
 ): Promise<T> {
   const cookieStore = cookies();
   const cookieValue = cookieStore.get("session")?.value;
-  console.log("😂😂😂😂😂😂😂😂😂");
   const response = await fetch(`${config.apiUrl}${url}`, {
     credentials: "include", // Ensure credentials are sent
     headers: {
