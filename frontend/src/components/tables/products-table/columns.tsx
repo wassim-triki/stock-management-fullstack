@@ -3,6 +3,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { Product, Supplier } from "@/lib/types";
 import { CellAction } from "../cell-action";
+import { queryKeys } from "@/lib/constants";
+import { deleteProduct } from "@/api/product";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -59,15 +61,15 @@ export const columns: ColumnDef<Product>[] = [
       return <span>{formattedDate}</span>;
     },
   },
-  // {
-  //   id: "actions",
-  //   cell: ({ row }) => (
-  //     <CellAction
-  //       queryKey="users"
-  //       data={row.original}
-  //       deleteFunction={deleteProduct}
-  //       editUrl={(id) => `/dashboard/suppliers/${id}/edit`}
-  //     />
-  //   ),
-  // },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <CellAction
+        queryKey={queryKeys.products}
+        data={row.original}
+        deleteFunction={deleteProduct}
+        editUrl={(id) => `/dashboard/stock/products/${id}/edit`}
+      />
+    ),
+  },
 ];

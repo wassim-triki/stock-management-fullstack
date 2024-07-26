@@ -5,6 +5,7 @@ import { CellAction } from "../cell-action";
 import { Category, Supplier } from "@/lib/types";
 import { deleteSupplier } from "@/api/supplier";
 import { queryKeys } from "@/lib/constants";
+import { deleteCategory } from "@/api/category";
 
 export const columns: ColumnDef<Category>[] = [
   {
@@ -55,7 +56,7 @@ export const columns: ColumnDef<Category>[] = [
       <CellAction
         queryKey={queryKeys.categories}
         data={row.original}
-        deleteFunction={deleteSupplier}
+        deleteFunction={deleteCategory}
         editUrl={(id) => `/dashboard/stock/categories/${id}/edit`}
       />
     ),

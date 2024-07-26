@@ -1,3 +1,4 @@
+"use server";
 import {
   ApiSearchFilter,
   ApiSuccessResponse,
@@ -26,4 +27,51 @@ export const getTotalProducts = async (): Promise<number> => {
     "/api/products/total",
   );
   return response.data.total;
+};
+
+export const createProduct = async (data: {
+  name: string;
+  price: number;
+  category: string;
+  supplier: string;
+  quantityInStock: number;
+}): Promise<ApiSuccessResponse<Product>> => {
+  return await fetchHelper("/api/products", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+};
+
+export const updateProduct = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: {
+    name: string;
+    price: number;
+    category: string;
+    supplier: string;
+    quantityInStock: number;
+  };
+}): Promise<ApiSuccessResponse<Product>> => {
+  return await fetchHelper(`/api/products/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+};
+
+export const deleteProduct = async (
+  productId: string,
+): Promise<ApiSuccessResponse<Product>> => {
+  return await fetchHelper(`/api/products/${productId}`, {
+    method: "DELETE",
+  });
+};
+
+export const getProductById = async (id: string): Promise<Product> => {
+  const response: ApiSuccessResponse<Product> = await fetchHelper(
+    `/api/products/${id}`,
+  );
+  return response.data;
 };

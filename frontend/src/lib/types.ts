@@ -85,7 +85,7 @@ export type Supplier = {
   active: boolean;
 };
 export type Product = {
-  _id: number;
+  _id: string;
   name: string;
   category: Category;
   supplier: Supplier;
