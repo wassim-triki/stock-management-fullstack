@@ -83,10 +83,6 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     parentCategory: categoryData?.parentCategory?._id || "",
   };
 
-  useEffect(() => {
-    console.log(initialData, categories);
-  }, [initialData, categories]);
-
   const { mutate: update, isPending: isUpdating } = useMutation({
     mutationFn: updateCategory,
     onSuccess: (data) => {
@@ -158,7 +154,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
   const onSubmit = async (data: CategoryFormValues) => {
     setLoading(true);
-    const parentCategory = data.parentCategory || null;
+    const parentCategory =
+      data.parentCategory && data.parentCategory !== "none"
+        ? data.parentCategory
+        : null;
     if (initialData && params.categoryId) {
       update({
         id: params.categoryId as string,
@@ -243,6 +242,9 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                       </FormControl>
                       <SelectContent>
                         {/* @ts-ignore */}
+                        <SelectItem key={"none"} value={"none"}>
+                          None
+                        </SelectItem>
                         {categories.map((category) => (
                           <SelectItem key={category._id} value={category._id}>
                             {category.name}
