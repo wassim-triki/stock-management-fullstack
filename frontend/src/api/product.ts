@@ -73,5 +73,6 @@ export const getProductById = async (id: string): Promise<Product> => {
   const response: ApiSuccessResponse<Product> = await fetchHelper(
     `/api/products/${id}`,
   );
+  console.log(response.data);
   return response.data;
 };

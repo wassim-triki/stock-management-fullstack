@@ -19,12 +19,20 @@ import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import { useToast } from "../ui/use-toast";
 import {
-  createCategory,
-  deleteCategory,
-  getCategoryById,
-  updateCategory,
-} from "@/api/category";
-import { ApiErrorResponse, ApiSuccessResponse, Category } from "@/lib/types";
+  createProduct,
+  deleteProduct,
+  getProductById,
+  updateProduct,
+} from "@/api/product";
+import { getCategories } from "@/api/category";
+import { getSuppliers } from "@/api/supplier";
+import {
+  ApiErrorResponse,
+  ApiSuccessResponse,
+  Product,
+  Category,
+  Supplier,
+} from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
 import { AlertModal } from "../modal/alert-modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -38,26 +46,49 @@ import {
 } from "../ui/select";
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Category name is required" }),
-  parentCategory: z.string(),
+  name: z.string().min(1, { message: "Product name is required" }),
+  category: z.string().min(1, { message: "Category is required" }),
+  supplier: z.string().min(1, { message: "Supplier is required" }),
+  price: z
+    .string()
+    .min(1, { message: "Price is required" })
+    .refine(
+      (val) => {
+        const num = parseFloat(val);
+        return !isNaN(num) && num >= 0;
+      },
+      { message: "Price must be a positive number" },
+    ),
+  quantityInStock: z
+    .string()
+    .min(1, { message: "Quantity is required" })
+    .refine(
+      (val) => {
+        const num = parseInt(val, 10);
+        return !isNaN(num) && num >= 0;
+      },
+      { message: "Quantity must be a positive number" },
+    ),
 });
 
-type CategoryFormValues = z.infer<typeof formSchema>;
+type ProductFormValues = z.infer<typeof formSchema>;
 
-interface CategoryFormProps {
+interface ProductFormProps {
   title: string;
   description: string;
   action: string;
-  categoryId?: string | undefined;
+  productId?: string | undefined;
   categories: Category[];
+  suppliers: Supplier[];
 }
 
-export const CategoryForm: React.FC<CategoryFormProps> = ({
+export const ProductForm: React.FC<ProductFormProps> = ({
   title,
   description,
   action,
-  categoryId = "",
+  productId = "",
   categories,
+  suppliers,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -68,35 +99,34 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const queryClient = useQueryClient();
 
   const {
-    data: categoryData,
+    data: productData,
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: [queryKeys.categories, categoryId],
-    queryFn: () => getCategoryById(categoryId),
-    enabled: !!categoryId,
+    queryKey: [queryKeys.products, productId],
+    queryFn: () => getProductById(productId),
+    enabled: !!productId,
   });
 
-  useEffect(() => {
-    console.log(categoryData);
-  }, [categoryData]);
-
-  const initialData: CategoryFormValues = {
-    name: categoryData?.name || "",
-    parentCategory: categoryData?.parentCategory?._id || "",
+  const initialData: ProductFormValues = {
+    name: productData?.name || "",
+    category: productData?.category?._id || "",
+    supplier: productData?.supplier?._id || "",
+    price: productData?.price?.toString() || "",
+    quantityInStock: productData?.quantityInStock?.toString() || "",
   };
 
   const { mutate: update, isPending: isUpdating } = useMutation({
-    mutationFn: updateCategory,
+    mutationFn: updateProduct,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.categories] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.products] });
       toast({
         variant: "success",
         title: data.message,
       });
       setOpen(false);
-      router.push("/dashboard/stock/categories");
+      router.push("/dashboard/stock/products");
     },
     onError(error, variables, context) {
       toast({
@@ -107,17 +137,17 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   });
 
   const { mutate: deletee, isPending: isDeleting } = useMutation({
-    mutationFn: deleteCategory,
+    mutationFn: deleteProduct,
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.categories],
+        queryKey: [queryKeys.products],
       });
       toast({
         variant: "success",
         title: data.message,
       });
       setOpen(false);
-      router.push("/dashboard/stock/categories");
+      router.push("/dashboard/stock/products");
     },
     onError(error, variables, context) {
       toast({
@@ -128,15 +158,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   });
 
   const { mutate: create, isPending: isCreating } = useMutation({
-    mutationFn: createCategory,
+    mutationFn: createProduct,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.categories] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.products] });
       toast({
         variant: "success",
         title: data.message,
       });
       setOpen(false);
-      router.push("/dashboard/stock/categories");
+      router.push("/dashboard/stock/products");
     },
     onError(error, variables, context) {
       toast({
@@ -148,32 +178,39 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
   const allLoading = isCreating || isLoading || isUpdating || isDeleting;
 
-  const defaultValues = initialData;
-
-  const form = useForm<CategoryFormValues>({
+  const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
-    // defaultValues,
-    values: defaultValues,
+    defaultValues: initialData,
   });
 
-  const onSubmit = async (data: CategoryFormValues) => {
-    setLoading(true);
-    const parentCategory =
-      data.parentCategory && data.parentCategory !== "none"
-        ? data.parentCategory
-        : null;
-    if (initialData && params.categoryId) {
+  const onSubmit = async (data: ProductFormValues) => {
+    console.log(data);
+    const category = data.category;
+    const supplier = data.supplier;
+    if (initialData && params.productId) {
       update({
-        id: params.categoryId as string,
-        data: { ...data, parentCategory },
+        id: params.productId as string,
+        data: {
+          ...data,
+          category,
+          supplier,
+          price: parseFloat(data.price),
+          quantityInStock: parseInt(data.quantityInStock, 10),
+        },
       });
     } else {
-      create({ ...data, parentCategory });
+      create({
+        ...data,
+        category,
+        supplier,
+        price: parseFloat(data.price),
+        quantityInStock: parseInt(data.quantityInStock, 10),
+      });
     }
   };
 
   const onConfirmDelete = async () => {
-    deletee(categoryId);
+    deletee(productId);
   };
 
   return (
@@ -186,7 +223,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {categoryData && (
+        {productData && (
           <Button
             disabled={allLoading}
             variant="destructive"
@@ -226,10 +263,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
               <FormField
                 control={form.control}
-                name="parentCategory"
+                name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Parent Category</FormLabel>
+                    <FormLabel>Category</FormLabel>
                     <Select
                       disabled={allLoading}
                       onValueChange={field.onChange}
@@ -240,15 +277,11 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                         <SelectTrigger>
                           <SelectValue
                             defaultValue={field.value}
-                            placeholder="Parent Category"
+                            placeholder="Category"
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {/* @ts-ignore */}
-                        <SelectItem key={"none"} value={"none"}>
-                          None
-                        </SelectItem>
                         {categories.map((category) => (
                           <SelectItem key={category._id} value={category._id}>
                             {category.name}
@@ -256,6 +289,77 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="supplier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Supplier</FormLabel>
+                    <Select
+                      disabled={allLoading}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            defaultValue={field.value}
+                            placeholder="Supplier"
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {suppliers.map((supplier) => (
+                          <SelectItem key={supplier._id} value={supplier._id}>
+                            {supplier.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        disabled={allLoading}
+                        placeholder="Price"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="quantityInStock"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantity In Stock</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        disabled={allLoading}
+                        placeholder="Quantity In Stock"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

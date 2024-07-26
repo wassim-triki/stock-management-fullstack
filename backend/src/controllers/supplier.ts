@@ -20,20 +20,28 @@ export const getSuppliers = async (
       page = 1,
       search = '',
       sort = { createdAt: -1 },
+      noFilters = false,
     } = req.query;
-
-    const { items } = await paginateAndSearch(
-      Supplier,
-      'name',
-      search as string,
-      Number(limit),
-      Number(page),
-      sort as any
-    );
+    let suppliers;
+    if (noFilters) {
+      suppliers = await Supplier.find().sort(sort as any);
+    } else {
+      const { items } = await paginateAndSearch(
+        Supplier,
+        'name',
+        search as string,
+        Number(limit),
+        Number(page),
+        sort as any
+      );
+      suppliers = items;
+    }
 
     res
       .status(200)
-      .json(new SuccessResponseList('Suppliers retrieved successfully', items));
+      .json(
+        new SuccessResponseList('Suppliers retrieved successfully', suppliers)
+      );
   } catch (error: any) {
     next(new ErrorResponse('Failed to retrieve suppliers', 500));
   }

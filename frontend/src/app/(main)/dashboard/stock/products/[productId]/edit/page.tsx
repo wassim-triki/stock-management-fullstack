@@ -1,51 +1,57 @@
-import { SupplierForm } from "@/components/forms/supplier-form";
+import { getCategories } from "@/api/category";
+import { getProductById, getProducts } from "@/api/product";
+import { getSuppliers } from "@/api/supplier";
+import { ProductForm } from "@/components/forms/product-form";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getSupplierById } from "@/api/supplier";
-import { Supplier, ApiErrorResponse } from "@/lib/types";
+import { queryKeys } from "@/lib/constants";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/constants";
-import { getCategories, getCategoryById } from "@/api/category";
-import { CategoryForm } from "@/components/forms/category-form";
+import React from "react";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Categories", link: "/dashboard/stock/categories" },
-  { title: "Edit", link: "" },
+  { title: "Procucts", link: "/dashboard/stock/products" },
+  { title: "Create", link: "/dashboard/stock/products/create" },
 ];
 
 type Props = {
-  params: { categoryId: string };
+  params: { productId: string };
 };
 
 export default async function Page({ params }: Props) {
-  const categoryId = params.categoryId;
+  const productId = params.productId;
 
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.categories, categoryId],
-    queryFn: () => getCategoryById(categoryId),
+    queryKey: [queryKeys.products, productId],
+    queryFn: () => getProductById(productId),
   });
   const categories = await queryClient.fetchQuery({
     queryKey: [queryKeys.categories],
     queryFn: () => getCategories({ noFilters: true }),
   });
+  const suppliers = await queryClient.fetchQuery({
+    queryKey: [queryKeys.suppliers],
+    queryFn: () => getSuppliers({ noFilters: true }),
+  });
   const dehydratedState = dehydrate(queryClient);
+
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
         <HydrationBoundary state={dehydratedState}>
-          <CategoryForm
+          <ProductForm
             categories={categories}
-            categoryId={categoryId}
+            suppliers={suppliers}
+            productId={productId}
             action="Save Changes"
-            description="Edit supplier information"
-            title="Edit Supplier"
+            description="Edit a product"
+            title="Edit product"
           />
         </HydrationBoundary>
       </div>
