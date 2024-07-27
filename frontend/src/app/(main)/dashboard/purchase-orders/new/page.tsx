@@ -11,7 +11,7 @@ import { PurchaseOrderForm } from "@/components/forms/purchase-order-form";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Purchase Orders", link: "/dashboard/stock/purchase-orders" },
+  { title: "Purchase Orders", link: "/dashboard/purchase-orders" },
   { title: "Create", link: "" },
 ];
 

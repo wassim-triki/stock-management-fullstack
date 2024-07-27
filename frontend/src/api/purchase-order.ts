@@ -19,7 +19,6 @@ export const getPurchaseOrders = async (
   const response: ApiSuccessResponseList<PurchaseOrder> = await fetchHelper(
     `/api/purchase-orders?${queryParams.toString()}`,
   );
-  console.log(response.data.items);
   return response.data.items;
 };
 

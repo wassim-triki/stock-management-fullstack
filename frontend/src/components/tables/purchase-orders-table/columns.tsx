@@ -7,7 +7,7 @@ import { queryKeys } from "@/lib/constants";
 import { deleteProduct } from "@/api/product";
 import { deletePurchaseOrder } from "@/api/purchase-order";
 import { Badge } from "@/components/ui/badge";
-import { timeAgo } from "@/lib/utils";
+import { formatDate, timeAgo } from "@/lib/utils";
 
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
@@ -58,6 +58,14 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     header: "SUPPLIER",
   },
 
+  {
+    accessorKey: "orderDate",
+    header: "ORDER DATE",
+    cell: ({ cell }) => {
+      const formattedDate = formatDate(cell.getValue() as string);
+      return <span>{formattedDate}</span>;
+    },
+  },
   {
     accessorKey: "updatedAt",
     header: "LAST UPDATED",

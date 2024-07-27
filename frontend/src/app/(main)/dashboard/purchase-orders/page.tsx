@@ -8,7 +8,10 @@ import {
 } from "@tanstack/react-query";
 import { getTotalProducts } from "@/api/product";
 import { queryKeys } from "@/lib/constants";
-import { getPurchaseOrders } from "@/api/purchase-order";
+import {
+  getPurchaseOrders,
+  getTotalPurchaseOrders,
+} from "@/api/purchase-order";
 import { columns } from "@/components/tables/purchase-orders-table/columns";
 
 const breadcrumbItems = [
@@ -42,7 +45,7 @@ export default async function page({ searchParams }: paramsProps) {
 
   const total = await queryClient.fetchQuery({
     queryKey: [queryKeys.totalPurchaseOrders],
-    queryFn: getTotalProducts,
+    queryFn: getTotalPurchaseOrders,
   });
 
   const pageCount = Math.ceil(total / limit);
