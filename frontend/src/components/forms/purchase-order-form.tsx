@@ -1,3 +1,5 @@
+// PurchaseOrderForm.tsx
+
 "use client";
 import * as z from "zod";
 import { useEffect, useState } from "react";
@@ -26,7 +28,7 @@ import {
 } from "@/api/purchase-order";
 import { getCategories } from "@/api/category";
 import { getSuppliers } from "@/api/supplier";
-import { getProductsBySupplier } from "@/api/product"; // New function to get products by supplier
+import { getProductsBySupplier } from "@/api/product";
 import {
   ApiErrorResponse,
   ApiSuccessResponse,
@@ -47,9 +49,11 @@ import {
   SelectValue,
 } from "../ui/select";
 import Link from "next/link";
+import { SingleDatePicker } from "../ui/single-date-picker";
 
 const formSchema = z.object({
   supplier: z.string().min(1, { message: "Supplier is required" }),
+  orderDate: z.date().optional(),
   items: z.array(
     z.object({
       product: z.string().min(1, { message: "Product is required" }),
@@ -115,6 +119,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
   const initialData: PurchaseOrderFormValues = {
     supplier: purchaseOrderData?.supplier || "",
+    orderDate: purchaseOrderData?.orderDate
+      ? new Date(purchaseOrderData.orderDate)
+      : new Date(),
     items: purchaseOrderData?.items.map((item) => ({
       product: item.product,
       quantity: item.quantity.toString(),
@@ -191,6 +198,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     useQuery({
       queryKey: [queryKeys.products, form.getValues("supplier")],
       queryFn: () => getProductsBySupplier(form.getValues("supplier")),
+      enabled: !!form.getValues("supplier"),
     });
 
   const { fields, append, remove, replace } = useFieldArray({
@@ -284,6 +292,26 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             className="w-full space-y-8"
           >
             <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-8">
+              <div className="md:col-span-1">
+                <FormField
+                  control={form.control}
+                  name="orderDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Order Date</FormLabel>
+                      <SingleDatePicker
+                        className="w-full"
+                        fromDate={new Date()}
+                        selectedDate={field.value || new Date() || undefined}
+                        onDateChange={(date: Date | undefined) =>
+                          field.onChange(date)
+                        }
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div className="md:col-span-2">
                 <FormField
                   control={form.control}
@@ -322,13 +350,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                         <SelectContent>
                           {suppliers.map((supplier) => (
                             <SelectItem key={supplier._id} value={supplier._id}>
-                              {/* TODO: show emails in dropdown and only name when selected */}
-                              {/* <div className="flex flex-col gap-1">
-                                <div>{supplier.name}</div>
-                                <div className="text-sx text-slate-400">
-                                  {supplier.email}
-                                </div>
-                              </div> */}
                               {supplier.name}
                             </SelectItem>
                           ))}
@@ -343,15 +364,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
             <div className="space-y-8">
               <Separator />
-              {/* <Button
-                  variant="secondary"
-                  onClick={() =>
-                    append({ product: "", quantity: "", price: "" })
-                  }
-                  disabled={allLoading}
-                >
-                  Add Item
-                </Button> */}
               <Button variant="secondary">
                 <Link
                   className="flex items-center gap-2"
@@ -369,56 +381,24 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                       name={`items.${index}.product`}
                       render={({ field }) => (
                         <FormItem>
-                          {/* <FormLabel>Product</FormLabel> */}
+                          <FormLabel>Product</FormLabel>
                           <Select
                             disabled={allLoading}
-                            // onValueChange={(value) =>
-                            //   handleProductChange(value)
-                            // }
                             onValueChange={field.onChange}
                             value={field.value}
                             defaultValue={field.value}
                           >
                             <FormControl>
                               <div className="flex items-center gap-4">
-                                {/* <Button
-                                    onClick={() =>
-                                      append({
-                                        product: "",
-                                        quantity: "",
-                                        price: "",
-                                      })
-                                    }
-                                    type="button"
-                                    variant="outline"
-                                  >
-                                    <Plus className="h-4 w-4" />
-                                  </Button> */}
                                 <SelectTrigger>
                                   <SelectValue
                                     defaultValue={field.value}
                                     placeholder="Select a product"
                                   />
                                 </SelectTrigger>
-                                {/* <Button variant="default">
-                                    <Link
-                                      href={"/dashboard/stock/products/new"}
-                                    >
-                                      <PackagePlus className="h-4 w-4" />
-                                    </Link>
-                                  </Button> */}
                               </div>
                             </FormControl>
                             <SelectContent>
-                              {/* <SelectItem key="add" value="add">
-                                  <Link
-                                    href={"/dashboard/stock/products/new"}
-                                    className="flex items-center justify-start gap-2"
-                                  >
-                                    <PackagePlus className="h-4 w-4" />
-                                    Add a new product
-                                  </Link>
-                                </SelectItem> */}
                               {productsBySupplier?.map((product) => (
                                 <SelectItem
                                   key={product._id}
@@ -438,7 +418,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                       name={`items.${index}.quantity`}
                       render={({ field }) => (
                         <FormItem>
-                          {/* <FormLabel>Quantity</FormLabel> */}
+                          <FormLabel>Quantity</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -456,7 +436,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                       name={`items.${index}.price`}
                       render={({ field }) => (
                         <FormItem>
-                          {/* <FormLabel>Price</FormLabel> */}
+                          <FormLabel>Price</FormLabel>
                           <FormControl>
                             <div className="flex items-center gap-4">
                               <Input
@@ -465,17 +445,14 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                                 placeholder="Price"
                                 {...field}
                               />
-
                               {fields.length > 1 && (
                                 <Button
                                   variant="destructive"
-                                  // size="sm"
                                   className="msb-[2px] mt-auto"
                                   onClick={() => remove(index)}
                                   disabled={allLoading}
                                 >
                                   <Trash className="h-4 w-4" />
-                                  {/* Remove */}
                                 </Button>
                               )}
                             </div>
@@ -485,17 +462,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                       )}
                     />
                   </div>
-
-                  {/* <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() =>
-                          append({ product: "", quantity: "", price: "" })
-                        }
-                        disabled={allLoading}
-                      >
-                        Add Item
-                      </Button> */}
                 </div>
               ))}
             </div>
@@ -513,11 +479,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               <Plus className="h-4 w-4" />
             </Button>
             <div className="w-full md:w-min">
-              <SubmitButton
-                // disabled={!productsBySupplier || productsBySupplier.length <= 0}
-                loading={allLoading}
-                type="submit"
-              >
+              <SubmitButton loading={allLoading} type="submit">
                 {action}
               </SubmitButton>
             </div>
