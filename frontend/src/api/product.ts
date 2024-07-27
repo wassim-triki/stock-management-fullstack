@@ -75,3 +75,12 @@ export const getProductById = async (id: string): Promise<Product> => {
   );
   return response.data;
 };
+
+export const getProductsBySupplier = async (
+  supplierId: string,
+): Promise<Product[]> => {
+  const response: ApiSuccessResponseList<Product> = await fetchHelper(
+    `/api/products?supplier=${supplierId}`,
+  );
+  return response.data.items;
+};

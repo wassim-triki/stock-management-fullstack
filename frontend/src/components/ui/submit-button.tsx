@@ -9,12 +9,13 @@ interface SubmitButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export default function SubmitButton({
   children,
   loading = false,
+  disabled,
   ...props
 }: SubmitButtonProps) {
   return (
     <Button
       type="submit"
-      disabled={loading}
+      disabled={loading || disabled}
       aria-busy={loading}
       className="w-full"
     >

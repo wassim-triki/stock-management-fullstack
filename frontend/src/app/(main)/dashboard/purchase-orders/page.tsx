@@ -1,14 +1,15 @@
-import { ApiSearchFilter, Product } from "@/lib/types";
+import { ApiSearchFilter } from "@/lib/types";
 import { DataTable } from "@/components/tables/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { columns } from "@/components/tables/products-table/columns";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getProducts, getTotalProducts } from "@/api/product";
+import { getTotalProducts } from "@/api/product";
 import { queryKeys } from "@/lib/constants";
+import { getPurchaseOrders } from "@/api/purchase-order";
+import { columns } from "@/components/tables/purchase-orders-table/columns";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -34,17 +35,17 @@ export default async function page({ searchParams }: paramsProps) {
     search,
   };
   const queryClient = new QueryClient();
-  // await queryClient.prefetchQuery({
-  //   queryKey: [queryKeys.products, filter],
-  //   queryFn: () => getProducts(filter),
-  // });
+  await queryClient.prefetchQuery({
+    queryKey: [queryKeys.purchaseOrders, filter],
+    queryFn: () => getPurchaseOrders(filter),
+  });
 
-  // const total = await queryClient.fetchQuery({
-  //   queryKey: [queryKeys.totalProducts],
-  //   queryFn: getTotalProducts,
-  // });
+  const total = await queryClient.fetchQuery({
+    queryKey: [queryKeys.totalPurchaseOrders],
+    queryFn: getTotalProducts,
+  });
 
-  // const pageCount = Math.ceil(total / limit);
+  const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
   return (
@@ -52,20 +53,19 @@ export default async function page({ searchParams }: paramsProps) {
       <ContentPageLayout
         breadcrumbItems={breadcrumbItems}
         addNewLink="/dashboard/purchase-orders/new"
-        title={`Purchase Orders (${0})`}
+        title={`Purchase Orders (${total})`}
         description="Manage purchase orders"
       >
-        {/* <DataTable
+        <DataTable
           rQPrams={{
-            queryKey: queryKeys.products,
-            queryFn: getProducts,
+            queryKey: queryKeys.purchaseOrders,
+            queryFn: getPurchaseOrders,
           }}
-          searchKey="name"
+          searchKey="orderNumber"
           columns={columns}
           pageCount={pageCount}
           filter={filter}
-        /> */}
-        Data table
+        />
       </ContentPageLayout>
     </HydrationBoundary>
   );

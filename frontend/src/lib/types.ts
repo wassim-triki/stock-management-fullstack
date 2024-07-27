@@ -109,3 +109,20 @@ export type ApiSearchFilter = {
   search?: string;
   noFilters?: boolean;
 };
+
+export type POStatus = "Pending" | "Accepted" | "Received";
+
+export interface PurchaseOrder {
+  _id: string;
+  orderNumber: string;
+  supplier: Supplier["_id"];
+  orderDate: Date;
+  status: POStatus;
+  items: {
+    product: Product["_id"];
+    quantity: number;
+    price: number;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}

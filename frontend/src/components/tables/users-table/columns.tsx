@@ -4,6 +4,7 @@ import { User } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { CellAction } from "../cell-action";
 import { deleteUser } from "@/api/user";
+import { timeAgo } from "@/lib/utils";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -53,12 +54,7 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "updatedAt",
     header: "LAST UPDATED",
     cell: ({ cell }) => {
-      const date = new Date(cell.getValue() as string);
-      const formattedDate = new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }).format(date);
+      const formattedDate = timeAgo(cell.getValue() as string);
       return <span>{formattedDate}</span>;
     },
   },

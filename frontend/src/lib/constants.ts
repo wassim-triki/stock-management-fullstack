@@ -8,4 +8,14 @@ export const queryKeys = {
   totalCategoreis: "totalCategoreis",
   products: "products",
   totalProducts: "totalProducts",
+  purchaseOrders: "purchaseOrders",
+  totalPurchaseOrders: "totalPurchaseOrders",
 };
+
+export const PO_STATUS = [
+  "Pending",
+  "Approved",
+  "Rejected",
+  "Shipped",
+  "Received",
+];

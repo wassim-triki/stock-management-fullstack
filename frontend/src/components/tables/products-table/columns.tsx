@@ -5,6 +5,7 @@ import { Product, Supplier } from "@/lib/types";
 import { CellAction } from "../cell-action";
 import { queryKeys } from "@/lib/constants";
 import { deleteProduct } from "@/api/product";
+import { timeAgo } from "@/lib/utils";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -52,12 +53,7 @@ export const columns: ColumnDef<Product>[] = [
     accessorKey: "updatedAt",
     header: "LAST UPDATED",
     cell: ({ cell }) => {
-      const date = new Date(cell.getValue() as string);
-      const formattedDate = new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }).format(date);
+      const formattedDate = timeAgo(cell.getValue() as string);
       return <span>{formattedDate}</span>;
     },
   },

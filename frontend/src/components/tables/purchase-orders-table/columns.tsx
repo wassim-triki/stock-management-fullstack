@@ -1,12 +1,15 @@
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
+import { POStatus, Product, PurchaseOrder, Supplier } from "@/lib/types";
 import { CellAction } from "../cell-action";
-import { Supplier } from "@/lib/types";
-import { deleteSupplier } from "@/api/supplier";
+import { queryKeys } from "@/lib/constants";
+import { deleteProduct } from "@/api/product";
+import { deletePurchaseOrder } from "@/api/purchase-order";
+import { Badge } from "@/components/ui/badge";
 import { timeAgo } from "@/lib/utils";
 
-export const columns: ColumnDef<Supplier>[] = [
+export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -27,23 +30,34 @@ export const columns: ColumnDef<Supplier>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "name",
-    header: "NAME",
+    accessorKey: "status",
+    header: "STATUS",
+    cell: ({ cell }) => {
+      const value: POStatus = cell.getValue() as POStatus;
+      const variant =
+        value === "Pending"
+          ? "default"
+          : value === "Accepted"
+            ? "success"
+            : "secondary";
+      return (
+        <span>
+          <Badge variant={variant}>{value}</Badge>
+        </span>
+      );
+    },
   },
 
   {
-    accessorKey: "email",
-    header: "EMAIL",
+    accessorKey: "orderNumber",
+    header: "ORDER NUMBER",
   },
 
   {
-    accessorKey: "phone",
-    header: "PHONE",
+    accessorKey: "supplier.name",
+    header: "SUPPLIER",
   },
-  {
-    accessorKey: "address.street",
-    header: "ADDRESS ",
-  },
+
   {
     accessorKey: "updatedAt",
     header: "LAST UPDATED",
@@ -56,10 +70,10 @@ export const columns: ColumnDef<Supplier>[] = [
     id: "actions",
     cell: ({ row }) => (
       <CellAction
-        queryKey="suppliers"
+        queryKey={queryKeys.purchaseOrders}
         data={row.original}
-        deleteFunction={deleteSupplier}
-        editUrl={(id) => `/dashboard/suppliers/${id}/edit`}
+        deleteFunction={deletePurchaseOrder}
+        editUrl={(id) => `/dashboard/stock/products/${id}/edit`}
       />
     ),
   },

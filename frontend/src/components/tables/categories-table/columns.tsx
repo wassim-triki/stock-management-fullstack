@@ -6,6 +6,7 @@ import { Category, Supplier } from "@/lib/types";
 import { deleteSupplier } from "@/api/supplier";
 import { queryKeys } from "@/lib/constants";
 import { deleteCategory } from "@/api/category";
+import { timeAgo } from "@/lib/utils";
 
 export const columns: ColumnDef<Category>[] = [
   {
@@ -40,12 +41,7 @@ export const columns: ColumnDef<Category>[] = [
     accessorKey: "updatedAt",
     header: "LAST UPDATED",
     cell: ({ cell }) => {
-      const date = new Date(cell.getValue() as string);
-      const formattedDate = new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }).format(date);
+      const formattedDate = timeAgo(cell.getValue() as string);
       return <span>{formattedDate}</span>;
     },
   },

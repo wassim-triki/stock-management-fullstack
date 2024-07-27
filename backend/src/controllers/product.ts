@@ -19,18 +19,43 @@ export const getProducts = async (
       page = 1,
       search = '',
       sort = { createdAt: -1 },
+      supplier,
     } = req.query;
+
+    const limitNum = Number(limit);
+    const pageNum = Number(page);
+    const skipNum = (pageNum - 1) * limitNum;
+
+    let searchQuery = {};
+    if (search) {
+      searchQuery = {
+        ...searchQuery,
+        name: { $regex: new RegExp(search as string, 'i') },
+      };
+    }
+
+    if (supplier) {
+      searchQuery = {
+        ...searchQuery,
+        supplier,
+      };
+    }
 
     const { items } = await paginateAndSearch(
       Product,
       'name',
       search as string,
-      Number(limit),
-      Number(page),
+      limitNum,
+      pageNum,
       sort as any
     );
 
-    const products = await Product.populate(items, 'category supplier');
+    const filteredItems = await Product.find(searchQuery)
+      .skip(skipNum)
+      .limit(limitNum)
+      .sort(sort as any);
+
+    const products = filteredItems;
 
     res
       .status(200)

@@ -103,6 +103,19 @@ export interface IUser extends Document {
   updatedAt: Date;
   active: boolean;
 }
+export interface IPurchaseOrder extends Document {
+  orderNumber: number;
+  supplier: ISupplier['_id'];
+  orderDate: Date;
+  status: string;
+  items: {
+    product: IProduct['_id'];
+    quantity: number;
+    price: number;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export interface ISupplier extends Document {
   name: string;
