@@ -114,7 +114,7 @@ export type POStatus = "Pending" | "Accepted" | "Received";
 
 export interface PurchaseOrder {
   _id: string;
-  orderNumber: string;
+  orderNumber: number;
   supplier: Supplier["_id"];
   orderDate: Date;
   status: POStatus;
