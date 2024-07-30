@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { DataTable } from "@/components/tables/data-table";
 import { columns } from "@/components/tables/suppliers-table/columns";
-import { ApiSearchFilter } from "@/lib/types";
+import { ApiSearchFilter, QueryParams } from "@/lib/types";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -21,23 +21,34 @@ type ParamsProps = {
     [key: string]: string | string[] | undefined;
   };
 };
-
+export type SortFieldSelect = {
+  value: string;
+  label: string;
+  type: "desc" | "asc";
+};
+export type SearchFieldSelect = {
+  value: string;
+  label: string;
+};
 export default async function Page({ searchParams }: ParamsProps) {
   const page = Number(searchParams.page) || 1;
 
   const limit = Number(searchParams.limit) || 5;
-  const search = searchParams.search?.toString() || "";
-  // const offset = (page - 1) * limit;
+  // const search = searchParams.search?.toString() || "";
+  const offset = (page - 1) * limit;
 
-  const filter: ApiSearchFilter = {
-    limit,
-    page,
-    search,
+  const sort = "updatedAt_desc";
+
+  const queryParams: QueryParams = {
+    limit: limit.toString(),
+    offset: offset.toString(),
+    sort,
+    ...searchParams,
   };
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.suppliers, filter],
-    queryFn: () => getSuppliers(filter),
+    queryKey: [queryKeys.suppliers, queryParams],
+    queryFn: () => getSuppliers(queryParams),
   });
 
   const total = await queryClient.fetchQuery({
@@ -45,6 +56,17 @@ export default async function Page({ searchParams }: ParamsProps) {
     queryFn: getTotalSuppliers,
   });
 
+  const sortFields: SortFieldSelect[] = [
+    { value: "updatedAt_desc", label: "Last updated", type: "desc" },
+    { value: "updatedAt_asc", label: "Last updated", type: "asc" },
+    { value: "name_desc", label: "Name", type: "desc" },
+    { value: "name_asc", label: "Name", type: "asc" },
+  ];
+  const searchFields: SearchFieldSelect[] = [
+    { value: "name", label: "Name" },
+    { value: "email", label: "Email" },
+    { value: "phone", label: "Phone" },
+  ];
   const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
@@ -62,10 +84,12 @@ export default async function Page({ searchParams }: ParamsProps) {
             queryKey: queryKeys.suppliers,
             queryFn: getSuppliers,
           }}
-          searchKey="name"
+          defaultSearchKey="name"
           columns={columns}
           pageCount={pageCount}
-          filter={filter}
+          queryParams={queryParams}
+          sortFields={sortFields}
+          searchFields={searchFields}
         />
       </ContentPageLayout>
     </HydrationBoundary>

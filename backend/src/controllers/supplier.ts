@@ -7,6 +7,7 @@ import {
   SuccessResponseList,
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
+import { QueryParams } from './purchaseOrder';
 
 // Get all suppliers
 export const getSuppliers = async (
@@ -16,26 +17,28 @@ export const getSuppliers = async (
 ) => {
   try {
     const {
-      limit = 10,
-      page = 1,
-      search = '',
-      sort = { createdAt: -1 },
-      noFilters = false,
-    } = req.query;
-    let suppliers;
-    if (noFilters) {
-      suppliers = await Supplier.find().sort(sort as any);
-    } else {
-      const { items } = await paginateAndSearch(
-        Supplier,
-        'name',
-        search as string,
-        Number(limit),
-        Number(page),
-        sort as any
-      );
-      suppliers = items;
-    }
+      limit = 100,
+      offset = 0,
+      name,
+      email,
+      phone,
+      sort = 'updatedAt_desc',
+    } = req.query as QueryParams;
+
+    const limitNum = Number(limit);
+    const offsetNum = Number(offset);
+
+    let s = sort.split('_');
+    let x = { [s[0]]: s[1] } as any;
+    const search: any = {};
+    name && (search.name = { $regex: new RegExp(name, 'i') });
+    email && (search.email = { $regex: new RegExp(email, 'i') });
+    phone && (search.phone = { $regex: new RegExp(phone, 'i') });
+
+    const suppliers = await Supplier.find(search)
+      .skip(offsetNum)
+      .limit(limitNum)
+      .sort(x);
 
     res
       .status(200)

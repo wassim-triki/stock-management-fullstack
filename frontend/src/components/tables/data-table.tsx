@@ -37,6 +37,10 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@uidotdev/usehooks";
 import { ApiSearchFilter, QueryParams } from "@/lib/types";
+import {
+  SearchFieldSelect,
+  SortFieldSelect,
+} from "@/app/(main)/dashboard/suppliers/page";
 
 export type RQParams<T> = {
   queryKey: string;
@@ -49,6 +53,8 @@ interface DataTableProps<TData, TValue> {
   pageCount: number;
   queryParams: QueryParams;
   rQPrams: RQParams<TData[]>;
+  sortFields: SortFieldSelect[];
+  searchFields: SearchFieldSelect[];
 }
 
 export function DataTable<TData, TValue>({
@@ -58,6 +64,8 @@ export function DataTable<TData, TValue>({
   pageCount,
   queryParams,
   pageSizeOptions = [5, 10, 20, 30, 40, 50],
+  sortFields,
+  searchFields,
 }: DataTableProps<TData, TValue>) {
   const debouncedQueryParams = useDebounce(queryParams, 500);
 
@@ -150,9 +158,9 @@ export function DataTable<TData, TValue>({
         `${pathname}?${createQueryString({
           page: null,
           limit: null,
-          queryField: searchKey,
-          queryValue: searchValue,
-          // [searchKey]: searchValue,
+          // queryField: searchKey,
+          // queryValue: searchValue,
+          [searchKey]: searchValue,
         })}`,
         {
           scroll: false,
@@ -164,8 +172,7 @@ export function DataTable<TData, TValue>({
         `${pathname}?${createQueryString({
           page: null,
           limit: null,
-          queryField: null,
-          queryValue: null,
+          [searchKey]: null,
         })}`,
         {
           scroll: false,
@@ -177,27 +184,23 @@ export function DataTable<TData, TValue>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
 
-  const queryFields = [
-    { name: "name", label: "Name" },
-    { name: "email", label: "Email" },
-    { name: "phone", label: "Phone" },
-  ];
   return (
     <>
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         {/* <span className="text-sm">Search by:</span> */}
-        <Select>
-          <SelectTrigger className="w-[180px]">
+        <Select
+          defaultValue={defaultSearchKey}
+          onValueChange={(value) => {
+            setSearchKey(value);
+          }}
+        >
+          <SelectTrigger className="w-[100px]">
             <SelectValue placeholder="Search by" />
           </SelectTrigger>
           <SelectContent>
-            {queryFields.map((field) => (
-              <SelectItem
-                key={field.name}
-                value={field.name}
-                onClick={() => setSearchKey(field.name)}
-              >
-                {field.label}
+            {searchFields.map((search) => (
+              <SelectItem key={search.value} value={search.value}>
+                {search.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -210,6 +213,30 @@ export function DataTable<TData, TValue>({
           }
           className="w-full md:max-w-sm"
         />
+        <Select
+          defaultValue={queryParams.sort}
+          onValueChange={(value) => {
+            router.push(
+              `${pathname}?${createQueryString({
+                sort: value,
+              })}`,
+              {
+                scroll: false,
+              },
+            );
+          }}
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Search by" />
+          </SelectTrigger>
+          <SelectContent>
+            {sortFields.map((sort) => (
+              <SelectItem key={sort.value} value={sort.value}>
+                {sort.label} {sort.type === "asc" ? "☝️" : "👇"}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

@@ -5,22 +5,22 @@ import {
   ApiSearchFilter,
   ApiSuccessResponse,
   ApiSuccessResponseList,
+  QueryParams,
   Supplier,
 } from "@/lib/types";
-import { buildQueryParams } from "@/lib/utils";
+import { buildQueryParamsString } from "@/lib/utils";
 import { AxiosResponse } from "axios";
 
 export const getSuppliers = async (
-  filter: ApiSearchFilter,
+  queryParams: QueryParams,
 ): Promise<Supplier[]> => {
   "use server";
 
-  const queryParams = await buildQueryParams(filter);
+  const queryParamsStr = await buildQueryParamsString(queryParams);
 
   const response: ApiSuccessResponseList<Supplier> = await fetchHelper(
-    `/api/suppliers?${queryParams.toString()}`,
+    `/api/suppliers?${queryParamsStr.toString()}`,
   );
-
   return response.data.items;
 };
 

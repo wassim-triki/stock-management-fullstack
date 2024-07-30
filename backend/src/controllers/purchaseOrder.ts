@@ -8,7 +8,7 @@ import {
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
 
-type QueryParams = {
+export type QueryParams = {
   limit?: string;
   offset?: string;
   [key: string]: string | undefined;

@@ -21,20 +21,15 @@ export function getInitials(fullName: string): string {
   return initials;
 }
 
-export const buildQueryParamsString = ({
-  limit,
-  offset,
-  queryField,
-  queryValue,
-  sortField,
-  sortOrder,
-}: QueryParams): string => {
+export const buildQueryParamsString = (queryParams: QueryParams): string => {
   const params: string[] = [];
 
-  if (limit) params.push(`limit=${limit}`);
-  if (offset) params.push(`offset=${offset}`);
-  if (queryField && queryValue) params.push(`${queryField}=${queryValue}`);
-  if (sortField && sortOrder) params.push(`${sortField}=${sortOrder}`);
+  Object.keys(queryParams).forEach((key) => {
+    const value = queryParams[key];
+    if (value !== undefined) {
+      params.push(`${key}=${value}`);
+    }
+  });
 
   return params.join("&");
 };
