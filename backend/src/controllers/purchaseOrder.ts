@@ -8,6 +8,12 @@ import {
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
 
+type QueryParams = {
+  limit?: string;
+  offset?: string;
+  [key: string]: string | undefined;
+};
+
 export const getPurchaseOrders = async (
   req: Request,
   res: Response,
@@ -15,31 +21,32 @@ export const getPurchaseOrders = async (
 ) => {
   try {
     const {
-      limit = 10,
-      page = 1,
-      search = '',
-      sort = { createdAt: -1 },
-      noFilters = false,
-    } = req.query;
+      limit = 100,
+      offset = 0,
+      orderNumber,
+      status,
+      supplier,
+      orderDate,
+      sort = 'updatedAt_desc',
+    } = req.query as QueryParams;
 
     const limitNum = Number(limit);
-    const pageNum = Number(page);
-    const skipNum = (pageNum - 1) * limitNum;
+    const offsetNum = Number(offset);
 
-    let searchQuery: any = {};
-    if (!noFilters) {
-      if (search) {
-        searchQuery.orderNumber = { $regex: new RegExp(search as string, 'i') };
-      }
-    }
+    const search: any = {};
+    status && (search.status = status);
+    supplier && (search.supplier = supplier);
+    orderDate && (search.orderDate = new Date(orderDate));
+    orderNumber && (search.orderNumber = { $regex: new RegExp(orderNumber) });
 
-    const query = PurchaseOrder.find(searchQuery)
-      .skip(skipNum)
+    let s = sort.split('_');
+    let x = { [s[0]]: s[1] } as any;
+
+    const purchaseOrders = await PurchaseOrder.find(search)
+      .skip(offsetNum)
       .limit(limitNum)
-      .sort(sort as any)
+      .sort(x)
       .populate('supplier', 'name');
-
-    const purchaseOrders = await query;
 
     res
       .status(200)
@@ -50,6 +57,7 @@ export const getPurchaseOrders = async (
         )
       );
   } catch (error: any) {
+    logging.error(error);
     next(new ErrorResponse('Failed to retrieve purchase orders', 500));
   }
 };

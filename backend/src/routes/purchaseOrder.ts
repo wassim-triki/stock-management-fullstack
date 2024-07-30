@@ -17,8 +17,8 @@ const router = express.Router();
 router.get('/total', authHandler, getTotalPurchaseOrders);
 router.get(
   '/',
-  authHandler,
-  authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
+  // authHandler,
+  // authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
   getPurchaseOrders
 );
 router.post(

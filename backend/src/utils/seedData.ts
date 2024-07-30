@@ -8,17 +8,10 @@ export const seedData = async () => {
   try {
     logging.log('Seeding...');
     logging.log('----------------------------------------');
-
-    // Seed categories
-    await intiCategories();
-
-    // Seed users
     await initUsers();
-
-    // Seed suppliers
-    await initSuppliers();
-
-    await initProducts();
+    // await initSuppliers();
+    await intiCategories();
+    // await initProducts();
 
     logging.log('Seeding done ✅.');
     logging.log('----------------------------------------');

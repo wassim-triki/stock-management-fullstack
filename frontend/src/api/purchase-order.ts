@@ -5,19 +5,20 @@ import {
   ApiSuccessResponse,
   ApiSuccessResponseList,
   PurchaseOrder,
+  QueryParams,
 } from "@/lib/types";
 import fetchHelper from "@/lib/fetchInstance";
-import { buildQueryParams } from "@/lib/utils";
+import { buildQueryParamsString } from "@/lib/utils";
 
 export const getPurchaseOrders = async (
-  filter: ApiSearchFilter,
+  queryParams: QueryParams,
 ): Promise<PurchaseOrder[]> => {
   "use server";
 
-  const queryParams = await buildQueryParams(filter);
+  const queryParamsStr = await buildQueryParamsString(queryParams);
 
   const response: ApiSuccessResponseList<PurchaseOrder> = await fetchHelper(
-    `/api/purchase-orders?${queryParams.toString()}`,
+    `/api/purchase-orders?${queryParamsStr.toString()}`,
   );
   return response.data.items;
 };

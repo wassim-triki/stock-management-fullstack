@@ -30,7 +30,11 @@ export default async function page({ searchParams }: paramsProps) {
 
   const limit = Number(searchParams.limit) || 5;
   const search = searchParams.search?.toString() || "";
-  // const offset = (page - 1) * limit;
+  const offset = (page - 1) * limit;
+
+  const queryParams = { offset, limit, ...searchParams };
+
+  console.log(queryParams);
 
   const filter: ApiSearchFilter = {
     limit,
@@ -39,8 +43,8 @@ export default async function page({ searchParams }: paramsProps) {
   };
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.purchaseOrders, filter],
-    queryFn: () => getPurchaseOrders(filter),
+    queryKey: [queryKeys.purchaseOrders, queryParams],
+    queryFn: () => getPurchaseOrders(queryParams),
   });
 
   const total = await queryClient.fetchQuery({
@@ -64,10 +68,10 @@ export default async function page({ searchParams }: paramsProps) {
             queryKey: queryKeys.purchaseOrders,
             queryFn: getPurchaseOrders,
           }}
-          searchKey="orderNumber"
+          defaultSearchKey="orderNumber"
           columns={columns}
           pageCount={pageCount}
-          filter={filter}
+          queryParams={queryParams}
         />
       </ContentPageLayout>
     </HydrationBoundary>

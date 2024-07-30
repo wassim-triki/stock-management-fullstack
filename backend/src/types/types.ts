@@ -104,7 +104,7 @@ export interface IUser extends Document {
   active: boolean;
 }
 export interface IPurchaseOrder extends Document {
-  orderNumber: number;
+  orderNumber: string;
   supplier: ISupplier['_id'];
   orderDate: Date;
   status: string;

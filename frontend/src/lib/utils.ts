@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { ApiSearchFilter } from "./types";
+import { QueryParams } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -21,13 +21,20 @@ export function getInitials(fullName: string): string {
   return initials;
 }
 
-export const buildQueryParams = (filter: ApiSearchFilter): string => {
+export const buildQueryParamsString = ({
+  limit,
+  offset,
+  queryField,
+  queryValue,
+  sortField,
+  sortOrder,
+}: QueryParams): string => {
   const params: string[] = [];
 
-  if (filter.limit) params.push(`limit=${filter.limit}`);
-  if (filter.page) params.push(`page=${filter.page}`);
-  if (filter.search) params.push(`search=${filter.search}`);
-  if (filter.noFilters) params.push(`noFilters=${filter.noFilters}`);
+  if (limit) params.push(`limit=${limit}`);
+  if (offset) params.push(`offset=${offset}`);
+  if (queryField && queryValue) params.push(`${queryField}=${queryValue}`);
+  if (sortField && sortOrder) params.push(`${sortField}=${sortOrder}`);
 
   return params.join("&");
 };

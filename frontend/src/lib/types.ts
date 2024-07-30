@@ -126,3 +126,13 @@ export interface PurchaseOrder {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type QueryParams = {
+  limit?: number;
+  offset?: number;
+  // [key: string]: string | undefined;
+  queryField?: string;
+  queryValue?: string;
+  sortField?: string;
+  sortOrder?: "asc" | "desc";
+};

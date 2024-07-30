@@ -72,17 +72,17 @@ export const createSupplier = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { companyName, contactEmail, phone, address } = req.body;
+  const { name, email, phone, address } = req.body;
   try {
     // Check if the email is already in use
-    const existingSupplier = await Supplier.findOne({ contactEmail });
+    const existingSupplier = await Supplier.findOne({ email });
     if (existingSupplier) {
       return next(new ErrorResponse('Email is already in use', 400));
     }
 
     const supplier = await Supplier.create({
-      companyName,
-      contactEmail,
+      name,
+      email,
       phone,
       address,
     });
@@ -101,11 +101,11 @@ export const updateSupplier = async (
   next: NextFunction
 ) => {
   try {
-    const { contactEmail } = req.body;
+    const { email } = req.body;
 
     // Check if the email is already in use by another supplier
     const existingSupplier = await Supplier.findOne({
-      contactEmail,
+      email,
       _id: { $ne: req.params.id },
     });
 

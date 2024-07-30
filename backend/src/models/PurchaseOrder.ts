@@ -1,11 +1,10 @@
-// models/PurchaseOrder.ts
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IProduct, IPurchaseOrder, ISupplier } from '../types/types';
 
 const PurchaseOrderSchema: Schema = new Schema(
   {
     orderNumber: {
-      type: Number,
+      type: String,
       unique: [true, 'Order number must be unique'],
     },
     supplier: {
@@ -55,7 +54,9 @@ const PurchaseOrderSchema: Schema = new Schema(
 PurchaseOrderSchema.pre<IPurchaseOrder>('save', async function (next) {
   if (this.isNew) {
     const lastOrder = await PurchaseOrder.findOne().sort({ orderNumber: -1 });
-    this.orderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
+
+    const lastOrderNumber = lastOrder ? parseInt(lastOrder.orderNumber) : 0;
+    this.orderNumber = (lastOrderNumber + 1).toString();
   }
   next();
 });
