@@ -46,26 +46,29 @@ export type RQParams<T> = {
   queryKey: string;
   queryFn: (queryParams: QueryParams) => Promise<T>;
 };
+
+export type SearchField = {
+  value: string;
+  label: string;
+};
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  defaultSearchKey: string;
+  defaultSearchField: SearchField;
   pageSizeOptions?: number[];
   pageCount: number;
   queryParams: QueryParams;
   rQPrams: RQParams<TData[]>;
   sortFields: SortFieldSelect[];
-  searchFields: SearchFieldSelect[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   rQPrams,
-  defaultSearchKey,
+  defaultSearchField,
   pageCount,
   queryParams,
   pageSizeOptions = [5, 10, 20, 30, 40, 50],
   sortFields,
-  searchFields,
 }: DataTableProps<TData, TValue>) {
   const debouncedQueryParams = useDebounce(queryParams, 500);
 
@@ -74,8 +77,9 @@ export function DataTable<TData, TValue>({
     queryFn: () => rQPrams.queryFn(queryParams),
   });
 
-  const [searchKey, setSearchKey] = useState(defaultSearchKey);
+  const [searchField, setsearchField] = useState(defaultSearchField);
 
+  console.log("data", data);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -148,8 +152,9 @@ export function DataTable<TData, TValue>({
   // );
 
   // Get the search value from the table filter
-  const searchValue = table.getColumn(searchKey)?.getFilterValue() as string;
-  console.log("😁😁", searchValue);
+  const searchValue = table
+    .getColumn(searchField.value)
+    ?.getFilterValue() as string;
 
   //set the url query string when the search value changes
   React.useEffect(() => {
@@ -158,9 +163,7 @@ export function DataTable<TData, TValue>({
         `${pathname}?${createQueryString({
           page: null,
           limit: null,
-          // queryField: searchKey,
-          // queryValue: searchValue,
-          [searchKey]: searchValue,
+          [searchField.value]: searchValue,
         })}`,
         {
           scroll: false,
@@ -172,7 +175,7 @@ export function DataTable<TData, TValue>({
         `${pathname}?${createQueryString({
           page: null,
           limit: null,
-          [searchKey]: null,
+          [searchField.value]: null,
         })}`,
         {
           scroll: false,
@@ -188,10 +191,10 @@ export function DataTable<TData, TValue>({
     <>
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         {/* <span className="text-sm">Search by:</span> */}
-        <Select
-          defaultValue={defaultSearchKey}
+        {/* <Select
+          defaultValue={defaultSearchField}
           onValueChange={(value) => {
-            setSearchKey(value);
+            setsearchField(value);
           }}
         >
           <SelectTrigger className="w-[100px]">
@@ -204,12 +207,17 @@ export function DataTable<TData, TValue>({
               </SelectItem>
             ))}
           </SelectContent>
-        </Select>
+        </Select> */}
         <Input
-          placeholder={`Search ${searchKey}...`}
-          value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
+          placeholder={`Search ${searchField.label}...`}
+          value={
+            (table.getColumn(searchField.value)?.getFilterValue() as string) ??
+            ""
+          }
           onChange={(event) =>
-            table.getColumn(searchKey)?.setFilterValue(event.target.value)
+            table
+              .getColumn(searchField.value)
+              ?.setFilterValue(event.target.value)
           }
           className="w-full md:max-w-sm"
         />

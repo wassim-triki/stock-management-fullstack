@@ -1,4 +1,4 @@
-import { ApiSearchFilter } from "@/lib/types";
+import { ApiSearchFilter, QueryParams } from "@/lib/types";
 import { DataTable } from "@/components/tables/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 import {
@@ -13,6 +13,7 @@ import {
   getTotalPurchaseOrders,
 } from "@/api/purchase-order";
 import { columns } from "@/components/tables/purchase-orders-table/columns";
+import { SearchFieldSelect, SortFieldSelect } from "../suppliers/page";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -29,17 +30,15 @@ export default async function page({ searchParams }: paramsProps) {
   const page = Number(searchParams.page) || 1;
 
   const limit = Number(searchParams.limit) || 5;
-  const search = searchParams.search?.toString() || "";
   const offset = (page - 1) * limit;
 
-  const queryParams = { offset, limit, ...searchParams };
+  const sort = "updatedAt_desc";
 
-  console.log(queryParams);
-
-  const filter: ApiSearchFilter = {
-    limit,
-    page,
-    search,
+  const queryParams: QueryParams = {
+    limit: limit.toString(),
+    offset: offset.toString(),
+    sort,
+    ...searchParams,
   };
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
@@ -52,6 +51,15 @@ export default async function page({ searchParams }: paramsProps) {
     queryFn: getTotalPurchaseOrders,
   });
 
+  const sortFields: SortFieldSelect[] = [
+    { value: "updatedAt_desc", label: "Last updated", type: "desc" },
+    { value: "updatedAt_asc", label: "Last updated", type: "asc" },
+    { value: "orderDate_desc", label: "Order date", type: "desc" },
+    { value: "orderDate_asc", label: "Order date", type: "asc" },
+    { value: "status_desc", label: "Status", type: "desc" },
+    { value: "status_asc", label: "Status", type: "asc" },
+  ];
+  const defaultSearchField = { value: "orderNumber", label: "Order Number" };
   const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
@@ -68,10 +76,11 @@ export default async function page({ searchParams }: paramsProps) {
             queryKey: queryKeys.purchaseOrders,
             queryFn: getPurchaseOrders,
           }}
-          defaultSearchKey="orderNumber"
+          defaultSearchField={defaultSearchField}
           columns={columns}
           pageCount={pageCount}
           queryParams={queryParams}
+          sortFields={sortFields}
         />
       </ContentPageLayout>
     </HydrationBoundary>

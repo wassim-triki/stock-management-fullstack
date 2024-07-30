@@ -7,6 +7,7 @@ import {
   SuccessResponseList,
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
+import { QueryParams } from './purchaseOrder';
 
 export const getCategories = async (
   req: Request,
@@ -15,29 +16,25 @@ export const getCategories = async (
 ) => {
   try {
     const {
-      limit = 10,
-      page = 1,
-      search = '',
-      sort = { createdAt: -1 },
-      noFilters = false,
-    } = req.query;
+      limit = 100,
+      offset = 0,
+      name,
+      sort = 'updatedAt_desc',
+    } = req.query as QueryParams;
 
-    let categories;
-    if (noFilters) {
-      categories = await Category.find()
-        .sort(sort as any)
-        .populate('parentCategory');
-    } else {
-      const { items } = await paginateAndSearch(
-        Category,
-        'name',
-        search as string,
-        Number(limit),
-        Number(page),
-        sort as any
-      );
-      categories = await Category.populate(items, 'parentCategory');
-    }
+    const limitNum = Number(limit);
+    const offsetNum = Number(offset);
+
+    let s = sort.split('_');
+    let x = { [s[0]]: s[1] } as any;
+    const search: any = {};
+    name && (search.name = { $regex: new RegExp(name, 'i') });
+
+    const categories = await Category.find(search)
+      .skip(offsetNum)
+      .limit(limitNum)
+      .sort(x)
+      .populate('parentCategory');
 
     res
       .status(200)

@@ -8,6 +8,7 @@ import {
   SuccessResponseList,
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
+import { QueryParams } from './purchaseOrder';
 
 export const getAllUsers = async (
   req: Request,
@@ -16,23 +17,27 @@ export const getAllUsers = async (
 ) => {
   try {
     const {
-      limit = 10,
-      page = 1,
-      search = '',
-      sort = { createdAt: -1 },
-    } = req.query;
+      limit = 100,
+      offset = 0,
+      email,
+      sort = 'updatedAt_desc',
+    } = req.query as QueryParams;
 
-    const { items } = await paginateAndSearch(
-      User,
-      'email',
-      search as string,
-      Number(limit),
-      Number(page),
-      sort as any
-    );
+    const limitNum = Number(limit);
+    const offsetNum = Number(offset);
+
+    let s = sort.split('_');
+    let x = { [s[0]]: s[1] } as any;
+    const search: any = {};
+    email && (search.email = { $regex: new RegExp(email, 'i') });
+
+    const users = await User.find(search)
+      .skip(offsetNum)
+      .limit(limitNum)
+      .sort(x);
     return res
       .status(200)
-      .json(new SuccessResponseList('Users retrived successfully', items));
+      .json(new SuccessResponseList('Users retrived successfully', users));
   } catch (error) {
     next(error);
   }

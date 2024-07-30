@@ -4,19 +4,20 @@ import {
   ApiSuccessResponse,
   ApiSuccessResponseList,
   Product,
+  QueryParams,
 } from "@/lib/types";
 import fetchHelper from "@/lib/fetchInstance";
-import { buildQueryParams } from "@/lib/utils";
+import { buildQueryParamsString } from "@/lib/utils";
 
 export const getProducts = async (
-  filter: ApiSearchFilter,
+  queryParams: QueryParams,
 ): Promise<Product[]> => {
   "use server";
 
-  const queryParams = await buildQueryParams(filter);
+  const queryParamsStr = await buildQueryParamsString(queryParams);
 
   const response: ApiSuccessResponseList<Product> = await fetchHelper(
-    `/api/products?${queryParams.toString()}`,
+    `/api/products?${queryParamsStr.toString()}`,
   );
 
   return response.data.items;

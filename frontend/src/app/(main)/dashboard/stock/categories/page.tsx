@@ -9,7 +9,8 @@ import {
 import { DataTable } from "@/components/tables/data-table";
 import { getCategories, getTotalCategories } from "@/api/category";
 import { columns } from "@/components/tables/categories-table/columns";
-import { ApiSearchFilter } from "@/lib/types";
+import { ApiSearchFilter, QueryParams } from "@/lib/types";
+import { SortFieldSelect } from "../../suppliers/page";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -26,18 +27,20 @@ export default async function Page({ searchParams }: ParamsProps) {
   const page = Number(searchParams.page) || 1;
 
   const limit = Number(searchParams.limit) || 5;
-  const search = searchParams.search?.toString() || "";
-  // const offset = (page - 1) * limit;
+  const offset = (page - 1) * limit;
 
-  const filter: ApiSearchFilter = {
-    limit,
-    page,
-    search,
+  const sort = "updatedAt_desc";
+
+  const queryParams: QueryParams = {
+    limit: limit.toString(),
+    offset: offset.toString(),
+    sort,
+    ...searchParams,
   };
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.categories, filter],
-    queryFn: () => getCategories(filter),
+    queryKey: [queryKeys.categories, queryParams],
+    queryFn: () => getCategories(queryParams),
   });
 
   const total = await queryClient.fetchQuery({
@@ -48,7 +51,13 @@ export default async function Page({ searchParams }: ParamsProps) {
   const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
-
+  const sortFields: SortFieldSelect[] = [
+    { value: "updatedAt_desc", label: "Last updated", type: "desc" },
+    { value: "updatedAt_asc", label: "Last updated", type: "asc" },
+    { value: "name_desc", label: "Name", type: "desc" },
+    { value: "name_asc", label: "Name", type: "asc" },
+  ];
+  const defaultSearchField = { value: "name", label: "Name" };
   return (
     <HydrationBoundary state={dehydratedState}>
       <ContentPageLayout
@@ -62,10 +71,11 @@ export default async function Page({ searchParams }: ParamsProps) {
             queryKey: queryKeys.categories,
             queryFn: getCategories,
           }}
-          searchKey="name"
+          defaultSearchField={defaultSearchField}
           columns={columns}
           pageCount={pageCount}
-          filter={filter}
+          queryParams={queryParams}
+          sortFields={sortFields}
         />
       </ContentPageLayout>
     </HydrationBoundary>

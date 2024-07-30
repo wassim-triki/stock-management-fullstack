@@ -3,13 +3,14 @@ import ContentPageLayout from "@/components/layouts/content-page-layout";
 import { DataTable } from "@/components/tables/data-table";
 import { columns } from "@/components/tables/users-table/columns";
 import { queryKeys } from "@/lib/constants";
-import { ApiSearchFilter } from "@/lib/types";
+import { ApiSearchFilter, QueryParams } from "@/lib/types";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
 import React from "react";
+import { SortFieldSelect } from "../suppliers/page";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -24,17 +25,22 @@ type ParamsProps = {
 
 const Page = async ({ searchParams }: ParamsProps) => {
   const page = Number(searchParams.page) || 1;
+
   const limit = Number(searchParams.limit) || 5;
-  const search = searchParams.search?.toString() || "";
-  const filter: ApiSearchFilter = {
-    limit,
-    page,
-    search,
+  const offset = (page - 1) * limit;
+
+  const sort = "updatedAt_desc";
+
+  const queryParams: QueryParams = {
+    limit: limit.toString(),
+    offset: offset.toString(),
+    sort,
+    ...searchParams,
   };
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [queryKeys.users, filter],
-    queryFn: () => getUsers(filter),
+    queryKey: [queryKeys.users, queryParams],
+    queryFn: () => getUsers(queryParams),
   });
 
   const total = await queryClient.fetchQuery({
@@ -44,6 +50,13 @@ const Page = async ({ searchParams }: ParamsProps) => {
   const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
+  const sortFields: SortFieldSelect[] = [
+    { value: "updatedAt_desc", label: "Last updated", type: "desc" },
+    { value: "updatedAt_asc", label: "Last updated", type: "asc" },
+    { value: "name_desc", label: "Name", type: "desc" },
+    { value: "name_asc", label: "Name", type: "asc" },
+  ];
+  const defaultSearchField = { value: "email", label: "Email" };
 
   return (
     <ContentPageLayout
@@ -58,10 +71,11 @@ const Page = async ({ searchParams }: ParamsProps) => {
             queryKey: queryKeys.users,
             queryFn: getUsers,
           }}
-          searchKey="email"
+          defaultSearchField={defaultSearchField}
           columns={columns}
           pageCount={pageCount}
-          filter={filter}
+          queryParams={queryParams}
+          sortFields={sortFields}
         />
       </HydrationBoundary>
     </ContentPageLayout>

@@ -6,6 +6,7 @@ import {
   SuccessResponseList,
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
+import { QueryParams } from './purchaseOrder';
 
 // Get all products
 export const getProducts = async (
@@ -15,47 +16,26 @@ export const getProducts = async (
 ) => {
   try {
     const {
-      limit = 10,
-      page = 1,
-      search = '',
-      sort = { createdAt: -1 },
-      supplier,
-    } = req.query;
+      limit = 100,
+      offset = 0,
+      name,
+      sort = 'updatedAt_desc',
+    } = req.query as QueryParams;
 
     const limitNum = Number(limit);
-    const pageNum = Number(page);
-    const skipNum = (pageNum - 1) * limitNum;
+    const offsetNum = Number(offset);
 
-    let searchQuery = {};
-    if (search) {
-      searchQuery = {
-        ...searchQuery,
-        name: { $regex: new RegExp(search as string, 'i') },
-      };
-    }
+    let s = sort.split('_');
+    let x = { [s[0]]: s[1] } as any;
+    const search: any = {};
+    name && (search.name = { $regex: new RegExp(name, 'i') });
 
-    if (supplier) {
-      searchQuery = {
-        ...searchQuery,
-        supplier,
-      };
-    }
-
-    const { items } = await paginateAndSearch(
-      Product,
-      'name',
-      search as string,
-      limitNum,
-      pageNum,
-      sort as any
-    );
-
-    const filteredItems = await Product.find(searchQuery)
-      .skip(skipNum)
+    const products = await Product.find(search)
+      .skip(offsetNum)
       .limit(limitNum)
-      .sort(sort as any);
-
-    const products = filteredItems;
+      .sort(x)
+      .populate('category')
+      .populate('supplier');
 
     res
       .status(200)

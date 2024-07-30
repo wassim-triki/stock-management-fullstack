@@ -34,7 +34,6 @@ export default async function Page({ searchParams }: ParamsProps) {
   const page = Number(searchParams.page) || 1;
 
   const limit = Number(searchParams.limit) || 5;
-  // const search = searchParams.search?.toString() || "";
   const offset = (page - 1) * limit;
 
   const sort = "updatedAt_desc";
@@ -70,7 +69,7 @@ export default async function Page({ searchParams }: ParamsProps) {
   const pageCount = Math.ceil(total / limit);
 
   const dehydratedState = dehydrate(queryClient);
-
+  const defaultSearchField = { value: "name", label: "Name" };
   return (
     <HydrationBoundary state={dehydratedState}>
       <ContentPageLayout
@@ -84,12 +83,11 @@ export default async function Page({ searchParams }: ParamsProps) {
             queryKey: queryKeys.suppliers,
             queryFn: getSuppliers,
           }}
-          defaultSearchKey="name"
+          defaultSearchField={defaultSearchField}
           columns={columns}
           pageCount={pageCount}
           queryParams={queryParams}
           sortFields={sortFields}
-          searchFields={searchFields}
         />
       </ContentPageLayout>
     </HydrationBoundary>

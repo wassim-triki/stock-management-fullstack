@@ -5,16 +5,17 @@ import {
   ApiSearchFilter,
   ApiSuccessResponse,
   ApiSuccessResponseList,
+  QueryParams,
   User,
 } from "@/lib/types";
-import { buildQueryParams } from "@/lib/utils";
+import { buildQueryParamsString } from "@/lib/utils";
 import { AxiosResponse } from "axios";
 
-export async function getUsers(filter: ApiSearchFilter): Promise<User[]> {
+export async function getUsers(queryParams: QueryParams): Promise<User[]> {
   "use server";
-  const queryParams = await buildQueryParams(filter);
+  const queryParamsStr = await buildQueryParamsString(queryParams);
   const response: ApiSuccessResponseList<User> = await fetchHelper(
-    `/api/users?${queryParams.toString()}`,
+    `/api/users?${queryParamsStr.toString()}`,
   );
   return response.data.items;
 }

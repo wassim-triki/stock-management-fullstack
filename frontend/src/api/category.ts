@@ -4,19 +4,20 @@ import {
   ApiSuccessResponse,
   ApiSuccessResponseList,
   Category,
+  QueryParams,
 } from "@/lib/types";
 import fetchHelper from "@/lib/fetchInstance";
-import { buildQueryParams } from "@/lib/utils";
+import { buildQueryParamsString } from "@/lib/utils";
 
 export const getCategories = async (
-  filter: ApiSearchFilter,
+  queryParams: QueryParams,
 ): Promise<Category[]> => {
   "use server";
 
-  const queryParams = await buildQueryParams(filter);
+  const queryParamsStr = await buildQueryParamsString(queryParams);
 
   const response: ApiSuccessResponseList<Category> = await fetchHelper(
-    `/api/categories?${queryParams.toString()}`,
+    `/api/categories?${queryParamsStr.toString()}`,
   );
 
   return response.data.items;
