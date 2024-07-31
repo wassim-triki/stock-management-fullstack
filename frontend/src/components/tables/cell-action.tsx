@@ -49,25 +49,8 @@ export const CellAction = <T extends { _id: string }>({
 
   const onConfirm = async () => {
     setLoading(true);
-    // try {
-    // const response = await deleteFunction(data._id);
-    // toast({
-    //   variant: "success",
-    //   title: response.message,
-    //   // TODO: add undo
-    // });
     mutate(data._id);
-    // setOpen(false);
-    // TODO: add better way to refresh the table
-    // window.location.reload();
-    // } catch (error: any) {
-    // toast({
-    //   variant: "destructive",
-    //   title: error.message,
-    // });
-    // } finally {
     setLoading(false);
-    // }
   };
 
   return (

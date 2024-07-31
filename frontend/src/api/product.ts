@@ -10,7 +10,7 @@ import fetchHelper from "@/lib/fetchInstance";
 import { buildQueryParamsString } from "@/lib/utils";
 
 export const getProducts = async (
-  queryParams: QueryParams,
+  queryParams?: QueryParams,
 ): Promise<Product[]> => {
   "use server";
 
@@ -19,6 +19,8 @@ export const getProducts = async (
   const response: ApiSuccessResponseList<Product> = await fetchHelper(
     `/api/products?${queryParamsStr.toString()}`,
   );
+
+  console.log("🤞🤞🤞");
 
   return response.data.items;
 };

@@ -10,21 +10,13 @@ import { dehydrate, QueryClient } from "@tanstack/react-query";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Products", link: "/dashboard/stock/products" },
+  { title: "Products", link: "/dashboard/products" },
   { title: "Create", link: "" },
 ];
 
 export default async function Page() {
-  const queryClient = new QueryClient();
-
-  const categories = await queryClient.fetchQuery({
-    queryKey: [queryKeys.categories],
-    queryFn: () => getCategories({ noFilters: true }),
-  });
-  const suppliers = await queryClient.fetchQuery({
-    queryKey: [queryKeys.suppliers],
-    queryFn: () => getSuppliers({ noFilters: true }),
-  });
+  const categories = await getCategories();
+  const suppliers = await getSuppliers();
 
   return (
     <ScrollArea className="h-full">

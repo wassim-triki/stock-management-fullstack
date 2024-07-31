@@ -6,6 +6,8 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  SortingState,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import React, { useEffect, useState } from "react";
@@ -59,6 +61,7 @@ interface DataTableProps<TData, TValue> {
   queryParams: QueryParams;
   rQPrams: RQParams<TData[]>;
   sortFields: SortFieldSelect[];
+  children: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -69,6 +72,7 @@ export function DataTable<TData, TValue>({
   queryParams,
   pageSizeOptions = [5, 10, 20, 30, 40, 50],
   sortFields,
+  children,
 }: DataTableProps<TData, TValue>) {
   const debouncedQueryParams = useDebounce(queryParams, 500);
 
@@ -130,7 +134,7 @@ export function DataTable<TData, TValue>({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize]);
-
+  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
     data: data || [],
     columns,
@@ -138,12 +142,15 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
+      sorting,
       pagination: { pageIndex, pageSize },
     },
     onPaginationChange: setPagination,
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
     manualFiltering: true,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
   });
   // this can be used to get the selectedrows
   // console.log(
@@ -245,6 +252,7 @@ export function DataTable<TData, TValue>({
             ))}
           </SelectContent>
         </Select>
+        {children}
       </div>
 
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">

@@ -32,7 +32,7 @@ import { ApiErrorResponse, ApiSuccessResponse, User } from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
 import { AlertModal } from "../modal/alert-modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/constants";
+import { queryKeys, ROLES } from "@/lib/constants";
 import {
   Select,
   SelectContent,
@@ -72,16 +72,14 @@ interface UserFormProps {
   title: string;
   description: string;
   action: string;
-  userId?: string | undefined;
-  roles: { _id: string; name: string }[];
+  initUser?: User;
 }
 
 export const UserForm: React.FC<UserFormProps> = ({
   title,
   description,
   action,
-  userId = "",
-  roles,
+  initUser,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -89,81 +87,8 @@ export const UserForm: React.FC<UserFormProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const queryClient = useQueryClient();
-
-  const {
-    data: initialData,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: [queryKeys.users, userId],
-    queryFn: () => getUserById(userId),
-    enabled: !!userId,
-  });
-
-  const { mutate: update, isPending: isUpdating } = useMutation({
-    mutationFn: updateUser,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.users] });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/users");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const { mutate: deletee, isPending: isDeleting } = useMutation({
-    mutationFn: deleteUser,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.users],
-      });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/users");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-  const { mutate: create, isPending: isCreating } = useMutation({
-    mutationFn: createUser,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.users] });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/users");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const allLoading = isCreating || isLoading || isUpdating || isDeleting;
-
-  const defaultValues = initialData
-    ? initialData
+  const defaultValues = initUser
+    ? initUser
     : {
         email: "",
         profile: {
@@ -189,216 +114,196 @@ export const UserForm: React.FC<UserFormProps> = ({
   });
 
   const onSubmit = async (data: CreateUserData) => {
-    console.log(data);
     setLoading(true);
-    if (initialData && params.userId) {
-      update({ id: params.userId as string, data });
-    } else {
-      create(data);
+    try {
+      if (initUser) {
+        const res = await updateUser({ id: initUser._id, data });
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      } else {
+        const res = await createUser(data);
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      }
+      router.push("/dashboard/users");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: (error as ApiErrorResponse).message,
+      });
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const onConfirmDelete = async () => {
-    deletee(userId);
   };
 
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirmDelete}
-        loading={allLoading}
-      />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {initialData && (
-          <Button
-            disabled={allLoading}
-            variant="destructive"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        )}
       </div>
       <Separator />
-      {isError && <div>{error?.message}</div>}
-      {!isError && (
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-8"
-          >
-            <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="Email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="grid gap-2">
-                        <div className="flex items-center">
-                          <FormLabel>Password</FormLabel>
-                        </div>
-                        <Input type="password" {...field} />
+
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-8"
+        >
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="Email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <FormLabel>Password</FormLabel>
                       </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <Input type="password" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="profile.firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>First Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="First Name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="profile.firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="First Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="profile.lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="Last Name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="profile.lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Last Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="profile.phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="grid gap-2">
-                        <div className="flex items-center">
-                          <FormLabel>Phone</FormLabel>
-                        </div>
-                        <PhoneInput
-                          defaultCountry="TN"
-                          placeholder="12 345 678"
-                          {...field}
-                          disabled={allLoading}
-                        />
+            <FormField
+              control={form.control}
+              name="profile.phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <FormLabel>Phone</FormLabel>
                       </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="profile.address.street"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Street</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="Street"
+                      <PhoneInput
+                        defaultCountry="TN"
+                        placeholder="12 345 678"
                         {...field}
+                        disabled={loading}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="profile.address.city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="City"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="profile.address.street"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="Street" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="profile.address.state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="State"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="profile.address.city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="City" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="profile.address.zip"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Zip Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="Zip code"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="profile.address.state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>State</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="State" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              {/* <FormField
+            <FormField
+              control={form.control}
+              name="profile.address.zip"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zip Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Zip code"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* <FormField
                 control={form.control}
                 name="role"
                 render={({ field }) => (
@@ -406,7 +311,7 @@ export const UserForm: React.FC<UserFormProps> = ({
                     <FormLabel>Role</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLoading}
+                        disabled={loading}
                         placeholder="Role"
                         {...field}
                       />
@@ -415,70 +320,69 @@ export const UserForm: React.FC<UserFormProps> = ({
                   </FormItem>
                 )}
               /> */}
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <Select
-                      disabled={allLoading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Role"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {/* @ts-ignore  */}
-                        {roles.map((category) => (
-                          <SelectItem key={category._id} value={category._id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem>
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          disabled={allLoading}
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
+                      <SelectTrigger>
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Role"
                         />
-                        <FormLabel>Active</FormLabel>
-                      </div>
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div></div>
+                    <SelectContent>
+                      {/* @ts-ignore  */}
+                      {ROLES.map((role) => (
+                        <SelectItem key={role._id} value={role._id}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="w-full md:w-min">
-              <SubmitButton loading={allLoading} type="submit">
-                {action}
-              </SubmitButton>
-            </div>
-          </form>
-        </Form>
-      )}
+            <FormField
+              control={form.control}
+              name="active"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        disabled={loading}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <FormLabel>Active</FormLabel>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div></div>
+
+          <div className="w-full md:w-min">
+            <SubmitButton loading={loading} type="submit">
+              {action}
+            </SubmitButton>
+          </div>
+        </form>
+      </Form>
     </>
   );
 };

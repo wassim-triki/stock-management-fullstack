@@ -10,14 +10,14 @@ import fetchHelper from "@/lib/fetchInstance";
 import { buildQueryParamsString } from "@/lib/utils";
 
 export const getCategories = async (
-  queryParams: QueryParams,
+  queryParams?: QueryParams,
 ): Promise<Category[]> => {
   "use server";
 
   const queryParamsStr = await buildQueryParamsString(queryParams);
 
   const response: ApiSuccessResponseList<Category> = await fetchHelper(
-    `/api/categories?${queryParamsStr.toString()}`,
+    `/api/categories?${queryParamsStr}`,
   );
 
   return response.data.items;

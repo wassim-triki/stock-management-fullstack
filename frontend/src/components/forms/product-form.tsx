@@ -77,18 +77,18 @@ interface ProductFormProps {
   title: string;
   description: string;
   action: string;
-  productId?: string | undefined;
   categories: Category[];
   suppliers: Supplier[];
+  initProduct?: Product;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   title,
   description,
   action,
-  productId = "",
   categories,
   suppliers,
+  initProduct,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -96,87 +96,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const queryClient = useQueryClient();
-
-  const {
-    data: productData,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: [queryKeys.products, productId],
-    queryFn: () => getProductById(productId),
-    enabled: !!productId,
-  });
-
   const initialData: ProductFormValues = {
-    name: productData?.name || "",
-    category: productData?.category?._id || "",
-    supplier: productData?.supplier?._id || "",
-    price: productData?.price?.toString() || "",
-    quantityInStock: productData?.quantityInStock?.toString() || "",
+    name: initProduct?.name || "",
+    category: initProduct?.category?._id || "",
+    supplier: initProduct?.supplier?._id || "",
+    price: initProduct?.price?.toString() || "",
+    quantityInStock: initProduct?.quantityInStock?.toString() || "",
   };
-
-  const { mutate: update, isPending: isUpdating } = useMutation({
-    mutationFn: updateProduct,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.products] });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/stock/products");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const { mutate: deletee, isPending: isDeleting } = useMutation({
-    mutationFn: deleteProduct,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.products],
-      });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/stock/products");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const { mutate: create, isPending: isCreating } = useMutation({
-    mutationFn: createProduct,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.products] });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/stock/products");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const allLoading = isCreating || isLoading || isUpdating || isDeleting;
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
@@ -184,197 +110,179 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   });
 
   const onSubmit = async (data: ProductFormValues) => {
-    console.log(data);
-    const category = data.category;
-    const supplier = data.supplier;
-    if (initialData && params.productId) {
-      update({
-        id: params.productId as string,
-        data: {
-          ...data,
-          category,
-          supplier,
-          price: parseFloat(data.price),
-          quantityInStock: parseInt(data.quantityInStock, 10),
-        },
-      });
-    } else {
-      create({
+    setLoading(true);
+    try {
+      const productData = {
         ...data,
-        category,
-        supplier,
-        price: parseFloat(data.price),
-        quantityInStock: parseInt(data.quantityInStock, 10),
+        price: Number(data.price),
+        quantityInStock: Number(data.quantityInStock),
+      };
+      if (initProduct) {
+        const res = await updateProduct({
+          id: initProduct._id,
+          data: productData,
+        });
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      } else {
+        const res = await createProduct(productData);
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      }
+      router.push("/dashboard/products");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: (error as ApiErrorResponse).message,
       });
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const onConfirmDelete = async () => {
-    deletee(productId);
   };
 
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirmDelete}
-        loading={allLoading}
-      />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {productData && (
-          <Button
-            disabled={allLoading}
-            variant="destructive"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        )}
       </div>
       <Separator />
-      {isError && <div>{error?.message}</div>}
-      {!isError && (
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-8"
-          >
-            <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-8"
+        >
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="Name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="Name"
-                        {...field}
-                      />
+                      <SelectTrigger>
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Select a category"
+                        />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category._id} value={category._id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select
-                      disabled={allLoading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Select a category"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category._id} value={category._id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="supplier"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Supplier</FormLabel>
-                    <Select
-                      disabled={allLoading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Select a supplier"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {suppliers.map((supplier) => (
-                          <SelectItem key={supplier._id} value={supplier._id}>
-                            {supplier.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price</FormLabel>
+            <FormField
+              control={form.control}
+              name="supplier"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Supplier</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
-                      <Input
-                        type="number"
-                        disabled={allLoading}
-                        placeholder="Price"
-                        {...field}
-                      />
+                      <SelectTrigger>
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Select a supplier"
+                        />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <SelectContent>
+                      {suppliers.map((supplier) => (
+                        <SelectItem key={supplier._id} value={supplier._id}>
+                          {supplier.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="quantityInStock"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity In Stock</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        disabled={allLoading}
-                        placeholder="Quantity In Stock"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div></div>
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Price"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="w-full md:w-min">
-              <SubmitButton loading={allLoading} type="submit">
-                {action}
-              </SubmitButton>
-            </div>
-          </form>
-        </Form>
-      )}
+            <FormField
+              control={form.control}
+              name="quantityInStock"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantity In Stock</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Quantity In Stock"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div></div>
+
+          <div className="w-full md:w-min">
+            <SubmitButton loading={loading} type="submit">
+              {action}
+            </SubmitButton>
+          </div>
+        </form>
+      </Form>
     </>
   );
 };

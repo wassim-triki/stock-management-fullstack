@@ -25,29 +25,19 @@ type Props = {
 export default async function Page({ params }: Props) {
   const categoryId = params.categoryId;
 
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: [queryKeys.categories, categoryId],
-    queryFn: () => getCategoryById(categoryId),
-  });
-  const categories = await queryClient.fetchQuery({
-    queryKey: [queryKeys.categories],
-    queryFn: () => getCategories({ noFilters: true }),
-  });
-  const dehydratedState = dehydrate(queryClient);
+  const category = await getCategoryById(categoryId);
+  const categories = await getCategories();
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
-        <HydrationBoundary state={dehydratedState}>
-          <CategoryForm
-            categories={categories}
-            categoryId={categoryId}
-            action="Save Changes"
-            description="Edit supplier information"
-            title="Edit Supplier"
-          />
-        </HydrationBoundary>
+        <CategoryForm
+          categories={categories}
+          initCategory={category}
+          action="Save Changes"
+          description="Edit category information"
+          title="Edit Category"
+        />
       </div>
     </ScrollArea>
   );

@@ -112,23 +112,23 @@ export type ApiSearchFilter = {
 
 export type POStatus = "Pending" | "Accepted" | "Received";
 
-export interface PurchaseOrder {
+export type PurchaseOrder = {
   _id: string;
   orderNumber: number;
-  supplier: Supplier["_id"];
+  supplier: Supplier;
   orderDate: Date;
   status: POStatus;
   items: {
-    product: Product["_id"];
+    product: Product;
     quantity: number;
     price: number;
   }[];
   createdAt: Date;
   updatedAt: Date;
-}
+};
 
 export type QueryParams = {
-  limit?: string;
-  offset?: string;
-  [key: string]: string | undefined;
+  limit?: number;
+  offset?: number;
+  [key: string]: string | undefined | number;
 };

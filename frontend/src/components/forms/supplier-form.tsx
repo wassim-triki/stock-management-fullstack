@@ -57,14 +57,14 @@ interface SupplierFormProps {
   title: string;
   description: string;
   action: string;
-  supplierId?: string;
+  initSupplier?: Supplier;
 }
 
 export const SupplierForm: React.FC<SupplierFormProps> = ({
   title,
   description,
   action,
-  supplierId = "",
+  initSupplier,
   // initialData,
 }) => {
   const params = useParams();
@@ -73,84 +73,8 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const queryClient = useQueryClient();
-
-  const {
-    data: initialData,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: [queryKeys.suppliers, supplierId],
-    queryFn: () => getSupplierById(supplierId),
-    enabled: !!supplierId,
-  });
-
-  const { mutate: update, isPending: isUpdating } = useMutation({
-    mutationFn: updateSupplier,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.suppliers],
-      });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/suppliers");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-  const { mutate: deletee, isPending: isDeleting } = useMutation({
-    mutationFn: deleteSupplier,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.suppliers],
-      });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/suppliers");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-  const { mutate: create, isPending: isCreating } = useMutation({
-    mutationFn: createSupplier,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.suppliers],
-      });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/suppliers");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const allLaoding = isCreating || isLoading || isUpdating || isDeleting;
-
-  const defaultValues = initialData
-    ? initialData
+  const defaultValues = initSupplier
+    ? initSupplier
     : {
         name: "",
         email: "",
@@ -171,42 +95,41 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
 
   const onSubmit = async (data: SupplierFormValues) => {
     setLoading(true);
-    if (initialData && params.supplierId) {
-      update({ id: params.supplierId as string, data });
-    } else {
-      // Create new supplier
-      create(data);
+    try {
+      if (initSupplier) {
+        const res = await updateSupplier({
+          id: initSupplier._id,
+          data,
+        });
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      } else {
+        const res = await createSupplier(data);
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      }
+      router.push("/dashboard/suppliers");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: (error as ApiErrorResponse).message,
+      });
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const onConfirmDelete = async () => {
-    deletee(supplierId);
   };
 
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirmDelete}
-        loading={allLaoding}
-      />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {initialData && (
-          <Button
-            disabled={allLaoding}
-            variant="destructive"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        )}
       </div>
       <Separator />
-      {isError && <div>{error?.message}</div>}
-      {!isError && (
+      {true && (
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -221,7 +144,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                     <FormLabel>Company Name</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
+                        disabled={loading}
                         placeholder="Company name"
                         {...field}
                       />
@@ -240,7 +163,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                     <FormControl>
                       <Input
                         type="email"
-                        disabled={allLaoding}
+                        disabled={loading}
                         placeholder="Contact email"
                         {...field}
                       />
@@ -263,7 +186,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                           defaultCountry="TN"
                           placeholder="12 345 678"
                           {...field}
-                          disabled={allLaoding}
+                          disabled={loading}
                         />
                       </div>
                     </FormControl>
@@ -279,7 +202,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                     <FormLabel>Street</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
+                        disabled={loading}
                         placeholder="Street"
                         {...field}
                       />
@@ -295,11 +218,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input
-                        disabled={allLaoding}
-                        placeholder="City"
-                        {...field}
-                      />
+                      <Input disabled={loading} placeholder="City" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -313,7 +232,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                     <FormLabel>State</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
+                        disabled={loading}
                         placeholder="State"
                         {...field}
                       />
@@ -330,7 +249,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                     <FormLabel>Zip Code</FormLabel>
                     <FormControl>
                       <Input
-                        disabled={allLaoding}
+                        disabled={loading}
                         placeholder="Zip code"
                         {...field}
                       />
@@ -347,7 +266,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                     <FormControl>
                       <div className="flex items-center space-x-2">
                         <Checkbox
-                          disabled={allLaoding}
+                          disabled={loading}
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
@@ -362,7 +281,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             <div></div>
 
             <div className="w-full md:w-min">
-              <SubmitButton loading={allLaoding} type="submit">
+              <SubmitButton loading={loading} type="submit">
                 {action}
               </SubmitButton>
             </div>

@@ -56,6 +56,7 @@ export const columns: ColumnDef<Product>[] = [
       const formattedDate = timeAgo(cell.getValue() as string);
       return <span>{formattedDate}</span>;
     },
+    enableSorting: true,
   },
   {
     id: "actions",

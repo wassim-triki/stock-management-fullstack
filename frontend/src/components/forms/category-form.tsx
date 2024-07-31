@@ -48,16 +48,16 @@ interface CategoryFormProps {
   title: string;
   description: string;
   action: string;
-  categoryId?: string | undefined;
   categories: Category[];
+  initCategory: Category;
 }
 
 export const CategoryForm: React.FC<CategoryFormProps> = ({
   title,
   description,
   action,
-  categoryId = "",
   categories,
+  initCategory,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -65,90 +65,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const queryClient = useQueryClient();
-
-  const {
-    data: categoryData,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: [queryKeys.categories, categoryId],
-    queryFn: () => getCategoryById(categoryId),
-    enabled: !!categoryId,
-  });
-
-  useEffect(() => {
-    console.log(categoryData);
-  }, [categoryData]);
-
-  const initialData: CategoryFormValues = {
-    name: categoryData?.name || "",
-    parentCategory: categoryData?.parentCategory?._id || "",
+  const defaultValues = {
+    name: initCategory.name || "",
+    parentCategory: initCategory?.parentCategory?._id || "",
   };
-
-  const { mutate: update, isPending: isUpdating } = useMutation({
-    mutationFn: updateCategory,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.categories] });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/stock/categories");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const { mutate: deletee, isPending: isDeleting } = useMutation({
-    mutationFn: deleteCategory,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.categories],
-      });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/stock/categories");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const { mutate: create, isPending: isCreating } = useMutation({
-    mutationFn: createCategory,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.categories] });
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      setOpen(false);
-      router.push("/dashboard/stock/categories");
-    },
-    onError(error, variables, context) {
-      toast({
-        variant: "destructive",
-        title: error.message,
-      });
-    },
-  });
-
-  const allLoading = isCreating || isLoading || isUpdating || isDeleting;
-
-  const defaultValues = initialData;
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(formSchema),
@@ -157,120 +77,111 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   });
 
   const onSubmit = async (data: CategoryFormValues) => {
-    setLoading(true);
-    const parentCategory =
-      data.parentCategory && data.parentCategory !== "none"
-        ? data.parentCategory
-        : null;
-    if (initialData && params.categoryId) {
-      update({
-        id: params.categoryId as string,
-        data: { ...data, parentCategory },
+    try {
+      setLoading(true);
+      const parentCategory =
+        data.parentCategory && data.parentCategory !== "none"
+          ? data.parentCategory
+          : null;
+      if (initCategory) {
+        const res = await updateCategory({
+          id: initCategory._id,
+          data: { ...data, parentCategory },
+        });
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      } else {
+        const res = await createCategory({ ...data, parentCategory });
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      }
+      router.push("/dashboard/categories");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: (error as ApiErrorResponse).message,
       });
-    } else {
-      create({ ...data, parentCategory });
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const onConfirmDelete = async () => {
-    deletee(categoryId);
   };
 
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirmDelete}
-        loading={allLoading}
-      />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {categoryData && (
-          <Button
-            disabled={allLoading}
-            variant="destructive"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        )}
       </div>
       <Separator />
-      {isError && <div>{error?.message}</div>}
-      {!isError && (
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-8"
-          >
-            <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-8"
+        >
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="Name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="parentCategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Parent Category</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
-                      <Input
-                        disabled={allLoading}
-                        placeholder="Name"
-                        {...field}
-                      />
+                      <SelectTrigger>
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Parent Category"
+                        />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="parentCategory"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Parent Category</FormLabel>
-                    <Select
-                      disabled={allLoading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Parent Category"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {/* @ts-ignore */}
-                        <SelectItem key={"none"} value={"none"}>
-                          None
+                    <SelectContent>
+                      {/* @ts-ignore */}
+                      <SelectItem key={"none"} value={"none"}>
+                        None
+                      </SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category._id} value={category._id}>
+                          {category.name}
                         </SelectItem>
-                        {categories.map((category) => (
-                          <SelectItem key={category._id} value={category._id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div></div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div></div>
 
-            <div className="w-full md:w-min">
-              <SubmitButton loading={allLoading} type="submit">
-                {action}
-              </SubmitButton>
-            </div>
-          </form>
-        </Form>
-      )}
+          <div className="w-full md:w-min">
+            <SubmitButton loading={loading} type="submit">
+              {action}
+            </SubmitButton>
+          </div>
+        </form>
+      </Form>
     </>
   );
 };

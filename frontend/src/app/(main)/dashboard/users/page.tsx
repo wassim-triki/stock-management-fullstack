@@ -1,16 +1,15 @@
 import { getTotalUsers, getUsers } from "@/api/user";
+import { DataTable } from "@/components/data-table/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { DataTable } from "@/components/tables/data-table";
-import { columns } from "@/components/tables/users-table/columns";
 import { queryKeys } from "@/lib/constants";
-import { ApiSearchFilter, QueryParams } from "@/lib/types";
+import { ApiSearchFilter, QueryParams, User } from "@/lib/types";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
 import React from "react";
-import { SortFieldSelect } from "../suppliers/page";
+import { columns } from "./columns";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -24,39 +23,37 @@ type ParamsProps = {
 };
 
 const Page = async ({ searchParams }: ParamsProps) => {
-  const page = Number(searchParams.page) || 1;
+  const { page, per_page, sort, ...filters } = searchParams;
+  // Number of items per page
+  const limit = typeof per_page === "string" ? parseInt(per_page) : 5;
+  // Number of items to skip
+  const offset =
+    typeof page === "string"
+      ? parseInt(page) > 0
+        ? (parseInt(page) - 1) * limit
+        : 0
+      : 0;
 
-  const limit = Number(searchParams.limit) || 5;
-  const offset = (page - 1) * limit;
+  // Column and order to sort by
+  // Spliting the sort string by "." to get the column and order
+  // Example: "title.desc" => ["title", "desc"]
+  const [sortBy, order] =
+    typeof sort === "string"
+      ? (sort.split(".") as [
+          keyof User | undefined,
+          "asc" | "desc" | undefined,
+        ])
+      : [];
 
-  const sort = "updatedAt_desc";
-
-  const queryParams: QueryParams = {
-    limit: limit.toString(),
-    offset: offset.toString(),
-    sort,
-    ...searchParams,
-  };
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: [queryKeys.users, queryParams],
-    queryFn: () => getUsers(queryParams),
+  const users = await getUsers({
+    offset,
+    limit,
+    sortBy,
+    order,
+    ...filters,
   });
-
-  const total = await queryClient.fetchQuery({
-    queryKey: [queryKeys.totalUsers],
-    queryFn: getTotalUsers,
-  });
+  const total = await getTotalUsers();
   const pageCount = Math.ceil(total / limit);
-
-  const dehydratedState = dehydrate(queryClient);
-  const sortFields: SortFieldSelect[] = [
-    { value: "updatedAt_desc", label: "Last updated", type: "desc" },
-    { value: "updatedAt_asc", label: "Last updated", type: "asc" },
-    { value: "name_desc", label: "Name", type: "desc" },
-    { value: "name_asc", label: "Name", type: "asc" },
-  ];
-  const defaultSearchField = { value: "email", label: "Email" };
 
   return (
     <ContentPageLayout
@@ -65,19 +62,12 @@ const Page = async ({ searchParams }: ParamsProps) => {
       description="Manage employees (Server side table functionalities.)"
       addNewLink="/dashboard/users/new"
     >
-      <HydrationBoundary state={dehydratedState}>
-        <DataTable
-          rQPrams={{
-            queryKey: queryKeys.users,
-            queryFn: getUsers,
-          }}
-          defaultSearchField={defaultSearchField}
-          columns={columns}
-          pageCount={pageCount}
-          queryParams={queryParams}
-          sortFields={sortFields}
-        />
-      </HydrationBoundary>
+      <DataTable
+        searchableColumns={[{ id: "email", title: "Email" }]}
+        columns={columns}
+        pageCount={pageCount}
+        data={users}
+      />
     </ContentPageLayout>
   );
 };

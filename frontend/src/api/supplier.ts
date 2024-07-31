@@ -12,7 +12,7 @@ import { buildQueryParamsString } from "@/lib/utils";
 import { AxiosResponse } from "axios";
 
 export const getSuppliers = async (
-  queryParams: QueryParams,
+  queryParams?: QueryParams,
 ): Promise<Supplier[]> => {
   "use server";
 

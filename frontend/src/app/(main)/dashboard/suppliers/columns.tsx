@@ -1,12 +1,13 @@
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-import { CellAction } from "../cell-action";
 import { Supplier } from "@/lib/types";
 import { deleteSupplier } from "@/api/supplier";
 import { timeAgo } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 
 export const columns: ColumnDef<Supplier>[] = [
   {
@@ -31,19 +32,33 @@ export const columns: ColumnDef<Supplier>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        NAME
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+      <DataTableColumnHeader column={column} title="NAME" />
     ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("name")}
+          </span>
+        </div>
+      );
+    },
   },
 
   {
     accessorKey: "email",
-    header: "EMAIL",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="EMAIL" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("email")}
+          </span>
+        </div>
+      );
+    },
   },
 
   {
@@ -51,12 +66,18 @@ export const columns: ColumnDef<Supplier>[] = [
     header: "PHONE",
   },
   {
-    accessorKey: "address.street",
-    header: "ADDRESS ",
+    accessorKey: "address",
+    accessorFn: (row) => row.address.street,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="ADDRESS" />
+    ),
+    enableSorting: false,
   },
   {
     accessorKey: "updatedAt",
-    header: "LAST UPDATED",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="LAST UPDATED" />
+    ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
       return <span>{formattedDate}</span>;
@@ -65,11 +86,10 @@ export const columns: ColumnDef<Supplier>[] = [
   {
     id: "actions",
     cell: ({ row }) => (
-      <CellAction
-        queryKey="suppliers"
-        data={row.original}
+      <DataTableRowActions
         deleteFunction={deleteSupplier}
-        editUrl={(id) => `/dashboard/suppliers/${id}/edit`}
+        editUrl={`/dashboard/suppliers/${row.original._id}`}
+        row={row}
       />
     ),
   },

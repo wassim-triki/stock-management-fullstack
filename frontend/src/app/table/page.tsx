@@ -1,10 +1,9 @@
 import { getProducts, getTotalProducts } from "@/api/product";
-import { Product, Supplier } from "@/lib/types";
+import { columns } from "./columns";
+import { Product } from "@/lib/types";
 import { DataTable } from "@/components/data-table/data-table";
 import { getCategories } from "@/api/category";
-import { getSuppliers, getTotalSuppliers } from "@/api/supplier";
-import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { columns } from "./columns";
+import { getSuppliers } from "@/api/supplier";
 
 type PageProps = {
   searchParams: {
@@ -12,15 +11,10 @@ type PageProps = {
   };
 };
 
-const breadcrumbItems = [
-  { title: "Dashboard", link: "/dashboard" },
-  { title: "Products", link: "/dashboard/products" },
-];
-
 export default async function DemoPage({ searchParams }: PageProps) {
   const { page, per_page, sort, ...filters } = searchParams;
   // Number of items per page
-  const limit = typeof per_page === "string" ? parseInt(per_page) : 5;
+  const limit = typeof per_page === "string" ? parseInt(per_page) : 10;
   // Number of items to skip
   const offset =
     typeof page === "string"
@@ -35,30 +29,46 @@ export default async function DemoPage({ searchParams }: PageProps) {
   const [sortBy, order] =
     typeof sort === "string"
       ? (sort.split(".") as [
-          keyof Supplier | undefined,
+          keyof Product | undefined,
           "asc" | "desc" | undefined,
         ])
       : [];
 
   console.log({ offset, limit, sortBy, order, ...filters });
-  const data = await getSuppliers({ offset, limit, sortBy, order, ...filters });
-  const total = await getTotalSuppliers();
+  const data = await getProducts({ offset, limit, sortBy, order, ...filters });
+  const total = await getTotalProducts();
 
   const pageCount = Math.ceil(total / limit);
 
+  const categories = await getCategories();
+  const suppliers = await getSuppliers();
+
   return (
-    <ContentPageLayout
-      breadcrumbItems={breadcrumbItems}
-      addNewLink="/dashboard/suppliers/new"
-      title={`Suppliers (${total})`}
-      description="Manage suppliers"
-    >
+    <div className="container mx-auto py-10">
       <DataTable
         searchableColumns={[{ id: "name", title: "Name" }]}
+        filterableColumns={[
+          {
+            id: "category",
+            title: "Category",
+            options: categories.map((category) => ({
+              label: category.name,
+              value: category._id,
+            })),
+          },
+          {
+            id: "supplier",
+            title: "Supplier",
+            options: suppliers.map((supplier) => ({
+              label: supplier.name,
+              value: supplier._id,
+            })),
+          },
+        ]}
         columns={columns}
         data={data}
         pageCount={pageCount}
       />
-    </ContentPageLayout>
+    </div>
   );
 }

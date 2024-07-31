@@ -1,31 +1,28 @@
-import { ApiSearchFilter, PurchaseOrder, QueryParams } from "@/lib/types";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
+
+import { queryKeys } from "@/lib/constants";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getTotalProducts } from "@/api/product";
-import { PO_STATUSES, queryKeys } from "@/lib/constants";
-import {
-  getPurchaseOrders,
-  getTotalPurchaseOrders,
-} from "@/api/purchase-order";
-import { DataTable } from "@/components/data-table/data-table";
+import { getCategories, getTotalCategories } from "@/api/category";
+import { ApiSearchFilter, Category, QueryParams } from "@/lib/types";
 import { columns } from "./columns";
+import { DataTable } from "@/components/data-table/data-table";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Purchase Order", link: "/dashboard/purchase-orders" },
+  { title: "Categories", link: "/dashboard/stock/categories" },
 ];
 
-type paramsProps = {
+type ParamsProps = {
   searchParams: {
     [key: string]: string | string[] | undefined;
   };
 };
 
-export default async function page({ searchParams }: paramsProps) {
+export default async function Page({ searchParams }: ParamsProps) {
   const { page, per_page, sort, ...filters } = searchParams;
   // Number of items per page
   const limit = typeof per_page === "string" ? parseInt(per_page) : 5;
@@ -43,44 +40,32 @@ export default async function page({ searchParams }: paramsProps) {
   const [sortBy, order] =
     typeof sort === "string"
       ? (sort.split(".") as [
-          keyof PurchaseOrder | undefined,
+          keyof Category | undefined,
           "asc" | "desc" | undefined,
         ])
       : [];
 
-  const purchaseOrders = await getPurchaseOrders({
+  const data = await getCategories({
     offset,
     limit,
     sortBy,
     order,
     ...filters,
   });
-  const total = await getTotalPurchaseOrders();
+  const total = await getTotalCategories();
   const pageCount = Math.ceil(total / limit);
-
   return (
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
-      addNewLink="/dashboard/purchase-orders/new"
-      title={`Purchase Orders (${total})`}
-      description="Manage purchase orders"
+      addNewLink="/dashboard/stock/categories/new"
+      title={`Categories (${total})`}
+      description="Manage categories"
     >
       <DataTable
-        searchableColumns={[{ id: "orderNumber", title: "Order number" }]}
-        filterableColumns={[
-          {
-            id: "status",
-            title: "Status",
-            options: PO_STATUSES.map((status) => ({
-              label: status.name,
-              value: status.name,
-              // icon: status.icon,
-            })),
-          },
-        ]}
+        searchableColumns={[{ id: "name", title: "Name" }]}
         columns={columns}
+        data={data}
         pageCount={pageCount}
-        data={purchaseOrders}
       />
     </ContentPageLayout>
   );

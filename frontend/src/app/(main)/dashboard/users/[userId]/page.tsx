@@ -22,30 +22,18 @@ type Props = {
 export default async function Page({ params }: Props) {
   const userId = params.userId;
 
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: [queryKeys.users, userId],
-    queryFn: () => getUserById(userId),
-  });
-  const dehydratedState = dehydrate(queryClient);
+  const user = await getUserById(userId);
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
-        <HydrationBoundary state={dehydratedState}>
-          <UserForm
-            // initialData={res.data}
-            roles={[
-              { _id: "admin", name: "Admin" },
-              // { _id: "user", name: "pants" },
-              { _id: "manager", name: "Manager" },
-            ]}
-            userId={userId}
-            action="Save Changes"
-            description="Edit user information"
-            title="Edit User"
-          />
-        </HydrationBoundary>
+        <UserForm
+          // initialData={res.data}
+          initUser={user}
+          action="Save Changes"
+          description="Edit user information"
+          title="Edit User"
+        />
       </div>
     </ScrollArea>
   );

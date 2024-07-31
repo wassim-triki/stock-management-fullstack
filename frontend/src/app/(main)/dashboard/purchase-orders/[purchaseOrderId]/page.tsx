@@ -8,16 +8,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { queryKeys } from "@/lib/constants";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { PurchaseOrderForm } from "@/components/forms/purchase-order-form";
+import { getPurchaseOrderById } from "@/api/purchase-order";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
   { title: "Purchase Orders", link: "/dashboard/purchase-orders" },
   { title: "Create", link: "" },
 ];
-
-export default async function Page() {
+type Props = {
+  params: { purchaseOrderId: string };
+};
+export default async function Page({ params }: Props) {
   const suppliers = await getSuppliers();
   const products = await getProducts();
+  const purchaseOrder = await getPurchaseOrderById(params.purchaseOrderId);
 
   return (
     <ScrollArea className="h-full">
@@ -26,9 +30,10 @@ export default async function Page() {
         <PurchaseOrderForm
           suppliers={suppliers}
           products={products}
-          action="Create"
-          description="Create a new purchase order"
-          title="Create Purchase Order"
+          initPurchaseOrder={purchaseOrder}
+          action="Save changes"
+          description="Edit purchase order information"
+          title="Edit Purchase Order"
         />
       </div>
     </ScrollArea>

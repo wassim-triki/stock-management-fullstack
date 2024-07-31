@@ -11,7 +11,7 @@ import fetchHelper from "@/lib/fetchInstance";
 import { buildQueryParamsString } from "@/lib/utils";
 
 export const getPurchaseOrders = async (
-  queryParams: QueryParams,
+  queryParams?: QueryParams,
 ): Promise<PurchaseOrder[]> => {
   "use server";
 

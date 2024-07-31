@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
   { title: "Suppliers", link: "/dashboard/suppliers" },
-  { title: "Create", link: "/dashboard/suppliers/create" },
+  { title: "Create", link: "/dashboard/suppliers/new" },
 ];
 
 export default function Page() {
@@ -14,10 +14,6 @@ export default function Page() {
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
         <SupplierForm
-          // categories={[
-          //   { _id: "shirts", name: "shirts" },
-          //   { _id: "pants", name: "pants" },
-          // ]}
           action="Create"
           description="Create a new supplier"
           title="Create Supplier"

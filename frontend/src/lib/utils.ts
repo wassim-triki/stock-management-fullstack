@@ -21,7 +21,10 @@ export function getInitials(fullName: string): string {
   return initials;
 }
 
-export const buildQueryParamsString = (queryParams: QueryParams): string => {
+export const buildQueryParamsString = (
+  queryParams: QueryParams | undefined,
+): string => {
+  if (!queryParams) return "";
   const params: string[] = [];
 
   Object.keys(queryParams).forEach((key) => {
