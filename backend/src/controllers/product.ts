@@ -128,22 +128,18 @@ export const updateProduct = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
-    if (!product) {
-      return next(new ErrorResponse('Product not found', 404));
-    }
-
-    res
-      .status(200)
-      .json(new SuccessResponse('Product updated successfully', product));
-  } catch (error: any) {
-    next(new ErrorResponse(error, 500));
+  if (!product) {
+    return next(new ErrorResponse('Product not found', 404));
   }
+
+  res
+    .status(200)
+    .json(new SuccessResponse('Product updated successfully', product));
 };
 
 // Delete a product by ID
@@ -152,17 +148,13 @@ export const deleteProduct = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return next(new ErrorResponse('Product not found', 404));
-    }
-    res
-      .status(200)
-      .json(new SuccessResponse('Product deleted successfully', product));
-  } catch (error: any) {
-    next(new ErrorResponse(error, 500));
+  const product = await Product.findByIdAndDelete(req.params.id);
+  if (!product) {
+    return next(new ErrorResponse('Product not found', 404));
   }
+  res
+    .status(200)
+    .json(new SuccessResponse('Product deleted successfully', product));
 };
 
 // Get total number of products
@@ -171,14 +163,10 @@ export const getTotalProducts = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const totalProducts = await Product.countDocuments();
-    res.status(200).json(
-      new SuccessResponse('Total products retrieved successfully', {
-        total: totalProducts,
-      })
-    );
-  } catch (error: any) {
-    next(new ErrorResponse('Failed to retrieve total products', 500));
-  }
+  const totalProducts = await Product.countDocuments();
+  res.status(200).json(
+    new SuccessResponse('Total products retrieved successfully', {
+      total: totalProducts,
+    })
+  );
 };

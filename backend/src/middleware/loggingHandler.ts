@@ -17,3 +17,13 @@ export function loggingHandler(
 
   next();
 }
+
+export function logError(
+  error: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  logging.error(error, 'HTTP Error');
+  return next(error);
+}

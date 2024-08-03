@@ -12,7 +12,7 @@ import {
   getTotalCategories,
   updateCategory,
 } from '../controllers/category';
-
+import 'express-async-errors';
 const router = express.Router();
 router.get('/total', authHandler, getTotalCategories);
 

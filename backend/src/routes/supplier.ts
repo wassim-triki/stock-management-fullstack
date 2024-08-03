@@ -11,6 +11,7 @@ import {
 import { authorizeRoles } from '../middleware/authorizeRoles';
 import { ROLES } from '../utils/constants';
 import { authHandler } from '../middleware/authHandler';
+import 'express-async-errors';
 
 const router = express.Router();
 router.get('/total', authHandler, getTotalSuppliers);

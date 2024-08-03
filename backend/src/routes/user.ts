@@ -9,7 +9,7 @@ import {
 } from '../controllers/user';
 import { authHandler } from '../middleware/authHandler';
 import { authorizeRoles } from '../middleware/authorizeRoles';
-
+import 'express-async-errors';
 const router = express.Router();
 
 router.get('/total', authHandler, getTotalUsers);

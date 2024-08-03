@@ -1,30 +1,21 @@
 // middleware/errorHandler.ts
 import { Request, Response, NextFunction } from 'express';
-import { ErrorResponse } from '../types/types';
+import config from '../config/config';
 
 const errorHandler = (
-  err: ErrorResponse,
+  error: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  // Log the error (add more sophisticated logging if needed)
-  console.error(err);
-
-  // Ensure the error has a statusCode and message
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Server Error';
-  // const code = err.code || 'SERVER_ERROR';
-  const data = err.data || [];
-
-  logging.error(err);
-
-  res.status(statusCode).json({
-    success: false,
-    message,
-    statusCode,
-    data,
-  });
+  const statusCode =
+    error.statusCode && error.statusCode > 99 && error.statusCode < 600
+      ? error.statusCode
+      : 500;
+  const message = error.message || 'Internal Server Error';
+  const stack = config.environment === 'production' ? undefined : error.stack;
+  const data = error.data;
+  res.status(statusCode).json({ message, statusCode, data, stack });
 };
 
 export default errorHandler;

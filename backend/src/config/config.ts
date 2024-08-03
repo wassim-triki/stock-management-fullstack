@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import express from 'express';
+import session from 'express-session';
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
@@ -11,7 +13,7 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 const MONGO_URI = process.env.MONGO_URI || `mongodb://localhost:27017/db_test`;
 
-const JWT_SECRET = process.env.JWT_SECRET || 'jwt_secret';
+const SECRET = process.env.SECRET || 'secret';
 
 const config = {
   environment: process.env.NODE_ENV,
@@ -21,7 +23,23 @@ const config = {
   mongo: {
     uri: MONGO_URI,
   },
-  jwtSecret: JWT_SECRET,
+  secret: SECRET,
 };
 
+export const sessionOptions: session.SessionOptions = {
+  name: 'session',
+  secret: config.secret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: config.environment === 'production',
+    sameSite: 'lax',
+    httpOnly: true,
+  },
+};
+
+export const corsOptions = {
+  origin: config.clientUrl,
+  credentials: true,
+};
 export default config;

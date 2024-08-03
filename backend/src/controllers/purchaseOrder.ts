@@ -19,41 +19,36 @@ export const getPurchaseOrders = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const {
-      offset = 0,
-      limit = 100,
-      sortBy = 'updatedAt',
-      order = 'desc',
-      ...filters
-    } = req.query;
+  const {
+    offset = 0,
+    limit = 100,
+    sortBy = 'updatedAt',
+    order = 'desc',
+    ...filters
+  } = req.query;
 
-    const limitNum = parseInt(limit as string);
-    const offsetNum = parseInt(offset as string);
-    const sortOrder = order === 'desc' ? -1 : 1;
+  const limitNum = parseInt(limit as string);
+  const offsetNum = parseInt(offset as string);
+  const sortOrder = order === 'desc' ? -1 : 1;
 
-    const query: any = {};
-    if (filters.orderNumber)
-      query.orderNumber = new RegExp(filters.orderNumber as string, 'i');
+  const query: any = {};
+  if (filters.orderNumber)
+    query.orderNumber = new RegExp(filters.orderNumber as string, 'i');
 
-    const purchaseOrders = await PurchaseOrder.find(query)
-      .sort({ [sortBy as string]: sortOrder })
-      .skip(offsetNum)
-      .limit(limitNum)
-      .populate('supplier', 'name');
+  const purchaseOrders = await PurchaseOrder.find(query)
+    .sort({ [sortBy as string]: sortOrder })
+    .skip(offsetNum)
+    .limit(limitNum)
+    .populate('supplier', 'name');
 
-    res
-      .status(200)
-      .json(
-        new SuccessResponseList(
-          'Purchase orders retrieved successfully',
-          purchaseOrders
-        )
-      );
-  } catch (error: any) {
-    logging.error(error);
-    next(new ErrorResponse('Failed to retrieve purchase orders', 500));
-  }
+  res
+    .status(200)
+    .json(
+      new SuccessResponseList(
+        'Purchase orders retrieved successfully',
+        purchaseOrders
+      )
+    );
 };
 // Get total purchase orders
 export const getTotalPurchaseOrders = async (
@@ -61,16 +56,12 @@ export const getTotalPurchaseOrders = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const totalPurchaseOrders = await PurchaseOrder.countDocuments();
-    res.status(200).json(
-      new SuccessResponse('Total purchase orders retrieved successfully', {
-        total: totalPurchaseOrders,
-      })
-    );
-  } catch (error: any) {
-    next(new ErrorResponse('Failed to retrieve total purchase orders', 500));
-  }
+  const totalPurchaseOrders = await PurchaseOrder.countDocuments();
+  res.status(200).json(
+    new SuccessResponse('Total purchase orders retrieved successfully', {
+      total: totalPurchaseOrders,
+    })
+  );
 };
 
 // Create a purchase order
@@ -79,19 +70,12 @@ export const createPurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const purchaseOrder = await PurchaseOrder.create(req.body);
-    res
-      .status(201)
-      .json(
-        new SuccessResponse(
-          'Purchase Order created successfully',
-          purchaseOrder
-        )
-      );
-  } catch (error: any) {
-    next(new ErrorResponse(error, 500));
-  }
+  const purchaseOrder = await PurchaseOrder.create(req.body);
+  res
+    .status(201)
+    .json(
+      new SuccessResponse('Purchase Order created successfully', purchaseOrder)
+    );
 };
 
 // Delete a purchase order by ID
@@ -100,23 +84,16 @@ export const deletePurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const purchaseOrder = await PurchaseOrder.findByIdAndDelete(req.params.id);
-    console.log(purchaseOrder, req.params);
-    if (!purchaseOrder) {
-      return next(new ErrorResponse('Purchase Order not found', 404));
-    }
-    res
-      .status(200)
-      .json(
-        new SuccessResponse(
-          'Purchase Order deleted successfully',
-          purchaseOrder
-        )
-      );
-  } catch (error: any) {
-    next(new ErrorResponse(error, 500));
+  const purchaseOrder = await PurchaseOrder.findByIdAndDelete(req.params.id);
+  console.log(purchaseOrder, req.params);
+  if (!purchaseOrder) {
+    return next(new ErrorResponse('Purchase Order not found', 404));
   }
+  res
+    .status(200)
+    .json(
+      new SuccessResponse('Purchase Order deleted successfully', purchaseOrder)
+    );
 };
 
 // Get a purchase order by ID
@@ -125,24 +102,20 @@ export const getPurchaseOrderById = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const purchaseOrder = await PurchaseOrder.findById(req.params.id).populate(
-      'supplier items.product'
-    );
-    if (!purchaseOrder) {
-      return next(new ErrorResponse('Purchase Order not found', 404));
-    }
-    res
-      .status(200)
-      .json(
-        new SuccessResponse(
-          'Purchase Order retrieved successfully',
-          purchaseOrder
-        )
-      );
-  } catch (error: any) {
-    next(new ErrorResponse('Failed to retrieve purchase order', 500));
+  const purchaseOrder = await PurchaseOrder.findById(req.params.id).populate(
+    'supplier items.product'
+  );
+  if (!purchaseOrder) {
+    return next(new ErrorResponse('Purchase Order not found', 404));
   }
+  res
+    .status(200)
+    .json(
+      new SuccessResponse(
+        'Purchase Order retrieved successfully',
+        purchaseOrder
+      )
+    );
 };
 
 // Update a purchase order by ID
@@ -151,30 +124,23 @@ export const updatePurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    console.log(';🤣🤣🤣🤣🤣', req.params);
-    const purchaseOrder = await PurchaseOrder.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-
-    if (!purchaseOrder) {
-      return next(new ErrorResponse('Purchase Order not found', 404));
+  console.log(';🤣🤣🤣🤣🤣', req.params);
+  const purchaseOrder = await PurchaseOrder.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+      runValidators: true,
     }
+  );
 
-    res
-      .status(200)
-      .json(
-        new SuccessResponse(
-          'Purchase Order updated successfully',
-          purchaseOrder
-        )
-      );
-  } catch (error: any) {
-    next(new ErrorResponse(error, 500));
+  if (!purchaseOrder) {
+    return next(new ErrorResponse('Purchase Order not found', 404));
   }
+
+  res
+    .status(200)
+    .json(
+      new SuccessResponse('Purchase Order updated successfully', purchaseOrder)
+    );
 };

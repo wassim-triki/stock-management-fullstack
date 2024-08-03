@@ -13,7 +13,7 @@ import {
 } from '../controllers/auth';
 import { authHandler } from '../middleware/authHandler';
 import { SuccessResponse } from '../types/types';
-
+import 'express-async-errors';
 // Routes
 router.get('/me', authHandler, getAuthUserDetails);
 router.post('/signup', signup);

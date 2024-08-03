@@ -19,22 +19,18 @@ export const signup = async (req: Request, res: Response, next: any) => {
   } = req.body;
   const address = { street, city, state, zip };
   const profile = { firstName, lastName, phone, address };
-  try {
-    const userWithEmail = await User.findOne({ email });
-    if (userWithEmail) {
-      throw new ErrorResponse('Email is already in use', 400);
-    }
-    const user: IUser = await User.create({
-      email,
-      password,
-      profile,
-      address,
-    });
-    console.log('user created');
-    return res.status(201).json(new SuccessResponse('Account created', user));
-  } catch (error: any) {
-    next(error);
+  const userWithEmail = await User.findOne({ email });
+  if (userWithEmail) {
+    throw new ErrorResponse('Email is already in use', 400);
   }
+  const user: IUser = await User.create({
+    email,
+    password,
+    profile,
+    address,
+  });
+  console.log('user created');
+  return res.status(201).json(new SuccessResponse('Account created', user));
 };
 
 export const login = async (req: Request, res: Response, next: any) => {
@@ -70,19 +66,15 @@ export const checkEmailAvailability = async (
   const { email } = req.body;
 
   const valid = validateStepOne(req.body);
-  try {
-    if (!valid) {
-      throw new ErrorResponse('Validation failed', 400);
-    }
-
-    const user = await User.findOne({ email });
-    if (user) {
-      throw new ErrorResponse('Email is already in use', 400);
-    }
-    return res.status(200).json(new SuccessResponse('Email is available'));
-  } catch (error: any) {
-    next(error);
+  if (!valid) {
+    throw new ErrorResponse('Validation failed', 400);
   }
+
+  const user = await User.findOne({ email });
+  if (user) {
+    throw new ErrorResponse('Email is already in use', 400);
+  }
+  return res.status(200).json(new SuccessResponse('Email is available'));
 };
 
 export const stepTwoHandler = async (
