@@ -16,24 +16,23 @@ export const getCategories = async (
 ) => {
   try {
     const {
-      limit = 100,
       offset = 0,
-      name,
-      sort = 'updatedAt_desc',
-    } = req.query as QueryParams;
+      limit = 100,
+      sortBy = 'updatedAt',
+      order = 'desc',
+      ...filters
+    } = req.query;
 
-    const limitNum = Number(limit);
-    const offsetNum = Number(offset);
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+    const sortOrder = order === 'desc' ? -1 : 1;
 
-    let s = sort.split('_');
-    let x = { [s[0]]: s[1] } as any;
-    const search: any = {};
-    name && (search.name = { $regex: new RegExp(name, 'i') });
-
-    const categories = await Category.find(search)
+    const query: any = {};
+    if (filters.name) query.name = new RegExp(filters.name as string, 'i');
+    const categories = await Category.find(query)
+      .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
       .limit(limitNum)
-      .sort(x)
       .populate('parentCategory');
 
     res

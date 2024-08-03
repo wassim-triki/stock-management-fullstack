@@ -17,24 +17,24 @@ export const getAllUsers = async (
 ) => {
   try {
     const {
-      limit = 100,
       offset = 0,
-      email,
-      sort = 'updatedAt_desc',
-    } = req.query as QueryParams;
+      limit = 100,
+      sortBy = 'updatedAt',
+      order = 'desc',
+      ...filters
+    } = req.query;
 
-    const limitNum = Number(limit);
-    const offsetNum = Number(offset);
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+    const sortOrder = order === 'desc' ? -1 : 1;
 
-    let s = sort.split('_');
-    let x = { [s[0]]: s[1] } as any;
-    const search: any = {};
-    email && (search.email = { $regex: new RegExp(email, 'i') });
+    const query: any = {};
+    if (filters.email) query.email = new RegExp(filters.email as string, 'i');
 
-    const users = await User.find(search)
+    const users = await User.find(query)
+      .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
-      .limit(limitNum)
-      .sort(x);
+      .limit(limitNum);
     return res
       .status(200)
       .json(new SuccessResponseList('Users retrived successfully', users));
@@ -123,5 +123,28 @@ export const getTotalUsers = async (
     );
   } catch (error: any) {
     next(new ErrorResponse('Failed to retrieve total users', 500));
+  }
+};
+
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return next(new ErrorResponse('User not found', 404));
+    }
+
+    res
+      .status(200)
+      .json(new SuccessResponse('User updated successfully', user));
+  } catch (error: any) {
+    next(new ErrorResponse(error, 500));
   }
 };

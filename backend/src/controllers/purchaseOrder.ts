@@ -21,31 +21,25 @@ export const getPurchaseOrders = async (
 ) => {
   try {
     const {
-      limit = 100,
       offset = 0,
-      orderNumber,
-      status,
-      supplier,
-      orderDate,
-      sort = 'updatedAt_desc',
-    } = req.query as QueryParams;
+      limit = 100,
+      sortBy = 'updatedAt',
+      order = 'desc',
+      ...filters
+    } = req.query;
 
-    const limitNum = Number(limit);
-    const offsetNum = Number(offset);
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+    const sortOrder = order === 'desc' ? -1 : 1;
 
-    const search: any = {};
-    status && (search.status = status);
-    supplier && (search.supplier = supplier);
-    orderDate && (search.orderDate = new Date(orderDate));
-    orderNumber && (search.orderNumber = { $regex: new RegExp(orderNumber) });
+    const query: any = {};
+    if (filters.orderNumber)
+      query.orderNumber = new RegExp(filters.orderNumber as string, 'i');
 
-    let s = sort.split('_');
-    let x = { [s[0]]: s[1] } as any;
-
-    const purchaseOrders = await PurchaseOrder.find(search)
+    const purchaseOrders = await PurchaseOrder.find(query)
+      .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
       .limit(limitNum)
-      .sort(x)
       .populate('supplier', 'name');
 
     res
@@ -158,6 +152,7 @@ export const updatePurchaseOrder = async (
   next: NextFunction
 ) => {
   try {
+    console.log(';🤣🤣🤣🤣🤣', req.params);
     const purchaseOrder = await PurchaseOrder.findByIdAndUpdate(
       req.params.id,
       req.body,

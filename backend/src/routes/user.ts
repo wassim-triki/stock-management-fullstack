@@ -5,6 +5,7 @@ import {
   deleteUser,
   createUser,
   getTotalUsers,
+  updateUser,
 } from '../controllers/user';
 import { authHandler } from '../middleware/authHandler';
 import { authorizeRoles } from '../middleware/authorizeRoles';
@@ -16,5 +17,6 @@ router.get('/', authHandler, authorizeRoles('admin'), getAllUsers);
 router.get('/:id', authHandler, authorizeRoles('admin'), getUserById);
 router.delete('/:id', authHandler, authorizeRoles('admin'), deleteUser);
 router.post('/', authHandler, authorizeRoles('admin'), createUser);
+router.put('/:id', authHandler, authorizeRoles('admin'), updateUser);
 
 export default router;

@@ -8,9 +8,9 @@ export const seedData = async () => {
   try {
     logging.log('Seeding...');
     logging.log('----------------------------------------');
-    await initUsers();
+    // await initUsers();
     // await initSuppliers();
-    await intiCategories();
+    // await intiCategories();
     // await initProducts();
 
     logging.log('Seeding done ✅.');

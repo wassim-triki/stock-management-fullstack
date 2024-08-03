@@ -12,8 +12,8 @@ const initProducts = async () => {
   const furnitureCategory = await Category.findOne({ name: 'Furniture' });
   const clothingCategory = await Category.findOne({ name: 'Clothing' });
 
-  const supplierA = await Supplier.findOne({ name: 'Supplier 1' });
-  const supplierB = await Supplier.findOne({ name: 'Supplier 2' });
+  const supplierA = await Supplier.findOne({ name: 'Supplier A' });
+  const supplierB = await Supplier.findOne({ name: 'Supplier B' });
 
   if (
     !electronicsCategory ||

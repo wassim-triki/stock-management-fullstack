@@ -17,28 +17,24 @@ export const getSuppliers = async (
 ) => {
   try {
     const {
-      limit = 100,
       offset = 0,
-      name,
-      email,
-      phone,
-      sort = 'updatedAt_desc',
-    } = req.query as QueryParams;
+      limit = 100,
+      sortBy = 'createdAt',
+      order = 'desc',
+      ...filters
+    } = req.query;
 
-    const limitNum = Number(limit);
-    const offsetNum = Number(offset);
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+    const sortOrder = order === 'desc' ? -1 : 1;
 
-    let s = sort.split('_');
-    let x = { [s[0]]: s[1] } as any;
-    const search: any = {};
-    name && (search.name = { $regex: new RegExp(name, 'i') });
-    email && (search.email = { $regex: new RegExp(email, 'i') });
-    phone && (search.phone = { $regex: new RegExp(phone, 'i') });
+    const query: any = {};
+    if (filters.name) query.name = new RegExp(filters.name as string, 'i');
 
-    const suppliers = await Supplier.find(search)
+    const suppliers = await Supplier.find(query)
+      .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
-      .limit(limitNum)
-      .sort(x);
+      .limit(limitNum);
 
     res
       .status(200)

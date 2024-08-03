@@ -7,6 +7,8 @@ import {
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
 import { QueryParams } from './purchaseOrder';
+import { Supplier } from '../models/Supplier';
+import { Category } from '../models/Category';
 
 // Get all products
 export const getProducts = async (
@@ -16,26 +18,62 @@ export const getProducts = async (
 ) => {
   try {
     const {
-      limit = 100,
       offset = 0,
-      name,
-      sort = 'updatedAt_desc',
-    } = req.query as QueryParams;
+      limit = 100,
+      sortBy = 'updatedAt',
+      order = 'desc',
+      ...filters
+    } = req.query;
 
-    const limitNum = Number(limit);
-    const offsetNum = Number(offset);
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+    const sortOrder = order === 'desc' ? -1 : 1;
 
-    let s = sort.split('_');
-    let x = { [s[0]]: s[1] } as any;
-    const search: any = {};
-    name && (search.name = { $regex: new RegExp(name, 'i') });
+    const query: any = {};
+    if (filters.name) query.name = new RegExp(filters.name as string, 'i');
+    if (filters.minPrice)
+      query.price = {
+        ...query.price,
+        $gte: parseFloat(filters.minPrice as string),
+      };
+    if (filters.maxPrice)
+      query.price = {
+        ...query.price,
+        $lte: parseFloat(filters.maxPrice as string),
+      };
+    if (filters.minQuantity)
+      query.quantityInStock = {
+        ...query.quantityInStock,
+        $gte: parseInt(filters.minQuantity as string),
+      };
+    if (filters.maxQuantity)
+      query.quantityInStock = {
+        ...query.quantityInStock,
+        $lte: parseInt(filters.maxQuantity as string),
+      };
 
-    const products = await Product.find(search)
+    // if (supplier) {
+    //   const supplierDocs = await Supplier.find({
+    //     name: new RegExp(supplier as string, 'i'),
+    //   });
+    //   const supplierIds = supplierDocs.map((s) => s._id);
+    //   query.supplier = { $in: supplierIds };
+    // }
+
+    // if (category) {
+    //   const categoryDocs = await Category.find({
+    //     name: new RegExp(category as string, 'i'),
+    //   });
+    //   const categoryIds = categoryDocs.map((c) => c._id);
+    //   query.category = { $in: categoryIds };
+    // }
+
+    const products = await Product.find(query)
+      .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
       .limit(limitNum)
-      .sort(x)
-      .populate('category')
-      .populate('supplier');
+      .populate('supplier', 'name')
+      .populate('category', 'name');
 
     res
       .status(200)

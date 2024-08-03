@@ -17,6 +17,8 @@ const errorHandler = (
   // const code = err.code || 'SERVER_ERROR';
   const data = err.data || [];
 
+  logging.error(err);
+
   res.status(statusCode).json({
     success: false,
     message,

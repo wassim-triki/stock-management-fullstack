@@ -23,11 +23,6 @@ const ProductSchema: Schema = new Schema(
       required: [true, 'Stock quantity is required'],
       min: [0, 'Quantity cannot be negative'],
     },
-    // reorderLevel: {
-    //   type: Number,
-    //   required: [true, 'Reorder level is required'],
-    //   min: [0, 'Reorder level cannot be negative'],
-    // },
     price: {
       type: Number,
       required: [true, 'Price is required'],
