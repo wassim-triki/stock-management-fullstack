@@ -111,6 +111,33 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   },
 
   {
+    accessorKey: "items",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="TOTAL" />
+    ),
+    cell: ({ row }) => {
+      const items = row.getValue("items") as {
+        price: number;
+        quantity: number;
+      }[];
+      const total = items.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0,
+      );
+      const formatted = new Intl.NumberFormat("tn-TN", {
+        style: "currency",
+        currency: "TND",
+      }).format(total);
+
+      return (
+        <div className="flex items-center">
+          <span>{formatted}</span>
+        </div>
+      );
+    },
+  },
+
+  {
     accessorKey: "updatedAt",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="LAST UPDATED" />
