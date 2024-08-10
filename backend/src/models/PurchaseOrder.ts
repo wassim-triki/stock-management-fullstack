@@ -21,6 +21,10 @@ const PurchaseOrderSchema: Schema = new Schema(
       enum: ['Pending', 'Accepted', 'Received'],
       default: 'Pending',
     },
+    orderTotal: {
+      type: Number,
+      required: [true, 'Order total is required'],
+    },
     items: [
       {
         product: {

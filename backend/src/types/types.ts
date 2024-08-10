@@ -116,6 +116,7 @@ export interface IPurchaseOrder extends Document {
   supplier: ISupplier['_id'];
   orderDate: Date;
   status: string;
+  orderTotal: number;
   items: {
     product: IProduct['_id'];
     quantity: number;

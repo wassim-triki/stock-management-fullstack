@@ -124,6 +124,7 @@ export type PurchaseOrder = {
     price: number;
     lineTotal: number;
   }[];
+  orderTotal: number;
   createdAt: Date;
   updatedAt: Date;
 };

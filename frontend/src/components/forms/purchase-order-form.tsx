@@ -64,9 +64,10 @@ const formSchema = z.object({
           },
           { message: "Price must be a positive number" },
         ),
-      lineTotal: z.string().optional(),
+      lineTotal: z.string(),
     }),
   ),
+  orderTotal: z.string(),
 });
 
 type PurchaseOrderFormValues = z.infer<typeof formSchema>;
@@ -100,6 +101,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     orderDate: initPurchaseOrder?.orderDate
       ? new Date(initPurchaseOrder.orderDate)
       : new Date(),
+    orderTotal: initPurchaseOrder?.orderTotal?.toString() || "0",
     items: initPurchaseOrder?.items.map((item) => ({
       product: item.product?._id,
       quantity: item.quantity.toString(),
@@ -124,8 +126,10 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     name: "items",
   });
 
-  // Calculate lineTotal whenever quantity or price changes
+  // Calculate lineTotal and orderTotal whenever quantity or price changes
   useEffect(() => {
+    let newOrderTotal = 0;
+
     watchedItems.forEach((item, index) => {
       const quantity = parseFloat(item.quantity || "0");
       const price = parseFloat(item.price || "0");
@@ -140,7 +144,13 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             shouldDirty: true,
           });
         }
+        newOrderTotal += lineTotal;
       }
+    });
+
+    form.setValue("orderTotal", newOrderTotal.toFixed(2), {
+      shouldValidate: false,
+      shouldDirty: true,
     });
   }, [watchedItems, form]);
 
@@ -414,20 +424,43 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               </div>
             ))}
           </div>
-          <Button
-            onClick={() =>
-              append({
-                product: "",
-                quantity: "",
-                price: "",
-                lineTotal: "0",
-              })
-            }
-            type="button"
-            variant="outline"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+
+          <div className="flex justify-between">
+            <Button
+              onClick={() =>
+                append({
+                  product: "",
+                  quantity: "",
+                  price: "",
+                  lineTotal: "0",
+                })
+              }
+              type="button"
+              variant="outline"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+            <FormField
+              control={form.control}
+              name={`orderTotal`}
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-2">
+                  <FormLabel className="w-fit">Total:</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="!m-0"
+                      type="number"
+                      disabled
+                      placeholder="Order total"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <div className="w-full md:w-min">
             <SubmitButton loading={loading} type="submit">
               {action}

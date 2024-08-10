@@ -111,12 +111,12 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   },
 
   {
-    accessorKey: "items",
+    accessorKey: "orderTotal",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="TOTAL" />
     ),
     cell: ({ row }) => {
-      const total = row.original.items[row.index]?.lineTotal || 0;
+      const total = row.getValue("orderTotal") as number;
       const formatted = new Intl.NumberFormat("tn-TN", {
         style: "currency",
         currency: "TND",
