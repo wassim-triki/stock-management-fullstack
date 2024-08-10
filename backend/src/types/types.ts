@@ -120,6 +120,7 @@ export interface IPurchaseOrder extends Document {
     product: IProduct['_id'];
     quantity: number;
     price: number;
+    lineTotal: number;
   }[];
   createdAt: Date;
   updatedAt: Date;

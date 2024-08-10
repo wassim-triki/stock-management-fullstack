@@ -1,12 +1,10 @@
-// PurchaseOrderForm.tsx
-
 "use client";
 import * as z from "zod";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { Trash, PackagePlus, Plus } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,27 +18,15 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import { useToast } from "../ui/use-toast";
+import { createPurchaseOrder, updatePurchaseOrder } from "@/api/purchase-order";
 import {
-  createPurchaseOrder,
-  deletePurchaseOrder,
-  getPurchaseOrderById,
-  updatePurchaseOrder,
-} from "@/api/purchase-order";
-import { getCategories } from "@/api/category";
-import { getSuppliers } from "@/api/supplier";
-import { getProductsBySupplier } from "@/api/product";
-import {
-  ApiErrorResponse,
-  ApiSuccessResponse,
   PurchaseOrder,
-  Category,
   Supplier,
   Product,
+  ApiErrorResponse,
 } from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
-import { AlertModal } from "../modal/alert-modal";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PO_STATUSES, queryKeys } from "@/lib/constants";
+import { PO_STATUSES } from "@/lib/constants";
 import {
   Select,
   SelectContent,
@@ -78,6 +64,7 @@ const formSchema = z.object({
           },
           { message: "Price must be a positive number" },
         ),
+      lineTotal: z.string().optional(),
     }),
   ),
 });
@@ -103,10 +90,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   products,
   initPurchaseOrder,
 }) => {
-  const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const initialData: PurchaseOrderFormValues = {
@@ -119,7 +104,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       product: item.product?._id,
       quantity: item.quantity.toString(),
       price: item.price.toString(),
-    })) || [{ product: "", quantity: "", price: "" }],
+      lineTotal: (item.quantity * item.price).toString(),
+    })) || [{ product: "", quantity: "", price: "", lineTotal: "0" }],
   };
 
   const form = useForm<PurchaseOrderFormValues>({
@@ -127,10 +113,36 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     defaultValues: initialData,
   });
 
-  const { fields, append, remove, replace } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
   });
+
+  // Watch for changes in the "items" array's quantity and price fields
+  const watchedItems = useWatch({
+    control: form.control,
+    name: "items",
+  });
+
+  // Calculate lineTotal whenever quantity or price changes
+  useEffect(() => {
+    watchedItems.forEach((item, index) => {
+      const quantity = parseFloat(item.quantity || "0");
+      const price = parseFloat(item.price || "0");
+      const lineTotal = quantity * price;
+
+      if (!isNaN(lineTotal)) {
+        // Only update if the value actually changes to avoid unnecessary re-renders
+        const currentLineTotal = form.getValues(`items.${index}.lineTotal`);
+        if (lineTotal.toFixed(2) !== currentLineTotal) {
+          form.setValue(`items.${index}.lineTotal`, lineTotal.toFixed(2), {
+            shouldValidate: false,
+            shouldDirty: true,
+          });
+        }
+      }
+    });
+  }, [watchedItems, form]);
 
   const onSubmit = async (data: PurchaseOrderFormValues) => {
     setLoading(true);
@@ -297,7 +309,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             </Button>
             {fields.map((item, index) => (
               <div key={item.id} className="flex gap-4">
-                <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-4">
                   <FormField
                     control={form.control}
                     name={`items.${index}.product`}
@@ -357,11 +369,29 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                       <FormItem>
                         <FormLabel>Price</FormLabel>
                         <FormControl>
+                          <Input
+                            type="number"
+                            disabled={loading}
+                            placeholder="Price"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`items.${index}.lineTotal`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Line total</FormLabel>
+                        <FormControl>
                           <div className="flex items-center gap-4">
                             <Input
                               type="number"
-                              disabled={loading}
-                              placeholder="Price"
+                              disabled
+                              placeholder="Line total"
                               {...field}
                             />
                             {fields.length > 1 && (
@@ -390,6 +420,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                 product: "",
                 quantity: "",
                 price: "",
+                lineTotal: "0",
               })
             }
             type="button"

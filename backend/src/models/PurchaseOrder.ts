@@ -37,6 +37,10 @@ const PurchaseOrderSchema: Schema = new Schema(
           type: Number,
           required: [true, 'Price is required'],
         },
+        lineTotal: {
+          type: Number,
+          required: [true, 'Line total is required'],
+        },
       },
     ],
     createdAt: {

@@ -87,7 +87,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     accessorKey: "orderNumber",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ORDER NUMBER" />
+      <DataTableColumnHeader column={column} title="ORDER N°" />
     ),
   },
   {
@@ -116,14 +116,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
       <DataTableColumnHeader column={column} title="TOTAL" />
     ),
     cell: ({ row }) => {
-      const items = row.getValue("items") as {
-        price: number;
-        quantity: number;
-      }[];
-      const total = items.reduce(
-        (acc, item) => acc + item.price * item.quantity,
-        0,
-      );
+      const total = row.original.items[row.index]?.lineTotal || 0;
       const formatted = new Intl.NumberFormat("tn-TN", {
         style: "currency",
         currency: "TND",

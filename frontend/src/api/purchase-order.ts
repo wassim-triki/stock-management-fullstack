@@ -20,12 +20,7 @@ export const getPurchaseOrders = async (
   const response: ApiSuccessResponseList<PurchaseOrder> = await fetchHelper(
     `/api/purchase-orders?${queryParamsStr.toString()}`,
   );
-  console.log(
-    response.data.items[0]?.items.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0,
-    ),
-  );
+  console.log(response.data.items[0]);
   return response.data.items;
 };
 
