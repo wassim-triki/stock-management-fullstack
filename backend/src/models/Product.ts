@@ -18,6 +18,9 @@ const ProductSchema: Schema = new Schema(
       ref: 'Supplier',
       required: true,
     },
+    description: {
+      type: String,
+    },
     quantityInStock: {
       type: Number,
       required: [true, 'Stock quantity is required'],

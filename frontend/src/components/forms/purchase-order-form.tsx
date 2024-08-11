@@ -3,7 +3,7 @@ import * as z from "zod";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { Trash, PackagePlus, Plus } from "lucide-react";
+import { Trash, PackagePlus, Plus, SendHorizontal, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,8 @@ import {
 } from "../ui/select";
 import Link from "next/link";
 import { SingleDatePicker } from "../ui/single-date-picker";
+import fetchHelper from "@/lib/fetchInstance";
+import config from "@/lib/config";
 
 const formSchema = z.object({
   status: z.string().min(1, { message: "Status is required" }),
@@ -54,9 +56,9 @@ const formSchema = z.object({
           },
           { message: "Quantity must be a positive number" },
         ),
-      price: z
+      unitPrice: z
         .string()
-        .min(1, { message: "Price is required" })
+        .min(1, { message: "Unit price is required" })
         .refine(
           (val) => {
             const num = parseFloat(val);
@@ -94,7 +96,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-
+  const [pdfUrl, setPdfUrl] = useState("");
   const initialData: PurchaseOrderFormValues = {
     status: initPurchaseOrder?.status || "Pending",
     supplier: initPurchaseOrder?.supplier?._id || "",
@@ -105,9 +107,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     items: initPurchaseOrder?.items.map((item) => ({
       product: item.product?._id,
       quantity: item.quantity.toString(),
-      price: item.price.toString(),
-      lineTotal: (item.quantity * item.price).toString(),
-    })) || [{ product: "", quantity: "", price: "", lineTotal: "0" }],
+      unitPrice: item.unitPrice.toString(),
+      lineTotal: (item.quantity * item.unitPrice).toString(),
+    })) || [{ product: "", quantity: "", unitPrice: "", lineTotal: "0" }],
   };
 
   const form = useForm<PurchaseOrderFormValues>({
@@ -132,7 +134,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
     watchedItems.forEach((item, index) => {
       const quantity = parseFloat(item.quantity || "0");
-      const price = parseFloat(item.price || "0");
+      const price = parseFloat(item.unitPrice || "0");
       const lineTotal = quantity * price;
 
       if (!isNaN(lineTotal)) {
@@ -161,7 +163,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       const items = data.items.map((item) => ({
         ...item,
         quantity: parseInt(item.quantity, 10),
-        price: parseFloat(item.price),
+        price: parseFloat(item.unitPrice),
       }));
       if (initPurchaseOrder) {
         const res = await updatePurchaseOrder({
@@ -173,13 +175,30 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           title: res.message,
         });
       } else {
-        const res = await createPurchaseOrder({ ...data, supplier, items });
-        toast({
-          variant: "success",
-          title: res.message,
+        const pdfBlobRes = await fetch(
+          `${config.apiUrl}/api/purchase-orders/preview`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          },
+        );
+        // Create a blob URL from the PDF data
+        const pdfBlob = new Blob([await pdfBlobRes.blob()], {
+          type: "application/pdf",
         });
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        console.log(pdfUrl);
+        setPdfUrl(pdfUrl);
+        // const res = await createPurchaseOrder({ ...data, supplier, items });
+        // toast({
+        //   variant: "success",
+        //   title: res.message,
+        // });
       }
-      router.push("/dashboard/purchase-orders");
+      // router.push("/dashboard/purchase-orders");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -374,7 +393,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                   />
                   <FormField
                     control={form.control}
-                    name={`items.${index}.price`}
+                    name={`items.${index}.unitPrice`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Price</FormLabel>
@@ -382,7 +401,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                           <Input
                             type="number"
                             disabled={loading}
-                            placeholder="Price"
+                            placeholder="Unit price"
                             {...field}
                           />
                         </FormControl>
@@ -431,7 +450,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                 append({
                   product: "",
                   quantity: "",
-                  price: "",
+                  unitPrice: "",
                   lineTotal: "0",
                 })
               }
@@ -463,11 +482,28 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
           <div className="w-full md:w-min">
             <SubmitButton loading={loading} type="submit">
-              {action}
+              Preview order
             </SubmitButton>
           </div>
         </form>
       </Form>
+      {pdfUrl && (
+        <>
+          <iframe
+            src={pdfUrl}
+            width="100%"
+            height="500px"
+            title="PDF Preview"
+          ></iframe>
+          <Button
+            className="flex w-full gap-2 md:w-min"
+            // onClick={handleConfirm}
+          >
+            <Send className="h-4 w-4" />
+            Send
+          </Button>
+        </>
+      )}
     </>
   );
 };

@@ -15,6 +15,7 @@ async function fetchHelper<T>(
     headers: {
       "Content-Type": "application/json",
       Cookie: "session=" + cookieValue,
+
       ...(options.headers || {}),
     },
     ...options,

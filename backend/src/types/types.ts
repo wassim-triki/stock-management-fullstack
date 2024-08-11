@@ -113,18 +113,19 @@ export interface IUser extends Document {
 }
 export interface IPurchaseOrder extends Document {
   orderNumber: string;
-  supplier: ISupplier['_id'];
+  supplier: ISupplier;
   orderDate: Date;
   status: string;
   orderTotal: number;
-  items: {
-    product: IProduct['_id'];
-    quantity: number;
-    price: number;
-    lineTotal: number;
-  }[];
+  items: IPurchaseOrderItem[];
   createdAt: Date;
   updatedAt: Date;
+}
+export interface IPurchaseOrderItem {
+  product: IProduct;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
 }
 
 export interface ISupplier extends Document {
@@ -152,6 +153,7 @@ export interface IProduct extends Document {
   name: string;
   category: mongoose.Types.ObjectId;
   supplier: string;
+  description?: string;
   quantityInStock: number;
   // reorderLevel: number;
   price: number;

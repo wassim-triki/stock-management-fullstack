@@ -121,7 +121,7 @@ export type PurchaseOrder = {
   items: {
     product: Product;
     quantity: number;
-    price: number;
+    unitPrice: number;
     lineTotal: number;
   }[];
   orderTotal: number;

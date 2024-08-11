@@ -37,9 +37,9 @@ const PurchaseOrderSchema: Schema = new Schema(
           required: [true, 'Quantity is required'],
           min: [1, 'Quantity must be at least 1'],
         },
-        price: {
+        unitPrice: {
           type: Number,
-          required: [true, 'Price is required'],
+          required: [true, 'Unit price is required'],
         },
         lineTotal: {
           type: Number,
@@ -58,13 +58,15 @@ const PurchaseOrderSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+export const getNextOrderNumber = async (): Promise<string> => {
+  const lastOrder = await PurchaseOrder.findOne().sort({ orderNumber: -1 });
+  const lastOrderNumber = lastOrder ? parseInt(lastOrder.orderNumber) : 0;
+  return (lastOrderNumber + 1).toString();
+};
 
 PurchaseOrderSchema.pre<IPurchaseOrder>('save', async function (next) {
   if (this.isNew) {
-    const lastOrder = await PurchaseOrder.findOne().sort({ orderNumber: -1 });
-
-    const lastOrderNumber = lastOrder ? parseInt(lastOrder.orderNumber) : 0;
-    this.orderNumber = (lastOrderNumber + 1).toString();
+    this.orderNumber = await getNextOrderNumber();
   }
   next();
 });
