@@ -49,7 +49,7 @@ interface CategoryFormProps {
   description: string;
   action: string;
   categories: Category[];
-  initCategory: Category;
+  initCategory?: Category;
 }
 
 export const CategoryForm: React.FC<CategoryFormProps> = ({
@@ -66,7 +66,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const [loading, setLoading] = useState(false);
 
   const defaultValues = {
-    name: initCategory.name || "",
+    name: initCategory?.name || "",
     parentCategory: initCategory?.parentCategory?._id || "",
   };
 

@@ -14,10 +14,7 @@ const breadcrumbItems = [
 
 export default async function Page() {
   const queryClient = new QueryClient();
-  const categories = await queryClient.fetchQuery({
-    queryKey: [queryKeys.totalSuppliers],
-    queryFn: () => getCategories({ noFilters: true }),
-  });
+  const categories = await getCategories();
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
