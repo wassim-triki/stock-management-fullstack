@@ -44,6 +44,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { description } from "../admin-panel/charts/bar-graph";
+import { Textarea } from "../ui/textarea";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Product name is required" }),
@@ -69,6 +71,10 @@ const formSchema = z.object({
       },
       { message: "Quantity must be a positive number" },
     ),
+  description: z
+    .string()
+    .max(50, "Description mus be less than 50 characters")
+    .optional(),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -102,6 +108,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     supplier: initProduct?.supplier?._id || "",
     price: initProduct?.price?.toString() || "",
     quantityInStock: initProduct?.quantityInStock?.toString() || "",
+    description: initProduct?.description || "",
   };
 
   const form = useForm<ProductFormValues>({
@@ -155,7 +162,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full space-y-8"
         >
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-8">
             <FormField
               control={form.control}
               name="name"
@@ -235,7 +242,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
+          </div>
 
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
             <FormField
               control={form.control}
               name="price"
@@ -274,7 +283,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               )}
             />
           </div>
-          <div></div>
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    disabled={loading}
+                    placeholder="Description"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <div className="w-full md:w-min">
             <SubmitButton loading={loading} type="submit">

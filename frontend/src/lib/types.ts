@@ -89,6 +89,7 @@ export type Product = {
   name: string;
   category: Category;
   supplier: Supplier;
+  description?: string;
   price: number;
   quantityInStock: number;
   createdAt: Date;
