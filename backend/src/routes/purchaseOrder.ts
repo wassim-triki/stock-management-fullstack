@@ -76,7 +76,9 @@ router.post('/preview', async (req: Request, res: Response) => {
 export default router;
 
 // Function to populate the order data with supplier and product names
-const populateOrderData = async (orderData: any): Promise<IPurchaseOrder> => {
+export const populateOrderData = async (
+  orderData: any
+): Promise<IPurchaseOrder> => {
   // Replace these with your actual models and logic to fetch supplier and product details
 
   const orderNumber = await getNextOrderNumber();

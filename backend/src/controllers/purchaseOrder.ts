@@ -8,6 +8,7 @@ import {
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
 import Mailer from '../services/mailer';
+import { populateOrderData } from '../routes/purchaseOrder';
 export type QueryParams = {
   limit?: string;
   offset?: string;
@@ -70,18 +71,16 @@ export const createPurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.body);
+  const populted = await populateOrderData(req.body);
   await Mailer.sendMail({
-    to: 'abrodolphlincoler69@gmail.com',
+    to: populted.supplier.email,
     subject: 'New Purchase Order',
-    text: `A new purchase order has been created with order number ${req.body.orderNumber}.`,
+    text: `A new purchase order has been created with order number ${populted.orderNumber}.`,
   });
   const purchaseOrder = await PurchaseOrder.create(req.body);
   res
     .status(201)
-    .json(
-      new SuccessResponse('Purchase Order created successfully', purchaseOrder)
-    );
+    .json(new SuccessResponse('Purchase Order sent', purchaseOrder));
 };
 
 // Delete a purchase order by ID
