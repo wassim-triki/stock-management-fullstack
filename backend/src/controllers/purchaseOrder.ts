@@ -7,7 +7,7 @@ import {
   SuccessResponseList,
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
-
+import Mailer from '../services/mailer';
 export type QueryParams = {
   limit?: string;
   offset?: string;
@@ -70,6 +70,12 @@ export const createPurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log(req.body);
+  await Mailer.sendMail({
+    to: 'abrodolphlincoler69@gmail.com',
+    subject: 'New Purchase Order',
+    text: `A new purchase order has been created with order number ${req.body.orderNumber}.`,
+  });
   const purchaseOrder = await PurchaseOrder.create(req.body);
   res
     .status(201)
