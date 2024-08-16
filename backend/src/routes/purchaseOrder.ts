@@ -50,8 +50,7 @@ router.put(
 
 router.post(
   '/preview',
-  authHandler,
-  authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
+  // authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
   previewPurchaseOrderPDF
 );
 router.post(

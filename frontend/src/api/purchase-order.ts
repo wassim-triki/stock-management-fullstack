@@ -9,6 +9,7 @@ import {
 } from "@/lib/types";
 import fetchHelper from "@/lib/fetchInstance";
 import { buildQueryParamsString } from "@/lib/utils";
+import config from "@/lib/config";
 
 export const getPurchaseOrders = async (
   queryParams?: QueryParams,
@@ -72,4 +73,14 @@ export const getTotalPurchaseOrders = async (): Promise<number> => {
     "/api/purchase-orders/total",
   );
   return response.data.total;
+};
+
+export const previewPurchaseOrderPdf = async (data: any): Promise<Response> => {
+  return await fetch(`${config.apiUrl}/api/purchase-orders/preview`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
 };

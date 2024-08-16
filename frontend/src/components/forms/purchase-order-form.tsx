@@ -18,7 +18,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import { useToast } from "../ui/use-toast";
-import { createPurchaseOrder, updatePurchaseOrder } from "@/api/purchase-order";
+import {
+  createPurchaseOrder,
+  previewPurchaseOrderPdf,
+  updatePurchaseOrder,
+} from "@/api/purchase-order";
 import {
   PurchaseOrder,
   Supplier,
@@ -174,16 +178,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           title: res.message,
         });
       } else {
-        const pdfBlobRes = await fetch(
-          `${config.apiUrl}/api/purchase-orders/preview`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          },
-        );
+        const pdfBlobRes = await previewPurchaseOrderPdf(data);
         // Create a blob URL from the PDF data
         const pdfBlob = new Blob([await pdfBlobRes.blob()], {
           type: "application/pdf",
