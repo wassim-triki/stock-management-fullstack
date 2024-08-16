@@ -48,11 +48,7 @@ router.put(
   updatePurchaseOrder
 );
 
-router.post(
-  '/preview',
-  // authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
-  previewPurchaseOrderPDF
-);
+router.post('/preview', previewPurchaseOrderPDF);
 router.post(
   '/send-email',
   authHandler,

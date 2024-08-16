@@ -76,7 +76,7 @@ const formSchema = z.object({
   orderTotal: z.string(),
 });
 
-type PurchaseOrderFormValues = z.infer<typeof formSchema>;
+export type PurchaseOrderFormValues = z.infer<typeof formSchema>;
 
 interface PurchaseOrderFormProps {
   title: string;
@@ -162,21 +162,18 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
   const onSubmit = async (data: PurchaseOrderFormValues) => {
     setLoading(true);
-    const items = data.items.map((item) => ({
-      ...item,
-      quantity: parseInt(item.quantity, 10),
-      price: parseFloat(item.unitPrice),
-    }));
     try {
       if (initPurchaseOrder) {
         const res = await updatePurchaseOrder({
           id: initPurchaseOrder._id,
-          data: { ...data, items },
+          data: data,
         });
         toast({
           variant: "success",
           title: res.message,
         });
+        router.push("/dashboard/purchase-orders");
+        router.refresh();
       } else {
         const pdfBlobRes = await previewPurchaseOrderPdf(data);
         // Create a blob URL from the PDF data
@@ -184,15 +181,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           type: "application/pdf",
         });
         const pdfUrl = URL.createObjectURL(pdfBlob);
-        console.log(pdfUrl);
         setPdfUrl(pdfUrl);
-        // const res = await createPurchaseOrder({ ...data, supplier, items });
-        // toast({
-        //   variant: "success",
-        //   title: res.message,
-        // });
       }
-      // router.push("/dashboard/purchase-orders");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -502,7 +492,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
           <div className="w-full md:w-min">
             <SubmitButton loading={loading} type="submit">
-              Preview order
+              {initPurchaseOrder ? "Save changes" : "Preview"}
             </SubmitButton>
           </div>
         </form>

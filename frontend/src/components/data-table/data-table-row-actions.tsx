@@ -25,17 +25,30 @@ import { useToast } from "../ui/use-toast";
 import { AlertModal } from "../modal/alert-modal";
 import { Edit, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { PO_STATUSES } from "@/lib/constants";
 
+export type ActionSubmenuItem = {
+  label: string;
+  value: string;
+  onClick?: () => void;
+};
+export type ActionSubmenu = {
+  title: string;
+  items: ActionSubmenuItem[];
+  defaultItem: ActionSubmenuItem;
+};
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
   editUrl: string;
   deleteFunction: (id: string) => Promise<ApiSuccessResponse<TData>>;
+  submenues?: ActionSubmenu[];
 }
 
 export function DataTableRowActions<TData extends { _id: string }>({
   row,
   editUrl = "",
   deleteFunction,
+  submenues,
 }: DataTableRowActionsProps<TData>) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -52,6 +65,11 @@ export function DataTableRowActions<TData extends { _id: string }>({
     setOpen(false);
     router.refresh();
   };
+
+  const labels = [
+    { value: "pending", label: "Pending" },
+    { value: "received", label: "Received" },
+  ];
 
   return (
     <>
@@ -73,11 +91,36 @@ export function DataTableRowActions<TData extends { _id: string }>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          {submenues?.map((submenu) => (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>{submenu.title}</DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  <DropdownMenuRadioGroup value={submenu.defaultItem.value}>
+                    {submenu.items.map((item) => (
+                      <DropdownMenuRadioItem
+                        key={item.value}
+                        value={item.value}
+                        onClick={() => {
+                          item.onClick?.();
+                        }}
+                      >
+                        {item.label}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator />
+            </>
+          ))}
           <DropdownMenuItem>
             <Link className="flex w-full items-center" href={editUrl}>
               <Edit className="mr-2 h-4 w-4" /> Edit
             </Link>
           </DropdownMenuItem>
+
           <DropdownMenuItem
             className="cursor-pointer"
             onClick={() => setOpen(true)}

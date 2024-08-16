@@ -10,6 +10,8 @@ import {
 import fetchHelper from "@/lib/fetchInstance";
 import { buildQueryParamsString } from "@/lib/utils";
 import config from "@/lib/config";
+import { PurchaseOrderFormValues } from "@/components/forms/purchase-order-form";
+import { revalidateTag } from "next/cache";
 
 export const getPurchaseOrders = async (
   queryParams?: QueryParams,
@@ -20,8 +22,10 @@ export const getPurchaseOrders = async (
 
   const response: ApiSuccessResponseList<PurchaseOrder> = await fetchHelper(
     `/api/purchase-orders?${queryParamsStr.toString()}`,
+    {
+      next: { tags: ["purchase-orders"] },
+    },
   );
-  console.log(response.data.items[0]);
   return response.data.items;
 };
 
@@ -49,11 +53,9 @@ export const updatePurchaseOrder = async ({
   data,
 }: {
   id: string;
-  data: {
-    supplier: string;
-    items: { product: string; quantity: number; price: number }[];
-  };
+  data: Partial<PurchaseOrderFormValues>;
 }): Promise<ApiSuccessResponse<PurchaseOrder>> => {
+  revalidateTag("purchase-orders");
   return await fetchHelper(`/api/purchase-orders/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),

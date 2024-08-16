@@ -6,11 +6,14 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
+import {
+  ActionSubmenuItem,
+  DataTableRowActions,
+} from "@/components/data-table/data-table-row-actions";
 import { formatDate, timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
 import { PO_STATUSES } from "@/lib/constants";
-import { deletePurchaseOrder } from "@/api/purchase-order";
+import { deletePurchaseOrder, updatePurchaseOrder } from "@/api/purchase-order";
 
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
@@ -142,12 +145,33 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => (
-      <DataTableRowActions
-        deleteFunction={deletePurchaseOrder}
-        editUrl={`/dashboard/purchase-orders/${row.original._id}`}
-        row={row}
-      />
-    ),
+    cell: ({ row }) => {
+      const items: ActionSubmenuItem[] = PO_STATUSES.map((status) => ({
+        label: status.name,
+        value: status.name,
+        onClick: () =>
+          updatePurchaseOrder({
+            id: row.original._id,
+            data: { status: status.name },
+          }),
+      }));
+      const defaultItem = items.find(
+        (item) => item.value === row.original.status,
+      ) || { label: "Pending", value: "Pending" };
+      return (
+        <DataTableRowActions
+          deleteFunction={deletePurchaseOrder}
+          submenues={[
+            {
+              title: "Status",
+              items,
+              defaultItem,
+            },
+          ]}
+          editUrl={`/dashboard/purchase-orders/${row.original._id}`}
+          row={row}
+        />
+      );
+    },
   },
 ];

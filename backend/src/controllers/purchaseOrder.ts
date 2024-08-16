@@ -153,8 +153,6 @@ export const updatePurchaseOrder = async (
 };
 
 export const previewPurchaseOrderPDF = async (req: Request, res: Response) => {
-  console.log(';🤣🤣🤣🤣🤣', req.body);
-
   const orderData = req.body; // Form data sent in the request body
 
   // Assuming the supplier and product details need to be populated
