@@ -76,17 +76,14 @@ export const createPurchaseOrder = async (
   next: NextFunction
 ) => {
   const populted = await populateOrderData(req.body);
-  await Mailer.sendMail({
-    to: populted.supplier.email,
-    subject: 'New Purchase Order',
-    text: `A new purchase order has been created with order number ${populted.orderNumber}.`,
-  });
+  await sendPurchaseOrderEmail(populted);
+
   const purchaseOrder = await (
     await PurchaseOrder.create(req.body)
   ).populate('supplier', 'email');
   res
     .status(201)
-    .json(new SuccessResponse('Purchase Order sent', purchaseOrder));
+    .json(new SuccessResponse('Purchase Order created', purchaseOrder));
 };
 
 // Delete a purchase order by ID
@@ -204,8 +201,7 @@ async function populateOrderData(orderData: any): Promise<IPurchaseOrder> {
   };
 }
 
-export const sendPurchaseOrderEmail = async (req: Request, res: Response) => {
-  const orderData = req.body; // Form data sent in the request body
+export const sendPurchaseOrderEmail = async (orderData: IPurchaseOrder) => {
   const populatedOrderData = await populateOrderData(orderData);
   const doc = generatePDF('purchaseOrder', populatedOrderData);
   const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
@@ -215,7 +211,7 @@ export const sendPurchaseOrderEmail = async (req: Request, res: Response) => {
     doc.on('error', reject);
   });
 
-  const emailResult = await mailer.sendMail({
+  await mailer.sendMail({
     to: orderData.supplier.email,
     subject: 'Purchase Order',
     text: 'Please find attached your purchase order.',
@@ -227,7 +223,4 @@ export const sendPurchaseOrderEmail = async (req: Request, res: Response) => {
       },
     ],
   });
-  res
-    .status(200)
-    .json({ message: 'Purchase order sent successfully', emailResult });
 };
