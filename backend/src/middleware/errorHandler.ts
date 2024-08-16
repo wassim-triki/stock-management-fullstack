@@ -15,6 +15,7 @@ const errorHandler = (
   const message = error.message || 'Internal Server Error';
   const stack = config.environment === 'production' ? undefined : error.stack;
   const data = error.data;
+  console.log('👍👍👍👍👍👍👍');
   res.status(statusCode).json({ message, statusCode, data, stack });
 };
 

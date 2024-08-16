@@ -1,5 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 import { Role } from '../utils/constants';
+import config from '../config/config';
 
 // export class SuccessResponse<T> {
 //   success: boolean;
@@ -58,12 +59,14 @@ export class ErrorResponse extends Error {
   success: boolean;
   data: [];
   statusCode: HttpCode;
+  stack?: string | undefined;
 
   constructor(message: string, statusCode: HttpCode) {
     super(message);
     this.success = false;
     this.statusCode = statusCode;
     this.data = [];
+    this.stack = config.environment === 'production' ? undefined : this.stack;
   }
 }
 

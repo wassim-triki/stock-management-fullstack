@@ -158,17 +158,16 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
   const onSubmit = async (data: PurchaseOrderFormValues) => {
     setLoading(true);
+    const items = data.items.map((item) => ({
+      ...item,
+      quantity: parseInt(item.quantity, 10),
+      price: parseFloat(item.unitPrice),
+    }));
     try {
-      const supplier = data.supplier;
-      const items = data.items.map((item) => ({
-        ...item,
-        quantity: parseInt(item.quantity, 10),
-        price: parseFloat(item.unitPrice),
-      }));
       if (initPurchaseOrder) {
         const res = await updatePurchaseOrder({
           id: initPurchaseOrder._id,
-          data: { ...data, supplier, items },
+          data: { ...data, items },
         });
         toast({
           variant: "success",
@@ -208,6 +207,32 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       setLoading(false);
     }
   };
+
+  async function handleSend() {
+    try {
+      setLoading(true);
+      const values = form.getValues();
+      const items = form.getValues("items").map((item) => ({
+        ...item,
+        quantity: parseInt(item.quantity, 10),
+        price: parseFloat(item.unitPrice),
+      }));
+      const res = await createPurchaseOrder({ ...values, items });
+      console.log(res.data);
+      toast({
+        variant: "success",
+        title: res.message,
+        description: "Email sent to " + res.data.supplier.email,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: (error as ApiErrorResponse).message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <>
@@ -496,8 +521,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             title="PDF Preview"
           ></iframe>
           <Button
+            loading={loading}
             className="flex w-full gap-2 md:w-min"
-            // onClick={handleConfirm}
+            onClick={handleSend}
           >
             <Send className="h-4 w-4" />
             Send

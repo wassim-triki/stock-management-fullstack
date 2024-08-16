@@ -75,12 +75,18 @@ export const createPurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  const purchaseOrder = await PurchaseOrder.create(req.body);
+  const populted = await populateOrderData(req.body);
+  await Mailer.sendMail({
+    to: populted.supplier.email,
+    subject: 'New Purchase Order',
+    text: `A new purchase order has been created with order number ${populted.orderNumber}.`,
+  });
+  const purchaseOrder = await (
+    await PurchaseOrder.create(req.body)
+  ).populate('supplier', 'email');
   res
     .status(201)
-    .json(
-      new SuccessResponse('Purchase Order created successfully', purchaseOrder)
-    );
+    .json(new SuccessResponse('Purchase Order sent', purchaseOrder));
 };
 
 // Delete a purchase order by ID

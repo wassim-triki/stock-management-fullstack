@@ -1,6 +1,6 @@
-// mailer.ts
 import nodemailer from 'nodemailer';
 import { Attachment } from 'nodemailer/lib/mailer';
+import { ErrorResponse, HttpCode } from '../types/types';
 
 interface MailOptions {
   from?: string;
@@ -13,10 +13,10 @@ interface MailOptions {
 
 class Mailer {
   private transporter: nodemailer.Transporter;
-
   constructor() {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
+      host: 'smtp.gmail.com',
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
@@ -26,20 +26,14 @@ class Mailer {
 
   async sendMail(options: MailOptions): Promise<void> {
     const mailOptions: nodemailer.SendMailOptions = {
+      ...options,
       from: options.from || process.env.MAIL_USER,
-      to: options.to,
-      subject: options.subject,
-      text: options.text,
-      html: options.html,
-      attachments: options.attachments,
     };
-
     try {
       await this.transporter.sendMail(mailOptions);
       console.log('Email sent successfully.');
     } catch (error) {
-      console.error('Error sending email:', error);
-      throw error;
+      throw new ErrorResponse('Error emailing', HttpCode.INTERNAL_SERVER_ERROR);
     }
   }
 }
