@@ -218,9 +218,11 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         price: parseFloat(item.unitPrice),
       }));
       const res = await createPurchaseOrder({ ...values, items });
+      console.log(res.data);
       toast({
         variant: "success",
         title: res.message,
+        description: "Email sent to " + res.data.supplier.email,
       });
     } catch (error) {
       toast({
