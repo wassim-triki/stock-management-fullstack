@@ -1,12 +1,17 @@
 // controllers/purchaseOrderController.ts
 import { Request, Response, NextFunction } from 'express';
-import { PurchaseOrder } from '../models/PurchaseOrder';
+import { getNextOrderNumber, PurchaseOrder } from '../models/PurchaseOrder';
 import {
   ErrorResponse,
+  IPurchaseOrder,
   SuccessResponse,
   SuccessResponseList,
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
+import { generatePDF } from '../services/pdfService';
+import { Supplier } from '../models/Supplier';
+import { Product } from '../models/Product';
+import mailer from '../services/mailer';
 
 export type QueryParams = {
   limit?: string;
@@ -124,7 +129,6 @@ export const updatePurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(';🤣🤣🤣🤣🤣', req.params);
   const purchaseOrder = await PurchaseOrder.findByIdAndUpdate(
     req.params.id,
     req.body,
@@ -143,4 +147,81 @@ export const updatePurchaseOrder = async (
     .json(
       new SuccessResponse('Purchase Order updated successfully', purchaseOrder)
     );
+};
+
+export const previewPurchaseOrderPDF = async (req: Request, res: Response) => {
+  console.log(';🤣🤣🤣🤣🤣', req.body);
+
+  const orderData = req.body; // Form data sent in the request body
+
+  // Assuming the supplier and product details need to be populated
+  console.log(orderData);
+  const populatedOrderData = await populateOrderData(orderData);
+
+  // Generate the PDF
+  const doc = generatePDF('purchaseOrder', populatedOrderData);
+
+  // Set headers for PDF download
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename=purchase_order_${
+      orderData.orderNumber || 'preview'
+    }.pdf`
+  );
+
+  // Pipe the PDF document directly to the response
+  doc.pipe(res);
+};
+
+// Function to populate the order data with supplier and product names
+async function populateOrderData(orderData: any): Promise<IPurchaseOrder> {
+  // Replace these with your actual models and logic to fetch supplier and product details
+
+  const orderNumber = await getNextOrderNumber();
+  const supplier = await Supplier.findById(orderData.supplier);
+  const items = await Promise.all(
+    orderData.items.map(async (item: any) => {
+      const product = await Product.findById(item.product);
+      return {
+        ...item,
+        product,
+      };
+    })
+  );
+
+  return {
+    ...orderData,
+    orderNumber,
+    supplier,
+    items,
+  };
+}
+
+export const sendPurchaseOrderEmail = async (req: Request, res: Response) => {
+  const orderData = req.body; // Form data sent in the request body
+  const populatedOrderData = await populateOrderData(orderData);
+  const doc = generatePDF('purchaseOrder', populatedOrderData);
+  const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
+    const buffers: Buffer[] = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+    doc.on('error', reject);
+  });
+
+  const emailResult = await mailer.sendMail({
+    to: orderData.supplier.email,
+    subject: 'Purchase Order',
+    text: 'Please find attached your purchase order.',
+    attachments: [
+      {
+        filename: `purchase_order_${orderData.orderNumber || 'preview'}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      },
+    ],
+  });
+  res
+    .status(200)
+    .json({ message: 'Purchase order sent successfully', emailResult });
 };
