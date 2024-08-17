@@ -18,8 +18,8 @@ const PurchaseOrderSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ['Pending', 'Accepted', 'Received'],
-      default: 'Pending',
+      enum: ['Draft', 'Pending', 'Accepted', 'Received'],
+      default: 'Draft',
     },
     orderTotal: {
       type: Number,

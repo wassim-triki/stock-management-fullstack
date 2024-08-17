@@ -4,6 +4,7 @@ import {
   CrossCircledIcon,
   StopwatchIcon,
 } from "@radix-ui/react-icons";
+import { CircleDashedIcon } from "lucide-react";
 
 export const queryKeys = {
   users: "users",
@@ -26,12 +27,16 @@ export const PO_STATUSES = [
   //   icon: QuestionMarkCircledIcon,
   // },
   {
-    name: "Accepted",
-    icon: CircleIcon,
+    name: "Draft",
+    icon: CircleDashedIcon,
   },
   {
     name: "Pending",
     icon: StopwatchIcon,
+  },
+  {
+    name: "Accepted",
+    icon: CircleIcon,
   },
   {
     name: "Received",

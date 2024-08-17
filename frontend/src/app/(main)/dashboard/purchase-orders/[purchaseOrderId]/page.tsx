@@ -13,7 +13,7 @@ import { getPurchaseOrderById } from "@/api/purchase-order";
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
   { title: "Purchase Orders", link: "/dashboard/purchase-orders" },
-  { title: "Create", link: "" },
+  { title: "Edit", link: "" },
 ];
 type Props = {
   params: { purchaseOrderId: string };

@@ -78,9 +78,7 @@ export const createPurchaseOrder = async (
   const populted = await populateOrderData(req.body);
   await sendPurchaseOrderEmail(populted);
 
-  const purchaseOrder = await (
-    await PurchaseOrder.create(req.body)
-  ).populate('supplier', 'email');
+  const purchaseOrder = await await PurchaseOrder.create(req.body);
   res
     .status(201)
     .json(new SuccessResponse('Purchase Order created', purchaseOrder));

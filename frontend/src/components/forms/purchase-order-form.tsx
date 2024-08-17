@@ -3,7 +3,14 @@ import * as z from "zod";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { Trash, PackagePlus, Plus, SendHorizontal, Send } from "lucide-react";
+import {
+  Trash,
+  PackagePlus,
+  Plus,
+  SendHorizontal,
+  Send,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -102,7 +109,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState("");
   const initialData: PurchaseOrderFormValues = {
-    status: initPurchaseOrder?.status || "Pending",
+    status: initPurchaseOrder?.status || "Draft",
     supplier: initPurchaseOrder?.supplier?._id || "",
     orderDate: initPurchaseOrder?.orderDate
       ? new Date(initPurchaseOrder.orderDate)
@@ -132,6 +139,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     name: "items",
   });
 
+  useEffect(() => {
+    console.log(form.formState.isDirty);
+  }, [form.formState.isDirty]);
   // Calculate lineTotal and orderTotal whenever quantity or price changes
   useEffect(() => {
     let newOrderTotal = 0;
@@ -147,7 +157,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         if (lineTotal.toFixed(2) !== currentLineTotal) {
           form.setValue(`items.${index}.lineTotal`, lineTotal.toFixed(2), {
             shouldValidate: false,
-            shouldDirty: true,
+            shouldDirty: false,
           });
         }
         newOrderTotal += lineTotal;
@@ -156,7 +166,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
     form.setValue("orderTotal", newOrderTotal.toFixed(2), {
       shouldValidate: false,
-      shouldDirty: true,
+      shouldDirty: false,
     });
   }, [watchedItems, form]);
 
@@ -172,16 +182,15 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           variant: "success",
           title: res.message,
         });
-        router.push("/dashboard/purchase-orders");
-        router.refresh();
+        // router.push("/dashboard/purchase-orders");
       } else {
-        const pdfBlobRes = await previewPurchaseOrderPdf(data);
-        // Create a blob URL from the PDF data
-        const pdfBlob = new Blob([await pdfBlobRes.blob()], {
-          type: "application/pdf",
+        const res = await createPurchaseOrder(data);
+        toast({
+          variant: "success",
+          title: res.message,
+          // description: "Email sent to " + res.data.supplier.email,
         });
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        setPdfUrl(pdfUrl);
+        router.push(`/dashboard/purchase-orders/${res.data._id}`);
       }
     } catch (error) {
       toast({
@@ -194,29 +203,29 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   };
 
   async function handleSend() {
-    try {
-      setLoading(true);
-      const values = form.getValues();
-      const items = form.getValues("items").map((item) => ({
-        ...item,
-        quantity: parseInt(item.quantity, 10),
-        price: parseFloat(item.unitPrice),
-      }));
-      const res = await createPurchaseOrder({ ...values, items });
-      console.log(res.data);
-      toast({
-        variant: "success",
-        title: res.message,
-        description: "Email sent to " + res.data.supplier.email,
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: (error as ApiErrorResponse).message,
-      });
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   setLoading(true);
+    //   const values = form.getValues();
+    //   const items = form.getValues("items").map((item) => ({
+    //     ...item,
+    //     quantity: parseInt(item.quantity, 10),
+    //     price: parseFloat(item.unitPrice),
+    //   }));
+    //   const res = await createPurchaseOrder({ ...values, items });
+    //   console.log(res.data);
+    //   toast({
+    //     variant: "success",
+    //     title: res.message,
+    //     description: "Email sent to " + res.data.supplier.email,
+    //   });
+    // } catch (error) {
+    //   toast({
+    //     variant: "destructive",
+    //     title: (error as ApiErrorResponse).message,
+    //   });
+    // } finally {
+    //   setLoading(false);
+    // }
   }
 
   return (
@@ -255,7 +264,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                       <SelectContent>
                         {PO_STATUSES.map((status) => (
                           <SelectItem key={status.name} value={status.name}>
-                            {status.name}
+                            <div className="flex items-center gap-2">
+                              <status.icon className="h-4 w-4" /> {status.name}
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -342,7 +353,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                 className="flex items-center gap-2"
                 href={"/dashboard/stock/products/new"}
               >
-                <PackagePlus className="h-4 w-4" />
+                <Plus className="h-4 w-4" />
                 Add a new product
               </Link>
             </Button>
@@ -436,11 +447,11 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                             {fields.length > 1 && (
                               <Button
                                 variant="destructive"
-                                className="msb-[2px] mt-auto"
+                                className="msb-[2px] mt-auto flex h-10 min-w-11 max-w-11 items-center justify-center p-0"
                                 onClick={() => remove(index)}
                                 disabled={loading}
                               >
-                                <Trash className="h-4 w-4" />
+                                <X className="h-5 w-5" />
                               </Button>
                             )}
                           </div>
@@ -466,8 +477,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               }
               type="button"
               variant="outline"
+              className="flex h-10 min-w-11 max-w-11 items-center justify-center p-0"
             >
-              <Plus className="h-4 w-4" />
+              <PackagePlus className="h-5 w-5" />
             </Button>
             <FormField
               control={form.control}
@@ -490,10 +502,21 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             />
           </div>
 
-          <div className="w-full md:w-min">
+          <div className="flex w-full gap-2 md:w-min">
             <SubmitButton loading={loading} type="submit">
-              {initPurchaseOrder ? "Save changes" : "Preview"}
+              {action}
             </SubmitButton>
+            {initPurchaseOrder && (
+              <Button
+                loading={loading}
+                className="flex w-full gap-2 md:w-min"
+                onClick={handleSend}
+                variant={"outline"}
+              >
+                <Send className="h-4 w-4" />
+                Print and send
+              </Button>
+            )}
           </div>
         </form>
       </Form>

@@ -38,10 +38,10 @@ export const getPurchaseOrderById = async (
   return response.data;
 };
 
-export const createPurchaseOrder = async (data: {
-  supplier: string;
-  items: { product: string; quantity: number; price: number }[];
-}): Promise<ApiSuccessResponse<PurchaseOrder>> => {
+export const createPurchaseOrder = async (
+  data: PurchaseOrderFormValues,
+): Promise<ApiSuccessResponse<PurchaseOrder>> => {
+  revalidateTag("purchase-orders");
   return await fetchHelper("/api/purchase-orders", {
     method: "POST",
     body: JSON.stringify(data),
