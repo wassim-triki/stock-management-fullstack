@@ -1,11 +1,26 @@
+"use client";
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-
 import { cn } from "@/lib/utils";
+import Spinner from "../spinner";
+import { useTheme } from "next-themes"; // Import theme hook
+
+// Define a map for spinner colors based on button variant and theme
+const getSpinnerColor = (variant: string, theme: string) => {
+  const colors: { [key: string]: string } = {
+    default: theme === "dark" ? "#000000" : "#ffffff", // White spinner in dark mode, black in light
+    destructive: theme === "dark" ? "#ffffff" : "#000000", // Same as default
+    outline: theme === "dark" ? "#ffffff" : "#000000", // Same as default
+    secondary: theme === "dark" ? "#ffffff" : "#000000", // White spinner in dark mode
+    ghost: theme === "dark" ? "#ffffff" : "#000000", // White spinner in dark mode
+    link: theme === "dark" ? "#ffffff" : "#000000", // White spinner in dark mode
+  };
+  return colors[variant] || colors.default;
+};
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-80",
   {
     variants: {
       variant: {
@@ -45,7 +60,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className,
-      variant,
+      variant = "default", // Ensure variant defaults to "default"
       children,
       size,
       asChild = false,
@@ -56,6 +71,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const Comp = asChild ? Slot : "button";
+    const { theme } = useTheme(); // Get the current theme (light or dark)
+    const spinnerCol = variant === null ? "" : variant;
     return (
       <Comp
         disabled={loading || disabled}
@@ -64,7 +81,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         {...props}
       >
-        {!loading && children}
+        {loading ? (
+          <Spinner color={getSpinnerColor(spinnerCol, theme!)} size="24px" />
+        ) : (
+          children
+        )}
       </Comp>
     );
   },

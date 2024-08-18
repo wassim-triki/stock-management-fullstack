@@ -501,9 +501,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           </div>
 
           <div className="flex w-full gap-2 md:w-min">
-            <SubmitButton loading={loading} type="submit">
+            <Button loading={loading} type="submit">
               {action}
-            </SubmitButton>
+            </Button>
             {initPurchaseOrder && (
               <Button
                 loading={loading}

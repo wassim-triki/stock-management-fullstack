@@ -14,8 +14,8 @@ import React from "react";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Procucts", link: "/dashboard/stock/products" },
-  { title: "Create", link: "/dashboard/stock/products/create" },
+  { title: "Procucts", link: "/dashboard/products" },
+  { title: "Create", link: "/dashboard/products/create" },
 ];
 
 type Props = {
