@@ -76,3 +76,12 @@ export const getTotalPurchaseOrders = async (): Promise<number> => {
   );
   return response.data.total;
 };
+//sendPurcahseOrder
+export const sendPurchaseOrder = async (
+  id: string,
+): Promise<ApiSuccessResponse> => {
+  return await fetchHelper(`/api/purchase-orders/send`, {
+    method: "POST",
+    body: JSON.stringify({ id }),
+  });
+};

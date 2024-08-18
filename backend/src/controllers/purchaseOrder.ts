@@ -178,25 +178,35 @@ export const getPurchaseOrderPreview = async (req: Request, res: Response) => {
   doc.pipe(res);
 };
 
-export const sendPurchaseOrderEmail = async (orderData: IPurchaseOrder) => {
-  // const populatedOrderData = await populateOrderData(orderData);
-  // const doc = generatePDF('purchaseOrder', populatedOrderData);
-  // const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
-  //   const buffers: Buffer[] = [];
-  //   doc.on('data', buffers.push.bind(buffers));
-  //   doc.on('end', () => resolve(Buffer.concat(buffers)));
-  //   doc.on('error', reject);
-  // });
-  // await mailer.sendMail({
-  //   to: orderData.supplier.email,
-  //   subject: 'Purchase Order',
-  //   text: 'Please find attached your purchase order.',
-  //   attachments: [
-  //     {
-  //       filename: `purchase_order_${orderData.orderNumber || 'preview'}.pdf`,
-  //       content: pdfBuffer,
-  //       contentType: 'application/pdf',
-  //     },
-  //   ],
-  // });
+export const sendPurchaseOrder = async (req: Request, res: Response) => {
+  const purchaseOrder = await PurchaseOrder.findById(req.params.id)
+    .populate('supplier')
+    .populate('items.product');
+  if (!purchaseOrder) {
+    throw new ErrorResponse('Purchase Order not found', 404);
+  }
+  const doc = generatePDF('purchaseOrder', purchaseOrder);
+  const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
+    const buffers: Buffer[] = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+    doc.on('error', reject);
+  });
+  await mailer.sendMail({
+    to: purchaseOrder.supplier.email,
+    subject: 'Purchase Order',
+    text: 'Please find attached your purchase order.',
+    attachments: [
+      {
+        filename: `purchase_order_${
+          purchaseOrder.orderNumber || 'preview'
+        }.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      },
+    ],
+  });
+  res
+    .status(200)
+    .json(new SuccessResponse('Email sent to' + purchaseOrder.supplier.email));
 };

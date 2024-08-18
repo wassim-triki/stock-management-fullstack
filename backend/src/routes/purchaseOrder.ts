@@ -7,7 +7,7 @@ import {
   getPurchaseOrderPreview,
   getPurchaseOrders,
   getTotalPurchaseOrders,
-  sendPurchaseOrderEmail,
+  sendPurchaseOrder,
   updatePurchaseOrder,
 } from '../controllers/purchaseOrder';
 import { authorizeRoles } from '../middleware/authorizeRoles';
@@ -55,10 +55,10 @@ router.get(
   getPurchaseOrderPreview
 );
 router.post(
-  '/send-email',
+  '/send/:id',
   authHandler,
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
-  sendPurchaseOrderEmail
+  sendPurchaseOrder
 );
 
 export default router;
