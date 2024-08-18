@@ -76,13 +76,3 @@ export const getTotalPurchaseOrders = async (): Promise<number> => {
   );
   return response.data.total;
 };
-
-export const previewPurchaseOrderPdf = async (data: any): Promise<Response> => {
-  return await fetch(`${config.apiUrl}/api/purchase-orders/preview`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-};

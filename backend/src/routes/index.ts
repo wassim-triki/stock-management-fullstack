@@ -5,7 +5,6 @@ import productRouter from './product';
 import supplierRouter from './supplier';
 import categoryRouter from './category';
 import purchaseOrderRouter from './purchaseOrder';
-import pdfRouter from './pdf';
 const routes = Router();
 
 routes.use('/api/auth', authRouter);
@@ -14,6 +13,5 @@ routes.use('/api/products', productRouter);
 routes.use('/api/suppliers', supplierRouter);
 routes.use('/api/categories', categoryRouter);
 routes.use('/api/purchase-orders', purchaseOrderRouter);
-routes.use('/api/pdf', pdfRouter);
 
 export default routes;

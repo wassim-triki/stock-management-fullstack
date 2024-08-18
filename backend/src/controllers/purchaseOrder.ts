@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { getNextOrderNumber, PurchaseOrder } from '../models/PurchaseOrder';
 import {
   ErrorResponse,
+  HttpCode,
   IPurchaseOrder,
   SuccessResponse,
   SuccessResponseList,
@@ -75,9 +76,6 @@ export const createPurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  const populted = await populateOrderData(req.body);
-  await sendPurchaseOrderEmail(populted);
-
   const purchaseOrder = await await PurchaseOrder.create(req.body);
   res
     .status(201)
@@ -150,22 +148,29 @@ export const updatePurchaseOrder = async (
     );
 };
 
-export const previewPurchaseOrderPDF = async (req: Request, res: Response) => {
-  const orderData = req.body; // Form data sent in the request body
+export const getPurchaseOrderPreview = async (req: Request, res: Response) => {
+  const purchaseOrder = await PurchaseOrder.findById(req.params.id)
+    .populate('supplier')
+    .populate('items.product');
 
-  // Assuming the supplier and product details need to be populated
-  console.log(orderData);
-  const populatedOrderData = await populateOrderData(orderData);
+  console.log(purchaseOrder);
+
+  if (!purchaseOrder) {
+    throw new ErrorResponse(
+      'Purchase order does not exist',
+      HttpCode.NOT_FOUND
+    );
+  }
 
   // Generate the PDF
-  const doc = generatePDF('purchaseOrder', populatedOrderData);
+  const doc = generatePDF('purchaseOrder', purchaseOrder);
 
   // Set headers for PDF download
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader(
     'Content-Disposition',
     `attachment; filename=purchase_order_${
-      orderData.orderNumber || 'preview'
+      purchaseOrder.orderNumber || 'preview'
     }.pdf`
   );
 
@@ -173,50 +178,25 @@ export const previewPurchaseOrderPDF = async (req: Request, res: Response) => {
   doc.pipe(res);
 };
 
-// Function to populate the order data with supplier and product names
-async function populateOrderData(orderData: any): Promise<IPurchaseOrder> {
-  // Replace these with your actual models and logic to fetch supplier and product details
-
-  const orderNumber = await getNextOrderNumber();
-  const supplier = await Supplier.findById(orderData.supplier);
-  const items = await Promise.all(
-    orderData.items.map(async (item: any) => {
-      const product = await Product.findById(item.product);
-      return {
-        ...item,
-        product,
-      };
-    })
-  );
-
-  return {
-    ...orderData,
-    orderNumber,
-    supplier,
-    items,
-  };
-}
-
 export const sendPurchaseOrderEmail = async (orderData: IPurchaseOrder) => {
-  const populatedOrderData = await populateOrderData(orderData);
-  const doc = generatePDF('purchaseOrder', populatedOrderData);
-  const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
-    const buffers: Buffer[] = [];
-    doc.on('data', buffers.push.bind(buffers));
-    doc.on('end', () => resolve(Buffer.concat(buffers)));
-    doc.on('error', reject);
-  });
-
-  await mailer.sendMail({
-    to: orderData.supplier.email,
-    subject: 'Purchase Order',
-    text: 'Please find attached your purchase order.',
-    attachments: [
-      {
-        filename: `purchase_order_${orderData.orderNumber || 'preview'}.pdf`,
-        content: pdfBuffer,
-        contentType: 'application/pdf',
-      },
-    ],
-  });
+  // const populatedOrderData = await populateOrderData(orderData);
+  // const doc = generatePDF('purchaseOrder', populatedOrderData);
+  // const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
+  //   const buffers: Buffer[] = [];
+  //   doc.on('data', buffers.push.bind(buffers));
+  //   doc.on('end', () => resolve(Buffer.concat(buffers)));
+  //   doc.on('error', reject);
+  // });
+  // await mailer.sendMail({
+  //   to: orderData.supplier.email,
+  //   subject: 'Purchase Order',
+  //   text: 'Please find attached your purchase order.',
+  //   attachments: [
+  //     {
+  //       filename: `purchase_order_${orderData.orderNumber || 'preview'}.pdf`,
+  //       content: pdfBuffer,
+  //       contentType: 'application/pdf',
+  //     },
+  //   ],
+  // });
 };

@@ -25,11 +25,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import { useToast } from "../ui/use-toast";
-import {
-  createPurchaseOrder,
-  previewPurchaseOrderPdf,
-  updatePurchaseOrder,
-} from "@/api/purchase-order";
+import { createPurchaseOrder, updatePurchaseOrder } from "@/api/purchase-order";
 import {
   PurchaseOrder,
   Supplier,
@@ -202,7 +198,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     }
   };
 
-  async function handleSend() {
+  async function handlePrintAndSend() {
+    if (!initPurchaseOrder) return;
+    router.push(`/dashboard/purchase-orders/print/${initPurchaseOrder._id}`);
     // try {
     //   setLoading(true);
     //   const values = form.getValues();
@@ -510,8 +508,9 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               <Button
                 loading={loading}
                 className="flex w-full gap-2 md:w-min"
-                onClick={handleSend}
+                onClick={handlePrintAndSend}
                 variant={"outline"}
+                type="button"
               >
                 <Send className="h-4 w-4" />
                 Print and send
@@ -531,7 +530,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           <Button
             loading={loading}
             className="flex w-full gap-2 md:w-min"
-            onClick={handleSend}
+            onClick={handlePrintAndSend}
           >
             <Send className="h-4 w-4" />
             Send

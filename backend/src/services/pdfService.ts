@@ -104,7 +104,6 @@ function generatePurchaseOrderInformation(
   doc: PDFKit.PDFDocument,
   orderData: IPurchaseOrder
 ) {
-  console.log(orderData, '❤️❤️❤️❤️');
   doc.fillColor('#444444').fontSize(20).text('Purchase order', 50, 160);
 
   generateHr(doc, 185);

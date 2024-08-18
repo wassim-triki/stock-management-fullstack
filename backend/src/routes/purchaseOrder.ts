@@ -4,9 +4,9 @@ import {
   createPurchaseOrder,
   deletePurchaseOrder,
   getPurchaseOrderById,
+  getPurchaseOrderPreview,
   getPurchaseOrders,
   getTotalPurchaseOrders,
-  previewPurchaseOrderPDF,
   sendPurchaseOrderEmail,
   updatePurchaseOrder,
 } from '../controllers/purchaseOrder';
@@ -48,7 +48,12 @@ router.put(
   updatePurchaseOrder
 );
 
-router.post('/preview', previewPurchaseOrderPDF);
+router.get(
+  '/print/:id',
+  authHandler,
+  authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
+  getPurchaseOrderPreview
+);
 router.post(
   '/send-email',
   authHandler,
