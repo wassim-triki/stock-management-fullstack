@@ -13,6 +13,7 @@ import { generatePDF } from '../services/pdfService';
 import { Supplier } from '../models/Supplier';
 import { Product } from '../models/Product';
 import mailer from '../services/mailer';
+import { PO_STATUSES } from '../utils/constants';
 
 export type QueryParams = {
   limit?: string;
@@ -206,6 +207,8 @@ export const sendPurchaseOrder = async (req: Request, res: Response) => {
       },
     ],
   });
+  purchaseOrder.status = PO_STATUSES.PENDING;
+  await purchaseOrder.save();
   res
     .status(200)
     .json(new SuccessResponse('Email sent to' + purchaseOrder.supplier.email));

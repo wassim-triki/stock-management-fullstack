@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IProduct, IPurchaseOrder, ISupplier } from '../types/types';
+import { PO_STATUSES } from '../utils/constants';
 
 const PurchaseOrderSchema: Schema = new Schema(
   {
@@ -18,7 +19,7 @@ const PurchaseOrderSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ['Draft', 'Pending', 'Accepted', 'Received'],
+      enum: PO_STATUSES,
       default: 'Draft',
     },
     orderTotal: {
