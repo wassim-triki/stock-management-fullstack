@@ -1,5 +1,5 @@
 "use client";
-import { useTheme } from "next-themes"; // Import the theme hook from ShadCN
+import { useTheme } from "next-themes";
 import * as React from "react";
 
 const Spinner: React.FC<{
@@ -28,44 +28,11 @@ const Spinner: React.FC<{
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       aria-busy="true"
+      className="custom-spinner" // Assign a unique class
     >
-      <style>
-        {`
-          g {
-            animation: rotate 2s linear infinite;
-            transform-origin: center center;
-          }
-          circle {
-            stroke-dasharray: 75, 100;
-            stroke-dashoffset: -5;
-            animation: dash 1.5s ease-in-out infinite;
-            stroke-linecap: round;
-          }
-          @keyframes rotate {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
-          }
-          @keyframes dash {
-            0% {
-              stroke-dasharray: 1, 100;
-              stroke-dashoffset: 0;
-            }
-            50% {
-              stroke-dasharray: 44.5, 100;
-              stroke-dashoffset: -17.5;
-            }
-            100% {
-              stroke-dasharray: 44.5, 100;
-              stroke-dashoffset: -62;
-            }
-          }
-        `}
-      </style>
-      <g>
+      <g className="custom-spinner-group">
+        {" "}
+        {/* Assign unique class */}
         <circle
           cx="12"
           cy="12"
@@ -73,8 +40,43 @@ const Spinner: React.FC<{
           fill="none"
           stroke={spinnerColor} // Dynamic stroke color
           strokeWidth={width}
+          className="custom-spinner-circle" // Assign unique class
         />
       </g>
+      <style jsx>{`
+        .custom-spinner-group {
+          animation: custom-rotate 2s linear infinite;
+          transform-origin: center center;
+        }
+        .custom-spinner-circle {
+          stroke-dasharray: 75, 100;
+          stroke-dashoffset: -5;
+          animation: custom-dash 1.5s ease-in-out infinite;
+          stroke-linecap: round;
+        }
+        @keyframes custom-rotate {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+        @keyframes custom-dash {
+          0% {
+            stroke-dasharray: 1, 100;
+            stroke-dashoffset: 0;
+          }
+          50% {
+            stroke-dasharray: 44.5, 100;
+            stroke-dashoffset: -17.5;
+          }
+          100% {
+            stroke-dasharray: 44.5, 100;
+            stroke-dashoffset: -62;
+          }
+        }
+      `}</style>
     </svg>
   );
 };

@@ -30,7 +30,7 @@ type Menu = {
   submenus: Submenu[];
 };
 
-type Group = {
+export type Group = {
   groupLabel: string;
   menus: Menu[];
 };
