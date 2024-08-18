@@ -5,9 +5,11 @@ import * as React from "react";
 const Spinner: React.FC<{
   size?: string;
   color?: string;
+  width?: string;
 }> = ({
   size = "24px", // Default size
   color, // Allow custom color
+  width = "2", // Default stroke width
 }) => {
   const { theme } = useTheme(); // Get the current theme (light or dark)
 
@@ -70,7 +72,7 @@ const Spinner: React.FC<{
           r="10"
           fill="none"
           stroke={spinnerColor} // Dynamic stroke color
-          strokeWidth="2"
+          strokeWidth={width}
         />
       </g>
     </svg>
