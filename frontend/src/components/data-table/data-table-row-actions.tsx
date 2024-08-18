@@ -23,7 +23,7 @@ import { ApiSuccessResponse } from "@/lib/types";
 import { useState } from "react";
 import { useToast } from "../ui/use-toast";
 import { AlertModal } from "../modal/alert-modal";
-import { Edit, Trash } from "lucide-react";
+import { Edit, LucideIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PO_STATUSES } from "@/lib/constants";
 
@@ -37,11 +37,19 @@ export type ActionSubmenu = {
   items: ActionSubmenuItem[];
   defaultItem: ActionSubmenuItem;
 };
+export type ActionItem = {
+  label: string;
+  onClick?: () => void;
+  element: "link" | "button";
+  href?: string;
+  icon?: LucideIcon;
+};
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
   editUrl: string;
   deleteFunction: (id: string) => Promise<ApiSuccessResponse<TData>>;
   submenues?: ActionSubmenu[];
+  actionItems?: any[];
 }
 
 export function DataTableRowActions<TData extends { _id: string }>({
@@ -49,6 +57,7 @@ export function DataTableRowActions<TData extends { _id: string }>({
   editUrl = "",
   deleteFunction,
   submenues,
+  actionItems,
 }: DataTableRowActionsProps<TData>) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -65,11 +74,6 @@ export function DataTableRowActions<TData extends { _id: string }>({
     setOpen(false);
     router.refresh();
   };
-
-  const labels = [
-    { value: "pending", label: "Pending" },
-    { value: "received", label: "Received" },
-  ];
 
   return (
     <>
@@ -114,6 +118,18 @@ export function DataTableRowActions<TData extends { _id: string }>({
               </DropdownMenuSub>
               <DropdownMenuSeparator />
             </>
+          ))}
+          {actionItems?.map((item) => (
+            <DropdownMenuItem key={item.label} onClick={item.onClick}>
+              {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+              {item.element === "link" ? (
+                <Link className="flex w-full items-center" href={item.href}>
+                  {item.label}
+                </Link>
+              ) : (
+                item.label
+              )}
+            </DropdownMenuItem>
           ))}
           <DropdownMenuItem>
             <Link className="flex w-full items-center" href={editUrl}>

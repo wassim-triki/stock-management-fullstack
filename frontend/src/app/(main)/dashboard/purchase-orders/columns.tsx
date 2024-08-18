@@ -3,10 +3,11 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Product, PurchaseOrder } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
-
+import Router from "next/router";
 import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import {
+  ActionItem,
   ActionSubmenuItem,
   DataTableRowActions,
 } from "@/components/data-table/data-table-row-actions";
@@ -14,6 +15,7 @@ import { formatDate, timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
 import { PO_STATUSES } from "@/lib/constants";
 import { deletePurchaseOrder, updatePurchaseOrder } from "@/api/purchase-order";
+import { Send } from "lucide-react";
 
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
@@ -158,6 +160,13 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
       const defaultItem = items.find(
         (item) => item.value === row.original.status,
       ) || { label: "Pending", value: "Pending" };
+
+      const sendAction: ActionItem = {
+        label: "Send",
+        element: "link",
+        href: `/dashboard/purchase-orders/print/${row.original._id}`,
+        icon: Send,
+      };
       return (
         <DataTableRowActions
           deleteFunction={deletePurchaseOrder}
@@ -168,6 +177,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
               defaultItem,
             },
           ]}
+          actionItems={[sendAction]}
           editUrl={`/dashboard/purchase-orders/${row.original._id}`}
           row={row}
         />
