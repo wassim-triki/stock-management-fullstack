@@ -72,7 +72,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const Comp = asChild ? Slot : "button";
     const { theme } = useTheme(); // Get the current theme (light or dark)
-    console.log(theme, variant);
     const spinnerCol = variant === null ? "" : variant;
     return (
       <Comp
