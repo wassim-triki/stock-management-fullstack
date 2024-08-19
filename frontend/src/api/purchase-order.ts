@@ -91,7 +91,7 @@ export const cancelPurchaseOrder = async (
 // Send purchase order action
 export const sendPurchaseOrder = async (
   id: string,
-): Promise<ApiSuccessResponse<PurchaseOrder>> => {
+): Promise<ApiSuccessResponse> => {
   revalidateTag("purchase-orders");
   return await fetchHelper(`/api/purchase-orders/${id}/send`, {
     method: "POST",

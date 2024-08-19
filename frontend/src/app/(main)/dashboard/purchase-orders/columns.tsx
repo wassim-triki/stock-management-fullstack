@@ -21,9 +21,16 @@ import { PO_STATUSES, POStatusListItem } from "@/lib/constants";
 import {
   cancelPurchaseOrder,
   deletePurchaseOrder,
+  sendPurchaseOrder,
   updatePurchaseOrder,
 } from "@/api/purchase-order";
-import { LucideFileSpreadsheet, Send } from "lucide-react";
+import {
+  Ban,
+  FileText,
+  LucideFileSpreadsheet,
+  PackageCheck,
+  Send,
+} from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import {
   DropdownMenu,
@@ -175,6 +182,54 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     id: "actions",
     cell: ({ row }) => {
       const [loading, setLoading] = useState(false);
+      const { showModal } = useModal();
+      const oldStatus = row.original.status;
+
+      const handleCancel = () => {
+        showModal(() => onConfirmCancel(row.original._id), {
+          title: "Cancel Purchase Order",
+          description: "Are you sure you want to cancel this purchase order?",
+          confirmText: "Yes, Cancel",
+          cancelText: "No, Keep",
+        });
+      };
+
+      const onConfirmCancel = async (orderId: string) => {
+        setLoading(true);
+        try {
+          const res = await cancelPurchaseOrder(orderId);
+          toast({
+            variant: "success",
+            title: res.message,
+            description: `Email sent to ${res.data.supplier.email}`,
+          });
+        } catch (error) {
+          toast({
+            variant: "destructive",
+            title: (error as ApiErrorResponse).message,
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+      const handleSend = async () => {
+        setLoading(true);
+        try {
+          const res = await sendPurchaseOrder(row.original._id);
+          toast({
+            variant: "success",
+            title: "Done!",
+            description: res.message,
+          });
+        } catch (error) {
+          toast({
+            variant: "destructive",
+            title: (error as ApiErrorResponse).message,
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
       return (
         <>
           <DataTableRowActions
@@ -185,17 +240,33 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
             row={row}
           >
             <DropdownMenuSeparator />
-            {renderPOStatusList(row, setLoading)}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem key="send">
+            {/* {renderPOStatusList(row, setLoading)} */}
+            <DropdownMenuItem onClick={handleSend}>
               <Send className="mr-2 h-4 w-4" />
+              Send email
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <FileText className="mr-2 h-4 w-4" />
               <Link
                 className="flex w-full items-center"
                 href={`/dashboard/purchase-orders/print/${row.original._id}`}
               >
-                Send
+                View PDF
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem>
+              <PackageCheck className="mr-2 h-4 w-4" />
+              Add to stock
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleCancel}
+              disabled={oldStatus !== "Pending"}
+            >
+              <Ban className="mr-2 h-4 w-4" />
+              Cancel
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
           </DataTableRowActions>
         </>
       );
@@ -203,103 +274,86 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   },
 ];
 
-const renderPOStatusList = (
-  row: Row<PurchaseOrder>,
-  setLoading: Dispatch<SetStateAction<boolean>>,
-) => {
-  const { showModal } = useModal();
-  const handleStatusChange = async (status: string) => {
-    const oldStatus = row.original.status;
-    if (status === oldStatus) return;
-    setLoading(true);
-    try {
-      const res = await updatePurchaseOrder({
-        id: row.original._id,
-        data: { status },
-      });
-      toast({
-        variant: "success",
-        title: res.message,
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: (error as ApiErrorResponse).message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+// const renderPOStatusList = (
+//   row: Row<PurchaseOrder>,
+//   setLoading: Dispatch<SetStateAction<boolean>>,
+// ) => {
+//   const { showModal } = useModal();
+//   const handleStatusChange = async (status: string) => {
+//     const oldStatus = row.original.status;
+//     if (status === oldStatus) return;
+//     setLoading(true);
+//     try {
+//       const res = await updatePurchaseOrder({
+//         id: row.original._id,
+//         data: { status },
+//       });
+//       toast({
+//         variant: "success",
+//         title: res.message,
+//       });
+//     } catch (error) {
+//       toast({
+//         variant: "destructive",
+//         title: (error as ApiErrorResponse).message,
+//       });
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  const handleCancel = () => {
-    if (row.original.status === "Canceled") return;
-    if (row.original.status !== "Pending") {
-      toast({
-        variant: "destructive",
-        title: `Cannot cancel ${row.original.status} purchase order.`,
-      });
-      return;
-    }
-    showModal(() => onConfirmCancel(row.original._id), {
-      title: "Cancel Purchase Order",
-      description: "Are you sure you want to cancel this purchase order?",
-      confirmText: "Yes, Cancel",
-      cancelText: "No, Keep",
-    });
-  };
+//   const onConfirmCancel = async (orderId: string) => {
+//     try {
+//       const res = await cancelPurchaseOrder(orderId);
+//       toast({
+//         variant: "success",
+//         title: res.message,
+//         description: `Email sent to ${res.data.supplier.email}`,
+//       });
+//     } catch (error) {
+//       toast({
+//         variant: "destructive",
+//         title: (error as ApiErrorResponse).message,
+//       });
+//     }
+//   };
 
-  const onConfirmCancel = async (orderId: string) => {
-    try {
-      const res = await cancelPurchaseOrder(orderId);
-      toast({
-        variant: "success",
-        title: res.message,
-        description: `Email sent to ${res.data.supplier.email}`,
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: (error as ApiErrorResponse).message,
-      });
-    }
-  };
-
-  return (
-    <>
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
-        <DropdownMenuSubContent>
-          <DropdownMenuRadioGroup value={row.original.status}>
-            <DropdownMenuRadioItem
-              onClick={() => handleStatusChange("Draft")}
-              value="Draft"
-            >
-              Draft
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              onClick={() => handleStatusChange("Pending")}
-              value="Pending"
-            >
-              Pending
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              onClick={() => handleStatusChange("Accepted")}
-              value="Accepted"
-            >
-              Accepted
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              onClick={() => handleStatusChange("Received")}
-              value="Received"
-            >
-              Received
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem onClick={handleCancel} value="Canceled">
-              Canceled
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuSubContent>
-      </DropdownMenuSub>
-    </>
-  );
-};
+//   return (
+//     <>
+//       <DropdownMenuSub>
+//         <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+//         <DropdownMenuSubContent>
+//           <DropdownMenuRadioGroup value={row.original.status}>
+//             <DropdownMenuRadioItem
+//               onClick={() => handleStatusChange("Draft")}
+//               value="Draft"
+//             >
+//               Draft
+//             </DropdownMenuRadioItem>
+//             <DropdownMenuRadioItem
+//               onClick={() => handleStatusChange("Pending")}
+//               value="Pending"
+//             >
+//               Pending
+//             </DropdownMenuRadioItem>
+//             <DropdownMenuRadioItem
+//               onClick={() => handleStatusChange("Accepted")}
+//               value="Accepted"
+//             >
+//               Accepted
+//             </DropdownMenuRadioItem>
+//             <DropdownMenuRadioItem
+//               onClick={() => handleStatusChange("Received")}
+//               value="Received"
+//             >
+//               Received
+//             </DropdownMenuRadioItem>
+//             <DropdownMenuRadioItem onClick={handleCancel} value="Canceled">
+//               Canceled
+//             </DropdownMenuRadioItem>
+//           </DropdownMenuRadioGroup>
+//         </DropdownMenuSubContent>
+//       </DropdownMenuSub>
+//     </>
+//   );
+// };
