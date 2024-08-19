@@ -59,10 +59,15 @@ const PurchaseOrderSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+
 export const getNextOrderNumber = async (): Promise<string> => {
   const lastOrder = await PurchaseOrder.findOne().sort({ orderNumber: -1 });
-  const lastOrderNumber = lastOrder ? parseInt(lastOrder.orderNumber) : 0;
-  return (lastOrderNumber + 1).toString();
+
+  const lastOrderNumber = lastOrder ? parseInt(lastOrder.orderNumber, 10) : 0;
+  const nextOrderNumber = (lastOrderNumber + 1).toString();
+
+  // Ensure the order number is padded to 6 digits with leading zeros
+  return nextOrderNumber.padStart(6, '0');
 };
 
 PurchaseOrderSchema.pre<IPurchaseOrder>('save', async function (next) {

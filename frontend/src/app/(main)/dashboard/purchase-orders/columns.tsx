@@ -51,6 +51,7 @@ import { AlertModal } from "@/components/modal/alert-modal";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useModal } from "@/providers/modal-provider";
 import Link from "next/link";
+import TableCellLink from "@/components/ui/table-link";
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     id: "select",
@@ -128,6 +129,13 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ORDER N°" />
     ),
+    cell: ({ cell, row }) => {
+      return (
+        <TableCellLink href={`/dashboard/purchase-orders/${row.original._id}`}>
+          {cell.getValue() as string}
+        </TableCellLink>
+      );
+    },
   },
   {
     accessorKey: "supplier",
@@ -135,6 +143,15 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="SUPPLIER" />
     ),
+    cell: ({ cell, row }) => {
+      return (
+        <TableCellLink
+          href={`/dashboard/suppliers/${row.original.supplier._id}`}
+        >
+          {cell.getValue() as string}
+        </TableCellLink>
+      );
+    },
     enableSorting: false,
   },
 
