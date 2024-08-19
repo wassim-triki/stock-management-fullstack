@@ -1,38 +1,38 @@
-// PdfPreviewer.tsx (Client-Side Component)
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { Send } from "lucide-react";
-import config from "@/lib/config";
+import { FileDown, Send } from "lucide-react";
 import { toast } from "./ui/use-toast";
 import { ApiSuccessResponse } from "@/lib/types";
+import { fetchPurchaseOrderPdf, sendPurchaseOrder } from "@/api/purchase-order";
+import config from "@/lib/config";
+import { useRouter } from "next/navigation";
+import Loading from "@/app/(main)/dashboard/loading";
 
 type PdfPreviewerProps = {
-  endpoint: string;
   filename: string;
-  sendEndpoint: string;
+  id: string;
 };
 
-const PdfPreviewer = ({
-  endpoint,
-  filename,
-  sendEndpoint,
-}: PdfPreviewerProps) => {
+const PurchaseOrderPreview = ({ filename, id }: PdfPreviewerProps) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null); // Store the blob for downloading
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [sending, setSending] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchPdfPreview = async () => {
       try {
-        const response = await fetch(`${endpoint}`, {
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `${config.apiUrl}/api/purchase-orders/${id}/print`,
+          {
+            headers: {
+              "Content-Type": "application/pdf",
+            },
+            credentials: "include",
           },
-          credentials: "include",
-        });
+        );
 
         const blob = await response.blob();
         setPdfBlob(blob); // Store blob for download
@@ -51,8 +51,7 @@ const PdfPreviewer = ({
         URL.revokeObjectURL(pdfUrl);
       }
     };
-  }, [endpoint]);
-
+  }, [id]);
   const handleDownload = () => {
     if (pdfBlob) {
       const link = document.createElement("a");
@@ -64,28 +63,22 @@ const PdfPreviewer = ({
     }
   };
 
-  const sendPdf = async (url: string): Promise<ApiSuccessResponse> => {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-    return res.json() as Promise<ApiSuccessResponse>;
-  };
-
   const handleSend = async () => {
     try {
       setSending(true);
-      const response = await sendPdf(sendEndpoint);
+      const response = await sendPurchaseOrder(id); // Call the injected send action
       toast({
         variant: "success",
         title: "Done!",
         description: response.message,
       });
+      router.push("/dashboard/purchase-orders");
     } catch (error) {
       console.log(error);
+      toast({
+        variant: "destructive",
+        title: "Failed to send",
+      });
     } finally {
       setSending(false);
     }
@@ -102,7 +95,12 @@ const PdfPreviewer = ({
             title="PDF Preview"
           ></iframe>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleDownload} className="">
+            <Button
+              className="flex w-full gap-2 md:w-min"
+              variant="outline"
+              onClick={handleDownload}
+            >
+              <FileDown className="h-4 w-4" />
               Download PDF
             </Button>
             <Button
@@ -117,10 +115,10 @@ const PdfPreviewer = ({
           </div>
         </>
       ) : (
-        <p>Loading PDF...</p>
+        <Loading />
       )}
     </>
   );
 };
 
-export default PdfPreviewer;
+export default PurchaseOrderPreview;

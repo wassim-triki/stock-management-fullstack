@@ -12,7 +12,6 @@ import Router from "next/router";
 import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import {
-  ActionItem,
   ActionSubmenuItem,
   DataTableRowActions,
 } from "@/components/data-table/data-table-row-actions";
@@ -41,8 +40,9 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { AlertModal } from "@/components/modal/alert-modal";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useModal } from "@/providers/modal-provider";
+import Link from "next/link";
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     id: "select",
@@ -174,23 +174,28 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const sendAction: ActionItem = {
-        label: "Send",
-        element: "link",
-        href: `/dashboard/purchase-orders/print/${row.original._id}`,
-        icon: Send,
-      };
+      const [loading, setLoading] = useState(false);
       return (
         <>
           <DataTableRowActions
+            loading={loading}
+            setLoading={setLoading}
             deleteFunction={deletePurchaseOrder}
-            actionItems={[sendAction]}
             editUrl={`/dashboard/purchase-orders/${row.original._id}`}
             row={row}
           >
             <DropdownMenuSeparator />
-            {renderPOStatusList(row)}
+            {renderPOStatusList(row, setLoading)}
             <DropdownMenuSeparator />
+            <DropdownMenuItem key="send">
+              <Send className="mr-2 h-4 w-4" />
+              <Link
+                className="flex w-full items-center"
+                href={`/dashboard/purchase-orders/print/${row.original._id}`}
+              >
+                Send
+              </Link>
+            </DropdownMenuItem>
           </DataTableRowActions>
         </>
       );
@@ -198,19 +203,32 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   },
 ];
 
-const renderPOStatusList = (row: Row<PurchaseOrder>) => {
+const renderPOStatusList = (
+  row: Row<PurchaseOrder>,
+  setLoading: Dispatch<SetStateAction<boolean>>,
+) => {
   const { showModal } = useModal();
   const handleStatusChange = async (status: string) => {
     const oldStatus = row.original.status;
     if (status === oldStatus) return;
-    const res = await updatePurchaseOrder({
-      id: row.original._id,
-      data: { status },
-    });
-    toast({
-      variant: "success",
-      title: res.message,
-    });
+    setLoading(true);
+    try {
+      const res = await updatePurchaseOrder({
+        id: row.original._id,
+        data: { status },
+      });
+      toast({
+        variant: "success",
+        title: res.message,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: (error as ApiErrorResponse).message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -236,6 +254,7 @@ const renderPOStatusList = (row: Row<PurchaseOrder>) => {
       toast({
         variant: "success",
         title: res.message,
+        description: `Email sent to ${res.data.supplier.email}`,
       });
     } catch (error) {
       toast({
@@ -250,7 +269,7 @@ const renderPOStatusList = (row: Row<PurchaseOrder>) => {
       <DropdownMenuSub>
         <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
         <DropdownMenuSubContent>
-          <DropdownMenuRadioGroup value="Draft">
+          <DropdownMenuRadioGroup value={row.original.status}>
             <DropdownMenuRadioItem
               onClick={() => handleStatusChange("Draft")}
               value="Draft"

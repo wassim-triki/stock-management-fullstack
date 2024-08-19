@@ -160,8 +160,6 @@ export const getPurchaseOrderPreview = async (req: Request, res: Response) => {
     .populate('supplier')
     .populate('items.product');
 
-  console.log(purchaseOrder);
-
   if (!purchaseOrder) {
     throw new ErrorResponse(
       'Purchase order does not exist',
@@ -232,29 +230,15 @@ export const handleCancelOrder = async (req: Request, res: Response) => {
   }
 
   purchaseOrder.status = PO_STATUSES.CANCELED;
-  const doc = generatePDF('purchaseOrder', purchaseOrder);
-  const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
-    const buffers: Buffer[] = [];
-    doc.on('data', buffers.push.bind(buffers));
-    doc.on('end', () => resolve(Buffer.concat(buffers)));
-    doc.on('error', reject);
-  });
   await mailer.sendMail({
     to: purchaseOrder.supplier.email,
     subject: 'Cancel Purchase Order',
     text:
       'Please cancel the purchase order with order number:' +
       purchaseOrder.orderNumber,
-    attachments: [
-      {
-        filename: `purchase_order_${
-          purchaseOrder.orderNumber || 'preview'
-        }.pdf`,
-        content: pdfBuffer,
-        contentType: 'application/pdf',
-      },
-    ],
   });
   await purchaseOrder.save();
-  res.status(200).json(new SuccessResponse('Purchase Order cancelled'));
+  res
+    .status(200)
+    .json(new SuccessResponse('Purchase Order cancelled', purchaseOrder));
 };

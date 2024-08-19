@@ -12,6 +12,7 @@ import { buildQueryParamsString } from "@/lib/utils";
 import config from "@/lib/config";
 import { PurchaseOrderFormValues } from "@/components/forms/purchase-order-form";
 import { revalidateTag } from "next/cache";
+import fetchPDFHelper from "@/lib/fetchPDFHelper";
 
 export const getPurchaseOrders = async (
   queryParams?: QueryParams,
@@ -85,4 +86,21 @@ export const cancelPurchaseOrder = async (
   return await fetchHelper(`/api/purchase-orders/${id}/cancel`, {
     method: "POST",
   });
+};
+
+// Send purchase order action
+export const sendPurchaseOrder = async (
+  id: string,
+): Promise<ApiSuccessResponse<PurchaseOrder>> => {
+  revalidateTag("purchase-orders");
+  return await fetchHelper(`/api/purchase-orders/${id}/send`, {
+    method: "POST",
+  });
+};
+
+// Fetch PDF for purchase order preview
+export const fetchPurchaseOrderPdf = async (id: string): Promise<Blob> => {
+  revalidateTag("purchase-orders");
+  const response = await fetchPDFHelper(`/api/purchase-orders/${id}/print`);
+  return response;
 };
