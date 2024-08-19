@@ -129,18 +129,24 @@ export const updatePurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  const purchaseOrder = await PurchaseOrder.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
+  const purchaseOrder = await PurchaseOrder.findById(req.params.id);
   if (!purchaseOrder) {
-    return next(new ErrorResponse('Purchase Order not found', 404));
+    throw new ErrorResponse('Purchase Order not found', 404);
   }
+  const orderPending = purchaseOrder.status === PO_STATUSES.PENDING;
+  const cancelingOrder = req.body.status === PO_STATUSES.CANCELED;
+  if (orderPending && cancelingOrder) {
+    purchaseOrder.status = PO_STATUSES.CANCELED;
+    await purchaseOrder.save();
+    return res
+      .status(200)
+      .json(new SuccessResponse('Purchase Order cancelled'));
+  }
+
+  await PurchaseOrder.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
   res
     .status(200)

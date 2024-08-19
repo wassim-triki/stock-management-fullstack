@@ -31,6 +31,7 @@ import { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/constants";
 import { loginUser } from "@/api/auth";
+import { Button } from "./ui/button";
 export interface ILoginForm {
   email: string;
   password: string;
@@ -114,7 +115,7 @@ function Login() {
                 <FormControl>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <FormLabel>Password*</FormLabel>
+                      <FormLabel>Password</FormLabel>
                     </div>
                     <Input type="password" {...field} />
                   </div>
@@ -124,7 +125,7 @@ function Login() {
             )}
           />
           {isError && <AlertDestructive error={error?.message} />}
-          <SubmitButton loading={isLoggingIn}>Login</SubmitButton>
+          <Button loading={isLoggingIn}>Login</Button>
         </form>
       </Form>
       <div className="text-center text-sm">

@@ -42,10 +42,10 @@ export const PO_STATUSES = [
     name: "Received",
     icon: CheckCircledIcon,
   },
-  // {
-  //   name: "Canceled",
-  //   icon: CrossCircledIcon,
-  // },
+  {
+    name: "Canceled",
+    icon: CrossCircledIcon,
+  },
 ];
 
 export const ROLES = [

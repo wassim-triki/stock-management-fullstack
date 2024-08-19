@@ -10,5 +10,6 @@ export enum PO_STATUSES {
   PENDING = 'Pending',
   ACCEPTED = 'Accepted',
   RECEIVED = 'Received',
+  CANCELED = 'Canceled',
 }
 export type Role = (typeof ROLES)[keyof typeof ROLES];

@@ -16,7 +16,7 @@ const getSpinnerColor = (variant: string, theme: string) => {
     ghost: theme === "dark" ? "#ffffff" : "#000000", // White spinner in dark mode
     link: theme === "dark" ? "#ffffff" : "#000000", // White spinner in dark mode
   };
-  return colors[variant] || colors.default;
+  return colors[variant] || (colors.default as string);
 };
 
 const buttonVariants = cva(
@@ -72,6 +72,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const Comp = asChild ? Slot : "button";
     const { theme } = useTheme(); // Get the current theme (light or dark)
+    console.log(theme, variant);
     const spinnerCol = variant === null ? "" : variant;
     return (
       <Comp

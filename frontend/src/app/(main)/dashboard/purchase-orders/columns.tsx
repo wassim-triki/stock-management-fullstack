@@ -16,6 +16,7 @@ import { deleteProduct } from "@/api/product";
 import { PO_STATUSES } from "@/lib/constants";
 import { deletePurchaseOrder, updatePurchaseOrder } from "@/api/purchase-order";
 import { Send } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
@@ -151,11 +152,20 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
       const items: ActionSubmenuItem[] = PO_STATUSES.map((status) => ({
         label: status.name,
         value: status.name,
-        onClick: () =>
-          updatePurchaseOrder({
-            id: row.original._id,
-            data: { status: status.name },
-          }),
+        onClick: async () => {
+          try {
+            const res = await updatePurchaseOrder({
+              id: row.original._id,
+              data: { status: status.name },
+            });
+            toast({
+              variant: "success",
+              title: res.message,
+            });
+          } catch (error) {
+            throw error;
+          }
+        },
       }));
       const defaultItem = items.find(
         (item) => item.value === row.original.status,

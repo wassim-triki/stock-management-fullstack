@@ -4,7 +4,7 @@ import * as React from "react";
 
 const Spinner: React.FC<{
   size?: string;
-  color?: string;
+  color: string;
   width?: string;
 }> = ({
   size = "24px", // Default size
@@ -14,11 +14,7 @@ const Spinner: React.FC<{
   const { theme } = useTheme(); // Get the current theme (light or dark)
 
   // Set the spinner color based on the theme or custom color
-  const spinnerColor = color
-    ? color
-    : theme === "dark"
-      ? "#ffffff" // White in dark mode
-      : "#000000"; // Black in light mode
+  const spinnerColor = color;
 
   return (
     <svg
