@@ -242,3 +242,26 @@ export const handleCancelOrder = async (req: Request, res: Response) => {
     .status(200)
     .json(new SuccessResponse('Purchase Order cancelled', purchaseOrder));
 };
+
+export const handleAddToStock = async (req: Request, res: Response) => {
+  const purchaseOrder = await PurchaseOrder.findById(req.body.id).populate(
+    'items.product'
+  );
+  if (!purchaseOrder) {
+    throw new ErrorResponse('Purchase Order not found', 404);
+  }
+
+  for (const item of purchaseOrder.items) {
+    const product = await Product.findById(item.product);
+    if (!product) {
+      throw new ErrorResponse('Product not found', 404);
+    }
+    //TODO: + quantityReceived
+    product.quantityInStock += item.quantity;
+    await product.save();
+  }
+
+  purchaseOrder.status = PO_STATUSES.RECEIVED;
+  await purchaseOrder.save();
+  res.status(200).json(new SuccessResponse('Stock updated successfully'));
+};

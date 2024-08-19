@@ -104,3 +104,11 @@ export const fetchPurchaseOrderPdf = async (id: string): Promise<Blob> => {
   const response = await fetchPDFHelper(`/api/purchase-orders/${id}/print`);
   return response;
 };
+
+export const addToStock = async (id: string): Promise<ApiSuccessResponse> => {
+  revalidateTag("purchase-orders");
+  return await fetchHelper(`/api/purchase-orders/add-to-stock`, {
+    method: "POST",
+    body: JSON.stringify({ id }),
+  });
+};

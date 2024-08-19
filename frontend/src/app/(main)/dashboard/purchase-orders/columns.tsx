@@ -19,6 +19,7 @@ import { formatDate, timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
 import { PO_STATUSES, POStatusListItem } from "@/lib/constants";
 import {
+  addToStock,
   cancelPurchaseOrder,
   deletePurchaseOrder,
   sendPurchaseOrder,
@@ -230,6 +231,24 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
           setLoading(false);
         }
       };
+
+      const handleAddToStock = async () => {
+        setLoading(true);
+        try {
+          const res = await addToStock(row.original._id);
+          toast({
+            variant: "success",
+            title: res.message,
+          });
+        } catch (error) {
+          toast({
+            variant: "destructive",
+            title: (error as ApiErrorResponse).message,
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
       return (
         <>
           <DataTableRowActions
@@ -254,7 +273,10 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
                 View PDF
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleAddToStock}
+              disabled={oldStatus === "Received"}
+            >
               <PackageCheck className="mr-2 h-4 w-4" />
               Add to stock
             </DropdownMenuItem>

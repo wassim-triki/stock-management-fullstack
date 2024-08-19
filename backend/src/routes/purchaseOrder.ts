@@ -10,6 +10,7 @@ import {
   handleCancelOrder,
   sendPurchaseOrder,
   updatePurchaseOrder,
+  handleAddToStock,
 } from '../controllers/purchaseOrder';
 import { authorizeRoles } from '../middleware/authorizeRoles';
 import { authHandler } from '../middleware/authHandler';
@@ -67,5 +68,10 @@ router.post(
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
   handleCancelOrder
 );
-
+router.post(
+  '/add-to-stock',
+  authHandler,
+  authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
+  handleAddToStock
+);
 export default router;
