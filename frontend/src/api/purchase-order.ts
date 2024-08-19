@@ -65,6 +65,7 @@ export const updatePurchaseOrder = async ({
 export const deletePurchaseOrder = async (
   purchaseOrderId: string,
 ): Promise<ApiSuccessResponse<PurchaseOrder>> => {
+  revalidateTag("purchase-orders");
   return await fetchHelper(`/api/purchase-orders/${purchaseOrderId}`, {
     method: "DELETE",
   });
@@ -76,12 +77,12 @@ export const getTotalPurchaseOrders = async (): Promise<number> => {
   );
   return response.data.total;
 };
-//sendPurcahseOrder
-export const sendPurchaseOrder = async (
+
+export const cancelPurchaseOrder = async (
   id: string,
-): Promise<ApiSuccessResponse> => {
-  return await fetchHelper(`/api/purchase-orders/send`, {
+): Promise<ApiSuccessResponse<PurchaseOrder>> => {
+  revalidateTag("purchase-orders");
+  return await fetchHelper(`/api/purchase-orders/${id}/cancel`, {
     method: "POST",
-    body: JSON.stringify({ id }),
   });
 };

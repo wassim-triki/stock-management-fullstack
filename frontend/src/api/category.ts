@@ -8,6 +8,7 @@ import {
 } from "@/lib/types";
 import fetchHelper from "@/lib/fetchInstance";
 import { buildQueryParamsString } from "@/lib/utils";
+import { revalidateTag } from "next/cache";
 
 export const getCategories = async (
   queryParams?: QueryParams,
@@ -18,6 +19,9 @@ export const getCategories = async (
 
   const response: ApiSuccessResponseList<Category> = await fetchHelper(
     `/api/categories?${queryParamsStr}`,
+    {
+      next: { tags: ["categories"] },
+    },
   );
 
   return response.data.items;
@@ -34,6 +38,7 @@ export const createCategory = async (data: {
   name: string;
   parentCategory: string | null;
 }): Promise<ApiSuccessResponse<Category>> => {
+  revalidateTag("categories");
   return await fetchHelper("/api/categories", {
     method: "POST",
     body: JSON.stringify(data),
@@ -50,6 +55,7 @@ export const updateCategory = async ({
     parentCategory: string | null;
   };
 }): Promise<ApiSuccessResponse<Category>> => {
+  revalidateTag("categories");
   return await fetchHelper(`/api/categories/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
@@ -59,6 +65,7 @@ export const updateCategory = async ({
 export const deleteCategory = async (
   categoryId: string,
 ): Promise<ApiSuccessResponse<Category>> => {
+  revalidateTag("categories");
   return await fetchHelper(`/api/categories/${categoryId}`, {
     method: "DELETE",
   });

@@ -7,6 +7,7 @@ import {
   getPurchaseOrderPreview,
   getPurchaseOrders,
   getTotalPurchaseOrders,
+  handleCancelOrder,
   sendPurchaseOrder,
   updatePurchaseOrder,
 } from '../controllers/purchaseOrder';
@@ -49,16 +50,22 @@ router.put(
 );
 
 router.get(
-  '/print/:id',
+  '/:id/print',
   authHandler,
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
   getPurchaseOrderPreview
 );
 router.post(
-  '/send/:id',
+  '/:id/send',
   authHandler,
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
   sendPurchaseOrder
+);
+router.post(
+  '/:id/cancel',
+  authHandler,
+  authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
+  handleCancelOrder
 );
 
 export default router;

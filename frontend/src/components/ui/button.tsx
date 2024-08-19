@@ -10,7 +10,7 @@ import { useTheme } from "next-themes"; // Import theme hook
 const getSpinnerColor = (variant: string, theme: string) => {
   const colors: { [key: string]: string } = {
     default: theme === "dark" ? "#000000" : "#ffffff", // White spinner in dark mode, black in light
-    destructive: theme === "dark" ? "#ffffff" : "#000000", // Same as default
+    destructive: theme === "dark" ? "#ffffff" : "#ffffff", // Same as default
     outline: theme === "dark" ? "#ffffff" : "#000000", // Same as default
     secondary: theme === "dark" ? "#ffffff" : "#000000", // White spinner in dark mode
     ghost: theme === "dark" ? "#ffffff" : "#000000", // White spinner in dark mode

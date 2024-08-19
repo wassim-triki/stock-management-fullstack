@@ -4,7 +4,8 @@ import {
   CrossCircledIcon,
   StopwatchIcon,
 } from "@radix-ui/react-icons";
-import { CircleDashedIcon } from "lucide-react";
+import { IconProps } from "@radix-ui/react-icons/dist/types";
+import { CircleDashedIcon, LucideIcon } from "lucide-react";
 
 export const queryKeys = {
   users: "users",
@@ -20,12 +21,8 @@ export const queryKeys = {
   totalPurchaseOrders: "totalPurchaseOrders",
 };
 
+export type POStatusListItem = { name: string; icon: React.FC<IconProps> };
 export const PO_STATUSES = [
-  // {
-  //   value: "backlog",
-  //   label: "Backlog",
-  //   icon: QuestionMarkCircledIcon,
-  // },
   {
     name: "Draft",
     icon: CircleDashedIcon,

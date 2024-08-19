@@ -5,6 +5,8 @@ import { GeistSans } from "geist/font/sans";
 import "../styles/globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import ReactQueryProvider from "@/providers/react-query-provider";
+import { Modal } from "@/components/ui/modal";
+import { ModalProvider } from "@/providers/modal-provider";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -15,7 +17,8 @@ export default function RootLayout({
       <body className={GeistSans.className}>
         <ReactQueryProvider>
           <ThemeProvider attribute="class" defaultTheme="light">
-            {children}
+            <div id="portal-root"></div>
+            <ModalProvider>{children}</ModalProvider>
             <Toaster />
           </ThemeProvider>
         </ReactQueryProvider>

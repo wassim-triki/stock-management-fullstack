@@ -1,8 +1,13 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { Product, PurchaseOrder } from "@/lib/types";
-import { ColumnDef } from "@tanstack/react-table";
+import {
+  ApiErrorResponse,
+  POStatus,
+  Product,
+  PurchaseOrder,
+} from "@/lib/types";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import Router from "next/router";
 import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
@@ -13,11 +18,31 @@ import {
 } from "@/components/data-table/data-table-row-actions";
 import { formatDate, timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
-import { PO_STATUSES } from "@/lib/constants";
-import { deletePurchaseOrder, updatePurchaseOrder } from "@/api/purchase-order";
-import { Send } from "lucide-react";
+import { PO_STATUSES, POStatusListItem } from "@/lib/constants";
+import {
+  cancelPurchaseOrder,
+  deletePurchaseOrder,
+  updatePurchaseOrder,
+} from "@/api/purchase-order";
+import { LucideFileSpreadsheet, Send } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuRadioItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuShortcut,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { AlertModal } from "@/components/modal/alert-modal";
+import { useEffect, useState } from "react";
+import { useModal } from "@/providers/modal-provider";
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     id: "select",
@@ -149,28 +174,6 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const items: ActionSubmenuItem[] = PO_STATUSES.map((status) => ({
-        label: status.name,
-        value: status.name,
-        onClick: async () => {
-          try {
-            const res = await updatePurchaseOrder({
-              id: row.original._id,
-              data: { status: status.name },
-            });
-            toast({
-              variant: "success",
-              title: res.message,
-            });
-          } catch (error) {
-            throw error;
-          }
-        },
-      }));
-      const defaultItem = items.find(
-        (item) => item.value === row.original.status,
-      ) || { label: "Pending", value: "Pending" };
-
       const sendAction: ActionItem = {
         label: "Send",
         element: "link",
@@ -178,20 +181,106 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
         icon: Send,
       };
       return (
-        <DataTableRowActions
-          deleteFunction={deletePurchaseOrder}
-          submenues={[
-            {
-              title: "Status",
-              items,
-              defaultItem,
-            },
-          ]}
-          actionItems={[sendAction]}
-          editUrl={`/dashboard/purchase-orders/${row.original._id}`}
-          row={row}
-        />
+        <>
+          <DataTableRowActions
+            deleteFunction={deletePurchaseOrder}
+            actionItems={[sendAction]}
+            editUrl={`/dashboard/purchase-orders/${row.original._id}`}
+            row={row}
+          >
+            <DropdownMenuSeparator />
+            {renderPOStatusList(row)}
+            <DropdownMenuSeparator />
+          </DataTableRowActions>
+        </>
       );
     },
   },
 ];
+
+const renderPOStatusList = (row: Row<PurchaseOrder>) => {
+  const { showModal } = useModal();
+  const handleStatusChange = async (status: string) => {
+    const oldStatus = row.original.status;
+    if (status === oldStatus) return;
+    const res = await updatePurchaseOrder({
+      id: row.original._id,
+      data: { status },
+    });
+    toast({
+      variant: "success",
+      title: res.message,
+    });
+  };
+
+  const handleCancel = () => {
+    if (row.original.status === "Canceled") return;
+    if (row.original.status !== "Pending") {
+      toast({
+        variant: "destructive",
+        title: `Cannot cancel ${row.original.status} purchase order.`,
+      });
+      return;
+    }
+    showModal(() => onConfirmCancel(row.original._id), {
+      title: "Cancel Purchase Order",
+      description: "Are you sure you want to cancel this purchase order?",
+      confirmText: "Yes, Cancel",
+      cancelText: "No, Keep",
+    });
+  };
+
+  const onConfirmCancel = async (orderId: string) => {
+    try {
+      const res = await cancelPurchaseOrder(orderId);
+      toast({
+        variant: "success",
+        title: res.message,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: (error as ApiErrorResponse).message,
+      });
+    }
+  };
+
+  return (
+    <>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+        <DropdownMenuSubContent>
+          <DropdownMenuRadioGroup value="Draft">
+            <DropdownMenuRadioItem
+              onClick={() => handleStatusChange("Draft")}
+              value="Draft"
+            >
+              Draft
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem
+              onClick={() => handleStatusChange("Pending")}
+              value="Pending"
+            >
+              Pending
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem
+              onClick={() => handleStatusChange("Accepted")}
+              value="Accepted"
+            >
+              Accepted
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem
+              onClick={() => handleStatusChange("Received")}
+              value="Received"
+            >
+              Received
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem onClick={handleCancel} value="Canceled">
+              Canceled
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
+    </>
+  );
+};

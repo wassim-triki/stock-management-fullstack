@@ -8,6 +8,7 @@ import {
 } from "@/lib/types";
 import fetchHelper from "@/lib/fetchInstance";
 import { buildQueryParamsString } from "@/lib/utils";
+import { revalidateTag } from "next/cache";
 
 export const getProducts = async (
   queryParams?: QueryParams,
@@ -18,6 +19,9 @@ export const getProducts = async (
 
   const response: ApiSuccessResponseList<Product> = await fetchHelper(
     `/api/products?${queryParamsStr.toString()}`,
+    {
+      next: { tags: ["products"] },
+    },
   );
 
   console.log("🤞🤞🤞");
@@ -39,6 +43,7 @@ export const createProduct = async (data: {
   supplier: string;
   quantityInStock: number;
 }): Promise<ApiSuccessResponse<Product>> => {
+  revalidateTag("products");
   return await fetchHelper("/api/products", {
     method: "POST",
     body: JSON.stringify(data),
@@ -58,6 +63,7 @@ export const updateProduct = async ({
     quantityInStock: number;
   };
 }): Promise<ApiSuccessResponse<Product>> => {
+  revalidateTag("products");
   return await fetchHelper(`/api/products/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
@@ -67,6 +73,7 @@ export const updateProduct = async ({
 export const deleteProduct = async (
   productId: string,
 ): Promise<ApiSuccessResponse<Product>> => {
+  revalidateTag("products");
   return await fetchHelper(`/api/products/${productId}`, {
     method: "DELETE",
   });

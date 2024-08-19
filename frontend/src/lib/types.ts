@@ -111,7 +111,12 @@ export type ApiSearchFilter = {
   noFilters?: boolean;
 };
 
-export type POStatus = "Pending" | "Accepted" | "Received";
+export type POStatus =
+  | "Pending"
+  | "Accepted"
+  | "Received"
+  | "Draft"
+  | "Canceled";
 
 export type PurchaseOrder = {
   _id: string;

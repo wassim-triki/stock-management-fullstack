@@ -19,13 +19,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ApiSuccessResponse } from "@/lib/types";
+import { ApiErrorResponse, ApiSuccessResponse } from "@/lib/types";
 import { useState } from "react";
 import { useToast } from "../ui/use-toast";
 import { AlertModal } from "../modal/alert-modal";
 import { Edit, LucideIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PO_STATUSES } from "@/lib/constants";
+import { useModal } from "@/providers/modal-provider";
 
 export type ActionSubmenuItem = {
   label: string;
@@ -50,6 +51,7 @@ interface DataTableRowActionsProps<TData> {
   deleteFunction: (id: string) => Promise<ApiSuccessResponse<TData>>;
   submenues?: ActionSubmenu[];
   actionItems?: any[];
+  children?: React.ReactNode;
 }
 
 export function DataTableRowActions<TData extends { _id: string }>({
@@ -58,31 +60,28 @@ export function DataTableRowActions<TData extends { _id: string }>({
   deleteFunction,
   submenues,
   actionItems,
+  children,
 }: DataTableRowActionsProps<TData>) {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const router = useRouter();
-  const onConfirm = async () => {
-    setLoading(true);
-    const res = await deleteFunction(row.original._id);
-    toast({
-      variant: "success",
-      title: res.message,
+  const { showModal } = useModal();
+  const handleDelete = async () => {
+    showModal(async () => {
+      try {
+        const res = await deleteFunction(row.original._id);
+        toast({
+          variant: "success",
+          title: res.message,
+        });
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: (error as ApiErrorResponse).message,
+        });
+      }
     });
-    setLoading(false);
-    setOpen(false);
-    router.refresh();
   };
-
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
-        loading={loading}
-      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -95,30 +94,7 @@ export function DataTableRowActions<TData extends { _id: string }>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          {submenues?.map((submenu) => (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>{submenu.title}</DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  <DropdownMenuRadioGroup value={submenu.defaultItem.value}>
-                    {submenu.items.map((item) => (
-                      <DropdownMenuRadioItem
-                        key={item.value}
-                        value={item.value}
-                        onClick={() => {
-                          item.onClick?.();
-                        }}
-                      >
-                        {item.label}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-              <DropdownMenuSeparator />
-            </>
-          ))}
+          {children}
           {actionItems?.map((item) => (
             <DropdownMenuItem key={item.label} onClick={item.onClick}>
               {item.icon && <item.icon className="mr-2 h-4 w-4" />}
@@ -137,10 +113,7 @@ export function DataTableRowActions<TData extends { _id: string }>({
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => setOpen(true)}
-          >
+          <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
             <Trash className="mr-2 h-4 w-4" /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

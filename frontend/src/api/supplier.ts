@@ -10,6 +10,7 @@ import {
 } from "@/lib/types";
 import { buildQueryParamsString } from "@/lib/utils";
 import { AxiosResponse } from "axios";
+import { revalidateTag } from "next/cache";
 
 export const getSuppliers = async (
   queryParams?: QueryParams,
@@ -20,6 +21,9 @@ export const getSuppliers = async (
 
   const response: ApiSuccessResponseList<Supplier> = await fetchHelper(
     `/api/suppliers?${queryParamsStr.toString()}`,
+    {
+      next: { tags: ["suppliers"] },
+    },
   );
   return response.data.items;
 };
@@ -38,6 +42,7 @@ export const updateSupplier = async ({
   id: string;
   data: Partial<Supplier>;
 }): Promise<ApiSuccessResponse<Supplier>> => {
+  revalidateTag("suppliers");
   return await fetchHelper(`/api/suppliers/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
@@ -55,6 +60,7 @@ export const getTotalSuppliers = async (): Promise<number> => {
 export const deleteSupplier = async (
   supplierId: string,
 ): Promise<ApiSuccessResponse<Supplier>> => {
+  revalidateTag("suppliers");
   return await fetchHelper(`/api/suppliers/${supplierId}`, {
     method: "DELETE",
   });
@@ -63,6 +69,7 @@ export const deleteSupplier = async (
 export const createSupplier = async (
   data: Partial<Supplier>,
 ): Promise<ApiSuccessResponse<Supplier>> => {
+  revalidateTag("suppliers");
   return await fetchHelper("/api/suppliers", {
     method: "POST",
     body: JSON.stringify(data),

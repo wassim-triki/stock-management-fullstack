@@ -219,3 +219,42 @@ export const sendPurchaseOrder = async (req: Request, res: Response) => {
     .status(200)
     .json(new SuccessResponse('Email sent to' + purchaseOrder.supplier.email));
 };
+
+export const handleCancelOrder = async (req: Request, res: Response) => {
+  const purchaseOrder = await PurchaseOrder.findById(req.params.id)
+    .populate('supplier')
+    .populate('items.product');
+  if (!purchaseOrder) {
+    throw new ErrorResponse('Purchase Order not found', 404);
+  }
+  if (purchaseOrder.status !== PO_STATUSES.PENDING) {
+    throw new ErrorResponse(`Cannot cancel ${purchaseOrder.status} order`, 400);
+  }
+
+  purchaseOrder.status = PO_STATUSES.CANCELED;
+  const doc = generatePDF('purchaseOrder', purchaseOrder);
+  const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
+    const buffers: Buffer[] = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+    doc.on('error', reject);
+  });
+  await mailer.sendMail({
+    to: purchaseOrder.supplier.email,
+    subject: 'Cancel Purchase Order',
+    text:
+      'Please cancel the purchase order with order number:' +
+      purchaseOrder.orderNumber,
+    attachments: [
+      {
+        filename: `purchase_order_${
+          purchaseOrder.orderNumber || 'preview'
+        }.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      },
+    ],
+  });
+  await purchaseOrder.save();
+  res.status(200).json(new SuccessResponse('Purchase Order cancelled'));
+};

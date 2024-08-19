@@ -21,7 +21,7 @@ export default async function Page({ params }: Props) {
   const { orderNumber } = await getPurchaseOrderById(purchaseOrderId);
 
   // Define the endpoint for the purchase order PDF (could be dynamic)
-  const endpoint = `${config.apiUrl}/api/purchase-orders/print/${purchaseOrderId}`;
+  const endpoint = `${config.apiUrl}/api/purchase-orders/${purchaseOrderId}/print`;
 
   return (
     <ScrollArea className="h-full">
@@ -31,7 +31,7 @@ export default async function Page({ params }: Props) {
         <PdfPreviewer
           endpoint={endpoint}
           filename={`purchase_order_${orderNumber}.pdf`}
-          sendEndpoint={`${config.apiUrl}/api/purchase-orders/send/${purchaseOrderId}`}
+          sendEndpoint={`${config.apiUrl}/api/purchase-orders/${purchaseOrderId}/send`}
         />
       </div>
     </ScrollArea>
