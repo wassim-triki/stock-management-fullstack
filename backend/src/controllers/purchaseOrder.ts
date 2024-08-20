@@ -1,6 +1,10 @@
 // controllers/purchaseOrderController.ts
 import { Request, Response, NextFunction } from 'express';
-import { getNextOrderNumber, PurchaseOrder } from '../models/PurchaseOrder';
+import {
+  getNextOrderNumber,
+  PO_STATUSES,
+  PurchaseOrder,
+} from '../models/PurchaseOrder';
 import {
   ErrorResponse,
   HttpCode,
@@ -13,7 +17,6 @@ import { generatePDF } from '../services/pdfService';
 import { Supplier } from '../models/Supplier';
 import { Product } from '../models/Product';
 import mailer from '../services/mailer';
-import { PO_STATUSES } from '../utils/constants';
 
 export type QueryParams = {
   limit?: string;

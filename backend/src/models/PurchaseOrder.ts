@@ -1,8 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IProduct, IPurchaseOrder, ISupplier } from '../types/types';
-import { PO_STATUSES } from '../utils/constants';
-import { max, min } from 'moment';
-
+export enum PO_STATUSES {
+  DRAFT = 'Draft',
+  PENDING = 'Pending',
+  ACCEPTED = 'Accepted',
+  RECEIVED = 'Received',
+  CANCELED = 'Canceled',
+}
 const PurchaseOrderSchema: Schema = new Schema(
   {
     orderNumber: {
