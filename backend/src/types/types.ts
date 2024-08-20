@@ -165,3 +165,17 @@ export interface IProduct extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IDeliveryItem {
+  product: IProduct;
+  quantity: number;
+}
+export interface IDelivery {
+  purchaseOrder: IPurchaseOrder;
+  items: IDeliveryItem[];
+  date: Date;
+  note: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

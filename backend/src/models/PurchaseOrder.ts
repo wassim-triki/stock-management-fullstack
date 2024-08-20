@@ -6,6 +6,7 @@ export enum PO_STATUSES {
   ACCEPTED = 'Accepted',
   RECEIVED = 'Received',
   CANCELED = 'Canceled',
+  PARTIAL_DELIVERY = 'Partial Delivery',
 }
 const PurchaseOrderSchema: Schema = new Schema(
   {
@@ -25,7 +26,7 @@ const PurchaseOrderSchema: Schema = new Schema(
     status: {
       type: String,
       enum: PO_STATUSES,
-      default: 'Draft',
+      default: PO_STATUSES.DRAFT,
     },
     orderTotal: {
       type: Number,
