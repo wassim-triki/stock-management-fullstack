@@ -131,6 +131,8 @@ export type PurchaseOrder = {
     lineTotal: number;
   }[];
   orderTotal: number;
+  subTotal: number;
+  vat: number;
   createdAt: Date;
   updatedAt: Date;
 };

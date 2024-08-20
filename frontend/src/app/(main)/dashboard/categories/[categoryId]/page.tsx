@@ -14,7 +14,7 @@ import { CategoryForm } from "@/components/forms/category-form";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Categories", link: "/dashboard/stock/categories" },
+  { title: "Categories", link: "/dashboard/categories" },
   { title: "Edit", link: "" },
 ];
 

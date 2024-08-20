@@ -45,6 +45,7 @@ import Link from "next/link";
 import { SingleDatePicker } from "../ui/single-date-picker";
 import fetchHelper from "@/lib/fetchInstance";
 import config from "@/lib/config";
+import { DropdownMenuSeparator } from "../ui/dropdown-menu";
 
 const formSchema = z.object({
   status: z.string().min(1, { message: "Status is required" }),
@@ -76,7 +77,19 @@ const formSchema = z.object({
       lineTotal: z.string(),
     }),
   ),
+  subTotal: z.string(),
   orderTotal: z.string(),
+  vat: z
+    .string()
+    .min(1, { message: "VAT must be a positive number" })
+    .refine(
+      (val) => {
+        const num = parseInt(val, 10);
+        return !isNaN(num) && num >= 0;
+      },
+      { message: "VAT must be a positive number" },
+    ),
+  vatAmount: z.number().min(0, { message: "VAT must be a positive number" }),
 });
 
 export type PurchaseOrderFormValues = z.infer<typeof formSchema>;
@@ -90,7 +103,13 @@ interface PurchaseOrderFormProps {
   products: Product[];
   initPurchaseOrder?: PurchaseOrder;
 }
+const getTotalAfterVAT = (subTotal: number, vatPercentage: number) => {
+  return subTotal + subTotal * (vatPercentage / 100);
+};
 
+const getVATAmount = (subTotal: number, vatPercentage: number) => {
+  return subTotal * (vatPercentage / 100);
+};
 export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   title,
   description,
@@ -103,7 +122,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState("");
   const initialData: PurchaseOrderFormValues = {
     status: initPurchaseOrder?.status || "Draft",
     supplier: initPurchaseOrder?.supplier?._id || "",
@@ -111,6 +129,12 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       ? new Date(initPurchaseOrder.orderDate)
       : new Date(),
     orderTotal: initPurchaseOrder?.orderTotal?.toString() || "0",
+    subTotal: initPurchaseOrder?.subTotal?.toString() || "0",
+    vat: initPurchaseOrder?.vat?.toString() || "0",
+    vatAmount: getVATAmount(
+      initPurchaseOrder?.subTotal || 0,
+      initPurchaseOrder?.vat || 0,
+    ),
     items: initPurchaseOrder?.items.map((item) => ({
       product: item.product?._id,
       quantity: item.quantity.toString(),
@@ -135,12 +159,16 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     name: "items",
   });
 
-  useEffect(() => {
-    console.log(form.formState.isDirty);
-  }, [form.formState.isDirty]);
+  const watchedVAT = useWatch({
+    control: form.control,
+    name: "vat",
+  });
+
   // Calculate lineTotal and orderTotal whenever quantity or price changes
   useEffect(() => {
-    let newOrderTotal = 0;
+    let newSubTotal = 0;
+
+    const vat = watchedVAT;
 
     watchedItems.forEach((item, index) => {
       const quantity = parseFloat(item.quantity || "0");
@@ -156,15 +184,16 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             shouldDirty: false,
           });
         }
-        newOrderTotal += lineTotal;
+
+        newSubTotal += lineTotal;
       }
     });
 
-    form.setValue("orderTotal", newOrderTotal.toFixed(2), {
-      shouldValidate: false,
-      shouldDirty: false,
-    });
-  }, [watchedItems, form]);
+    const newOrderTotal = getTotalAfterVAT(newSubTotal, Number(vat));
+    form.setValue("subTotal", newSubTotal.toFixed(2));
+    form.setValue("orderTotal", newOrderTotal.toFixed(2));
+    form.setValue("vatAmount", getVATAmount(newSubTotal, Number(vat)));
+  }, [watchedItems, watchedVAT, form]);
 
   const onSubmit = async (data: PurchaseOrderFormValues) => {
     setLoading(true);
@@ -178,7 +207,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           variant: "success",
           title: res.message,
         });
-        // router.push("/dashboard/purchase-orders");
       } else {
         const res = await createPurchaseOrder(data);
         toast({
@@ -186,8 +214,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           title: res.message,
           // description: "Email sent to " + res.data.supplier.email,
         });
-        router.push(`/dashboard/purchase-orders/${res.data._id}`);
       }
+      router.push("/dashboard/purchase-orders");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -315,21 +343,19 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                               placeholder="Select a supplier"
                             />
                           </SelectTrigger>
-
-                          <Link href={"/dashboard/suppliers/new"}>
-                            <Button
-                              className="flex items-center gap-2"
-                              variant="secondary"
-                            >
-                              <Plus className="h-4 w-4" />
-                              <span className="hidden sm:block">
-                                Add new supplier
-                              </span>
-                            </Button>
-                          </Link>
                         </div>
                       </FormControl>
                       <SelectContent>
+                        <Button variant={"link"}>
+                          <Link
+                            className="flex items-center gap-2"
+                            href={"/dashboard/suppliers/new"}
+                          >
+                            <Plus className="h-4 w-4" />
+                            Add a new supplier
+                          </Link>
+                        </Button>
+                        <DropdownMenuSeparator />
                         {suppliers.map((supplier) => (
                           <SelectItem key={supplier._id} value={supplier._id}>
                             {supplier.name}
@@ -346,15 +372,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
 
           <div className="space-y-8">
             <Separator />
-            <Button variant="secondary">
-              <Link
-                className="flex items-center gap-2"
-                href={"/dashboard/stock/products/new"}
-              >
-                <Plus className="h-4 w-4" />
-                Add a new product
-              </Link>
-            </Button>
             {fields.map((item, index) => (
               <div key={item.id} className="flex gap-4">
                 <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-4">
@@ -381,6 +398,17 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                             </div>
                           </FormControl>
                           <SelectContent>
+                            <Button variant={"link"}>
+                              <Link
+                                className="flex items-center gap-2"
+                                href={"/dashboard/products/new"}
+                              >
+                                <Plus className="h-4 w-4" />
+                                Add a new product
+                              </Link>
+                            </Button>
+                            <DropdownMenuSeparator />
+
                             {products.map((product) => (
                               <SelectItem key={product._id} value={product._id}>
                                 {product.name}
@@ -415,7 +443,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                     name={`items.${index}.unitPrice`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price</FormLabel>
+                        <FormLabel>Unit price</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -461,9 +489,91 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                 </div>
               </div>
             ))}
+            <Separator />
           </div>
 
           <div className="flex justify-between">
+            <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-4">
+              <FormField
+                control={form.control}
+                name={`subTotal`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subtotal</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        disabled
+                        placeholder="Subtotal"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`vat`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="">VAT (%) </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        // disabled
+                        placeholder="eg: 13%"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`vatAmount`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="">VAT amount </FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled
+                        type="number"
+                        // disabled
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`orderTotal`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Total</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        disabled
+                        placeholder="Order total"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="flex w-full gap-2 md:w-min">
+            <Button loading={loading} type="submit">
+              {action}
+            </Button>
             <Button
               onClick={() =>
                 append({
@@ -475,38 +585,13 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
               }
               type="button"
               variant="outline"
-              className="flex h-10 min-w-11 max-w-11 items-center justify-center p-0"
+              className="flex items-center gap-2"
             >
               <PackagePlus className="h-5 w-5" />
-            </Button>
-            <FormField
-              control={form.control}
-              name={`orderTotal`}
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
-                  <FormLabel className="w-fit">Total:</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="!m-0"
-                      type="number"
-                      disabled
-                      placeholder="Order total"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="flex w-full gap-2 md:w-min">
-            <Button loading={loading} type="submit">
-              {action}
+              Add product
             </Button>
             {initPurchaseOrder && (
               <Button
-                loading={loading}
                 className="flex w-full gap-2 md:w-min"
                 onClick={handlePrintAndSend}
                 variant={"outline"}
@@ -519,24 +604,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
           </div>
         </form>
       </Form>
-      {pdfUrl && (
-        <>
-          <iframe
-            src={pdfUrl}
-            width="100%"
-            height="500px"
-            title="PDF Preview"
-          ></iframe>
-          <Button
-            loading={loading}
-            className="flex w-full gap-2 md:w-min"
-            onClick={handlePrintAndSend}
-          >
-            <Send className="h-4 w-4" />
-            Send
-          </Button>
-        </>
-      )}
     </>
   );
 };

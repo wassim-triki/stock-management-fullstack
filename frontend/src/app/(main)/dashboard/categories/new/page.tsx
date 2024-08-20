@@ -8,7 +8,7 @@ import { QueryClient } from "@tanstack/react-query";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Categories", link: "/dashboard/stock/categories" },
+  { title: "Categories", link: "/dashboard/categories" },
   { title: "Create", link: "" },
 ];
 

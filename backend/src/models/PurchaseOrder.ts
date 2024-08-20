@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IProduct, IPurchaseOrder, ISupplier } from '../types/types';
 import { PO_STATUSES } from '../utils/constants';
+import { max, min } from 'moment';
 
 const PurchaseOrderSchema: Schema = new Schema(
   {
@@ -48,6 +49,12 @@ const PurchaseOrderSchema: Schema = new Schema(
         },
       },
     ],
+    vat: {
+      type: Number,
+      default: 0,
+      min: [0, 'VAT must be at least 0'],
+      max: [100, 'VAT must be at most 100'],
+    },
     createdAt: {
       type: Date,
       default: Date.now,

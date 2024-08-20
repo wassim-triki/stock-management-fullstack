@@ -13,7 +13,7 @@ import { DataTable } from "@/components/data-table/data-table";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Categories", link: "/dashboard/stock/categories" },
+  { title: "Categories", link: "/dashboard/categories" },
 ];
 
 type ParamsProps = {
@@ -57,7 +57,7 @@ export default async function Page({ searchParams }: ParamsProps) {
   return (
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
-      addNewLink="/dashboard/stock/categories/new"
+      addNewLink="/dashboard/categories/new"
       title={`Categories (${total})`}
       description="Manage categories"
     >

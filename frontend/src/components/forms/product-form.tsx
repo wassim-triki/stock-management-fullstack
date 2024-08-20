@@ -3,7 +3,7 @@ import * as z from "zod";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Trash } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,8 @@ import {
 } from "../ui/select";
 import { description } from "../admin-panel/charts/bar-graph";
 import { Textarea } from "../ui/textarea";
+import Link from "next/link";
+import { DropdownMenuSeparator } from "../ui/dropdown-menu";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Product name is required" }),
@@ -198,6 +200,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <Button variant={"link"}>
+                        <Link
+                          className="flex items-center gap-2"
+                          href={"/dashboard/categories/new"}
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add a new category
+                        </Link>
+                      </Button>
+                      <DropdownMenuSeparator />
                       {categories.map((category) => (
                         <SelectItem key={category._id} value={category._id}>
                           {category.name}
@@ -231,6 +243,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <Button variant={"link"}>
+                        <Link
+                          className="flex items-center gap-2"
+                          href={"/dashboard/suppliers/new"}
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add a new supplier
+                        </Link>
+                      </Button>
+                      <DropdownMenuSeparator />
                       {suppliers.map((supplier) => (
                         <SelectItem key={supplier._id} value={supplier._id}>
                           {supplier.name}

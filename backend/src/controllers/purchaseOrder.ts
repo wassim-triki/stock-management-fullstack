@@ -182,7 +182,6 @@ export const getPurchaseOrderPreview = async (req: Request, res: Response) => {
   // Pipe the PDF document directly to the response
   doc.pipe(res);
 };
-
 export const sendPurchaseOrder = async (req: Request, res: Response) => {
   const purchaseOrder = await PurchaseOrder.findById(req.params.id)
     .populate('supplier')
