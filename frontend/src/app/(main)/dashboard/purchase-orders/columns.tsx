@@ -29,6 +29,7 @@ import {
   FileText,
   LucideFileSpreadsheet,
   PackageCheck,
+  ScrollText,
   Send,
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
@@ -297,6 +298,15 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
             >
               <PackageCheck className="mr-2 h-4 w-4" />
               Add to stock
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={oldStatus !== "Received"}>
+              <Link
+                className="flex w-full items-center"
+                href={`/dashboard/suppliers/invoices/new?purchaseOrderId=${row.original._id}`}
+              >
+                <ScrollText className="mr-2 h-4 w-4" />
+                Create invoice
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

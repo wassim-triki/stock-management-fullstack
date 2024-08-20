@@ -69,6 +69,7 @@ interface SupplierInvoiceFormProps {
   action: string;
   supplierInvoiceId?: string | undefined;
   purchaseOrders: PurchaseOrder[];
+  purchaseOrder?: PurchaseOrder;
   initSupplierInvoice?: SupplierInvoice;
 }
 
@@ -78,6 +79,7 @@ export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
   action,
   supplierInvoiceId = "",
   purchaseOrders,
+  purchaseOrder,
   initSupplierInvoice,
 }) => {
   const router = useRouter();
@@ -86,12 +88,18 @@ export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
 
   const initialData: SupplierInvoiceFormValues = {
     invoiceNumber: initSupplierInvoice?.invoiceNumber || "",
-    purchaseOrder: initSupplierInvoice?.purchaseOrder?._id || "",
-    totalAmount: initSupplierInvoice?.totalAmount?.toString() || "0",
+    purchaseOrder:
+      purchaseOrder?._id || initSupplierInvoice?.purchaseOrder?._id || "",
+    totalAmount:
+      purchaseOrder?.orderTotal.toString() ||
+      initSupplierInvoice?.totalAmount?.toString() ||
+      "0",
     paidAmount: initSupplierInvoice?.paidAmount?.toString() || "0",
-    dueDate: initSupplierInvoice?.dueDate
-      ? new Date(initSupplierInvoice.dueDate)
-      : new Date(),
+    dueDate:
+      purchaseOrder?.orderDate ||
+      (initSupplierInvoice?.dueDate
+        ? new Date(initSupplierInvoice.dueDate)
+        : new Date()),
   };
 
   const form = useForm<SupplierInvoiceFormValues>({
