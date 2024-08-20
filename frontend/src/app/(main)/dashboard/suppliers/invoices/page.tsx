@@ -1,31 +1,23 @@
-import { ApiSearchFilter, PurchaseOrder, QueryParams } from "@/lib/types";
-import ContentPageLayout from "@/components/layouts/content-page-layout";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
-import { getTotalProducts } from "@/api/product";
-import {
-  getPurchaseOrders,
-  getTotalPurchaseOrders,
-} from "@/api/purchase-order";
+import { SupplierInvoice } from "@/lib/types";
 import { DataTable } from "@/components/data-table/data-table";
+import ContentPageLayout from "@/components/layouts/content-page-layout";
+import { getSuppliersInvoices } from "@/api/supplier-invoices";
 import { columns } from "./columns";
-import { PO_STATUSES } from "@/constants/po-statuses";
+import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
 
-const breadcrumbItems = [
-  { title: "Dashboard", link: "/dashboard" },
-  { title: "Purchase Order", link: "/dashboard/purchase-orders" },
-];
-
-type paramsProps = {
+type PageProps = {
   searchParams: {
     [key: string]: string | string[] | undefined;
   };
 };
 
-export default async function page({ searchParams }: paramsProps) {
+const breadcrumbItems = [
+  { title: "Dashboard", link: "/dashboard" },
+  { title: "Suppliers", link: "/dashboard/suppliers" },
+  { title: "Invoices", link: "/dashboard/suppliers/invoices" },
+];
+
+export default async function DemoPage({ searchParams }: PageProps) {
   const { page, per_page, sort, ...filters } = searchParams;
   // Number of items per page
   const limit = typeof per_page === "string" ? parseInt(per_page) : 5;
@@ -43,44 +35,45 @@ export default async function page({ searchParams }: paramsProps) {
   const [sortBy, order] =
     typeof sort === "string"
       ? (sort.split(".") as [
-          keyof PurchaseOrder | undefined,
+          keyof SupplierInvoice | undefined,
           "asc" | "desc" | undefined,
         ])
       : [];
 
-  const purchaseOrders = await getPurchaseOrders({
+  console.log({ offset, limit, sortBy, order, ...filters });
+  const data = await getSuppliersInvoices({
     offset,
     limit,
     sortBy,
     order,
     ...filters,
   });
-  const total = await getTotalPurchaseOrders();
+  const total = data.length;
   const pageCount = Math.ceil(total / limit);
-
+  console.log(data);
   return (
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
-      addNewLink="/dashboard/purchase-orders/new"
-      title={`Purchase Orders (${total})`}
-      description="Manage purchase orders"
+      addNewLink="/dashboard/suppliers/invoices/new"
+      title={`Supplier Invoices (${total})`}
+      description="Manage supplier invoices"
     >
       <DataTable
-        searchableColumns={[{ id: "orderNumber", title: "Order number" }]}
+        searchableColumns={[{ id: "invoiceNumber", title: "Invoice number" }]}
         filterableColumns={[
           {
-            id: "status",
-            title: "Status",
-            options: PO_STATUSES.map((status) => ({
-              label: status.name,
-              value: status.name,
+            id: "paymentStatus",
+            title: "Payment status",
+            options: Object.values(PAYMENT_STATUSES).map((status) => ({
+              label: status,
+              value: status,
               // icon: status.icon,
             })),
           },
         ]}
         columns={columns}
+        data={data}
         pageCount={pageCount}
-        data={purchaseOrders}
       />
     </ContentPageLayout>
   );

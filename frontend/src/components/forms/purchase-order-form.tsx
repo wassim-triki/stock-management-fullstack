@@ -32,8 +32,6 @@ import {
   Product,
   ApiErrorResponse,
 } from "@/lib/types";
-import SubmitButton from "../ui/submit-button";
-import { PO_STATUSES } from "@/lib/constants";
 import {
   Select,
   SelectContent,
@@ -46,6 +44,7 @@ import { SingleDatePicker } from "../ui/single-date-picker";
 import fetchHelper from "@/lib/fetchInstance";
 import config from "@/lib/config";
 import { DropdownMenuSeparator } from "../ui/dropdown-menu";
+import { PO_STATUSES } from "@/constants/po-statuses";
 
 const formSchema = z.object({
   status: z.string().min(1, { message: "Status is required" }),

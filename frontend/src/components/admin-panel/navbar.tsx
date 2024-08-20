@@ -6,8 +6,8 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/constants";
 import { getAuthUser } from "@/api/auth";
+import { queryKeys } from "@/constants/query-keys";
 
 interface NavbarProps {
   title?: string;

@@ -72,6 +72,7 @@ export const columns: ColumnDef<Product>[] = [
       const formatted = new Intl.NumberFormat("tn-TN", {
         style: "currency",
         currency: "TND",
+        maximumFractionDigits: 2,
       }).format(amount);
 
       return (

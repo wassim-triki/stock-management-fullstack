@@ -1,12 +1,8 @@
-import { getCategories, getCategoryById } from "@/api/category";
+import { getCategories } from "@/api/category";
 import { getSuppliers } from "@/api/supplier";
-import { CategoryForm } from "@/components/forms/category-form";
 import { ProductForm } from "@/components/forms/product-form";
-import { SupplierForm } from "@/components/forms/supplier-form";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { queryKeys } from "@/lib/constants";
-import { dehydrate, QueryClient } from "@tanstack/react-query";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },

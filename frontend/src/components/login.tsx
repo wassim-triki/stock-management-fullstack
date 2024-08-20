@@ -29,9 +29,9 @@ import { ToastAction } from "./ui/toast";
 import { ApiErrorResponse, ApiSuccessResponse } from "@/lib/types";
 import { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/constants";
 import { loginUser } from "@/api/auth";
 import { Button } from "./ui/button";
+import { queryKeys } from "@/constants/query-keys";
 export interface ILoginForm {
   email: string;
   password: string;

@@ -17,7 +17,6 @@ import {
 } from "@/components/data-table/data-table-row-actions";
 import { formatDate, timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
-import { PO_STATUSES, POStatusListItem } from "@/lib/constants";
 import {
   addToStock,
   cancelPurchaseOrder,
@@ -52,6 +51,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useModal } from "@/providers/modal-provider";
 import Link from "next/link";
 import TableCellLink from "@/components/ui/table-link";
+import { PO_STATUSES } from "@/constants/po-statuses";
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     id: "select",
@@ -176,6 +176,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
       const formatted = new Intl.NumberFormat("tn-TN", {
         style: "currency",
         currency: "TND",
+        maximumFractionDigits: 2,
       }).format(total);
 
       return (

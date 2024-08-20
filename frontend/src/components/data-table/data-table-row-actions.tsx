@@ -25,7 +25,6 @@ import { useToast } from "../ui/use-toast";
 import { AlertModal } from "../modal/alert-modal";
 import { Edit, LucideIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { PO_STATUSES } from "@/lib/constants";
 import { useModal } from "@/providers/modal-provider";
 import Spinner from "../spinner";
 
@@ -47,7 +46,7 @@ interface DataTableRowActionsProps<TData> {
   submenues?: ActionSubmenu[];
   children?: React.ReactNode;
   loading?: boolean;
-  setLoading: (value: boolean) => void;
+  setLoading?: (value: boolean) => void;
 }
 
 export function DataTableRowActions<TData extends { _id: string }>({
@@ -61,10 +60,12 @@ export function DataTableRowActions<TData extends { _id: string }>({
 }: DataTableRowActionsProps<TData>) {
   const { toast } = useToast();
   const { showModal } = useModal();
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const handleDelete = async () => {
     showModal(async () => {
       try {
-        setLoading(true);
+        setLoading && setLoading(true);
+        setDeleteLoading(true);
         const res = await deleteFunction(row.original._id);
         toast({
           variant: "success",
@@ -76,7 +77,8 @@ export function DataTableRowActions<TData extends { _id: string }>({
           title: (error as ApiErrorResponse).message,
         });
       } finally {
-        setLoading(false);
+        setDeleteLoading(false);
+        setLoading && setLoading(false);
       }
     });
   };
@@ -84,7 +86,7 @@ export function DataTableRowActions<TData extends { _id: string }>({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          {loading ? (
+          {loading || deleteLoading ? (
             <Spinner />
           ) : (
             <Button

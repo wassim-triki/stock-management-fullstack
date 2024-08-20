@@ -1,6 +1,8 @@
 import mongoose, { Document } from 'mongoose';
 import { Role } from '../utils/constants';
 import config from '../config/config';
+import { PaymentStatus } from '../models/SupplierInvoice';
+import { PO_STATUSES } from '../models/PurchaseOrder';
 
 // export class SuccessResponse<T> {
 //   success: boolean;
@@ -118,7 +120,7 @@ export interface IPurchaseOrder extends Document {
   orderNumber: string;
   supplier: ISupplier;
   orderDate: Date;
-  status: string;
+  status: PO_STATUSES;
   orderTotal: number;
   items: IPurchaseOrderItem[];
   createdAt: Date;
@@ -170,12 +172,14 @@ export interface IDeliveryItem {
   product: IProduct;
   quantity: number;
 }
-export interface IDelivery {
+export interface ISupplierInvoice {
+  invoiceNumber: string;
   purchaseOrder: IPurchaseOrder;
-  items: IDeliveryItem[];
-  date: Date;
-  note: string;
-  status: string;
+  totalAmount: number;
+  paidAmount: number;
+  paymentDate: Date;
+  paymentStatus: PaymentStatus;
+  dueDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }

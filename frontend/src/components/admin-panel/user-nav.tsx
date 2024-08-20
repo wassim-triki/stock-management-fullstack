@@ -27,7 +27,7 @@ import { useToast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/constants";
+import { queryKeys } from "@/constants/query-keys";
 
 export default function UserNav() {
   const { data } = useQuery({

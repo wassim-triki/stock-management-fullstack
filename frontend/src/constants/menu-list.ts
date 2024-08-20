@@ -57,7 +57,13 @@ export function getMenuList(pathname: string): Group[] {
           label: "Suppliers",
           active: pathname.includes("/suppliers"),
           icon: Truck,
-          submenus: [],
+          submenus: [
+            {
+              label: "Invoices",
+              href: "/dashboard/suppliers/invoices",
+              active: pathname.includes("/suppliers/invoices"),
+            },
+          ],
         },
         {
           href: "/dashboard/products",

@@ -142,3 +142,16 @@ export type QueryParams = {
   offset?: number;
   [key: string]: string | undefined | number;
 };
+
+export type SupplierInvoice = {
+  _id: string;
+  invoiceNumber: string;
+  purchaseOrder: PurchaseOrder;
+  totalAmount: number;
+  paidAmount: number;
+  paymentDate?: Date;
+  paymentStatus: string;
+  dueDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+};
