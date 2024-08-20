@@ -78,6 +78,34 @@ const generatePurchaseOrderTable = (
     subtotalPosition,
     '',
     '',
+    'Subtotal',
+    '',
+    `TND ${orderData.subTotal}`
+  );
+  generateTableRow(
+    doc,
+    subtotalPosition + 10,
+    '',
+    '',
+    'VAT %',
+    '',
+    `%${orderData.vat}`
+  );
+  generateTableRow(
+    doc,
+    subtotalPosition + 20,
+    '',
+    '',
+    'VAT',
+    '',
+    `TND ${orderData.subTotal * (orderData.vat / 100)}`
+  );
+
+  generateTableRow(
+    doc,
+    subtotalPosition + 40,
+    '',
+    '',
     'Order Total',
     '',
     `TND ${orderData.orderTotal}`

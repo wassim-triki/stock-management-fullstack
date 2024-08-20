@@ -55,6 +55,10 @@ const PurchaseOrderSchema: Schema = new Schema(
       min: [0, 'VAT must be at least 0'],
       max: [100, 'VAT must be at most 100'],
     },
+    subTotal: {
+      type: Number,
+      required: [true, 'Subtotal is required'],
+    },
     createdAt: {
       type: Date,
       default: Date.now,

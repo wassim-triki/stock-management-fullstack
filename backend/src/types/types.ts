@@ -123,6 +123,8 @@ export interface IPurchaseOrder extends Document {
   items: IPurchaseOrderItem[];
   createdAt: Date;
   updatedAt: Date;
+  vat: number;
+  subTotal: number;
 }
 export interface IPurchaseOrderItem {
   product: IProduct;
