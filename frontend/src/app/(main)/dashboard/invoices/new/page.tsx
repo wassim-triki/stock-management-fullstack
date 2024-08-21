@@ -7,9 +7,8 @@ import { SupplierInvoiceForm } from "@/components/forms/supplier-invoice-form";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
-  { title: "Invoices", link: "/dashboard/suppliers/invoices" },
-  { title: "Create", link: "/dashboard/suppliers/invoices/new" },
+  { title: "Invoices", link: "/dashboard/invoices" },
+  { title: "Create", link: "/dashboard/invoices/new" },
 ];
 
 type PageProps = {
@@ -33,8 +32,8 @@ export default async function Page({ searchParams }: PageProps) {
           purchaseOrders={purcahseOrders}
           purchaseOrder={purchaseOrder}
           action="Create"
-          description="Create a new supplier invoice"
-          title="Create Supplier Invoice"
+          description="Create a new invoice"
+          title="Create Invoice"
         />
       </div>
     </ScrollArea>

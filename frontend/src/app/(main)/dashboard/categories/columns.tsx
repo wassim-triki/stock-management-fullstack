@@ -62,7 +62,7 @@ export const columns: ColumnDef<Category>[] = [
       <DataTableColumnHeader column={column} title="PARENT CATEGORY" />
     ),
     cell: ({ cell }) => {
-      const formatted = (cell.getValue() as string) || "None";
+      const formatted = (cell.getValue() as string) || "N/A";
       return <span>{formatted}</span>;
     },
     enableSorting: false,

@@ -20,16 +20,15 @@ const SupplierSchema: Schema = new Schema(
       unique: true,
       lowercase: true,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User', // Reference to the manager who owns this product
+      required: true,
+    },
     phone: {
       type: String,
-      required: [true, 'Phone number is required'],
     },
-    address: {
-      street: { type: String, required: true },
-      city: { type: String, required: true },
-      state: { type: String, required: true },
-      zip: { type: String, required: true },
-    },
+    address: { type: String },
     createdAt: {
       type: Date,
       default: Date.now,

@@ -13,6 +13,11 @@ const ProductSchema: Schema = new Schema(
       ref: 'Category',
       required: true,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User', // Reference to the manager who owns this product
+      required: true,
+    },
     supplier: {
       type: Schema.Types.ObjectId,
       ref: 'Supplier',

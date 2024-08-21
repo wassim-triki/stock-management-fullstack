@@ -9,8 +9,7 @@ import React from "react";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
-  { title: "Invoices", link: "/dashboard/suppliers/invoices" },
+  { title: "Invoices", link: "/dashboard/invoices" },
   { title: "Edit", link: "" },
 ];
 
@@ -29,8 +28,8 @@ export default async function Page({ params }: PageProps) {
           purchaseOrders={purcahseOrders}
           initSupplierInvoice={invoice}
           action="Save changes"
-          description="Edit supplier invoice"
-          title="Edit Supplier Invoice"
+          description="Edit invoice"
+          title="Edit Invoice"
         />
       </div>
     </ScrollArea>

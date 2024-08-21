@@ -36,7 +36,6 @@ import {
 import SubmitButton from "../ui/submit-button";
 import { AlertModal } from "../modal/alert-modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/constants";
 import {
   Select,
   SelectContent,
@@ -325,9 +324,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           />
 
           <div className="w-full md:w-min">
-            <SubmitButton loading={loading} type="submit">
+            <Button loading={loading} type="submit">
               {action}
-            </SubmitButton>
+            </Button>
           </div>
         </form>
       </Form>

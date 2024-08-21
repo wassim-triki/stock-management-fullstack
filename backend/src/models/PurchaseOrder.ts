@@ -18,6 +18,11 @@ const PurchaseOrderSchema: Schema = new Schema(
       ref: 'Supplier',
       required: [true, 'Supplier is required'],
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User', // Reference to the manager who owns this product
+      required: true,
+    },
     orderDate: {
       type: Date,
       default: Date.now,
@@ -78,19 +83,24 @@ const PurchaseOrderSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export const getNextOrderNumber = async (): Promise<string> => {
-  const lastOrder = await PurchaseOrder.findOne().sort({ orderNumber: -1 });
+const generateRandomOrderNumber = (): string => {
+  // Random alphanumeric string of length 6-8
+  const randomPart = Math.random().toString(36).substring(2, 10).toUpperCase(); // Converts to base-36 string
+  const timestamp = Date.now().toString().slice(-6); // Last 6 digits of the current timestamp
 
-  const lastOrderNumber = lastOrder ? parseInt(lastOrder.orderNumber, 10) : 0;
-  const nextOrderNumber = (lastOrderNumber + 1).toString();
-
-  // Ensure the order number is padded to 6 digits with leading zeros
-  return nextOrderNumber.padStart(6, '0');
+  // Combine the random part and timestamp to form the order number
+  return `${randomPart}-${timestamp}`;
 };
 
 PurchaseOrderSchema.pre<IPurchaseOrder>('save', async function (next) {
   if (this.isNew) {
-    this.orderNumber = await getNextOrderNumber();
+    let newOrderNumber: string;
+
+    do {
+      newOrderNumber = generateRandomOrderNumber();
+    } while (await PurchaseOrder.exists({ orderNumber: newOrderNumber }));
+
+    this.orderNumber = newOrderNumber;
   }
   next();
 });

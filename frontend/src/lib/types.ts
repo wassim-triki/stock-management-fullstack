@@ -78,12 +78,7 @@ export type Supplier = {
   name: string;
   email: string;
   phone: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
+  address: string;
   createdAt: Date;
   updatedAt: Date;
   active: boolean;

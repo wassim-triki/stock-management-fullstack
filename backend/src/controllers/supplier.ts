@@ -1,11 +1,12 @@
-// controllers/supplier.ts
 import { Request, Response, NextFunction } from 'express';
 import { Supplier } from '../models/Supplier';
 import {
   ErrorResponse,
+  HttpCode,
   SuccessResponse,
   SuccessResponseList,
 } from '../types/types';
+import { ROLES } from '../models/User';
 
 // Get all suppliers
 export const getSuppliers = async (
@@ -13,29 +14,36 @@ export const getSuppliers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    offset = 0,
-    limit = 100,
-    sortBy = 'createdAt',
-    order = 'desc',
-    ...filters
-  } = req.query;
+  try {
+    const {
+      offset = 0,
+      limit = 100,
+      sortBy = 'createdAt',
+      order = 'desc',
+      ...filters
+    } = req.query;
 
-  const limitNum = parseInt(limit as string);
-  const offsetNum = parseInt(offset as string);
-  const sortOrder = order === 'desc' ? -1 : 1;
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+    const sortOrder = order === 'desc' ? -1 : 1;
 
-  const query: any = {};
-  if (filters.name) query.name = new RegExp(filters.name as string, 'i');
+    const query: any = {};
+    if (filters.name) query.name = new RegExp(filters.name as string, 'i');
 
-  const suppliers = await Supplier.find(query)
-    .sort({ [sortBy as string]: sortOrder })
-    .skip(offsetNum)
-    .limit(limitNum);
+    // Managers can only retrieve their own suppliers
+    if (req.user?.role === ROLES.MANAGER) query.user = req.user._id;
 
-  res
-    .status(200)
-    .json(new SuccessResponseList('Suppliers retrieved', suppliers));
+    const suppliers = await Supplier.find(query)
+      .sort({ [sortBy as string]: sortOrder })
+      .skip(offsetNum)
+      .limit(limitNum);
+
+    res
+      .status(200)
+      .json(new SuccessResponseList('Suppliers retrieved', suppliers));
+  } catch (error) {
+    next(new ErrorResponse('Failed to retrieve suppliers', 500));
+  }
 };
 
 // Get a single supplier by ID
@@ -44,11 +52,29 @@ export const getSupplierById = async (
   res: Response,
   next: NextFunction
 ) => {
-  const supplier = await Supplier.findById(req.params.id);
-  if (!supplier) {
-    return next(new ErrorResponse('Supplier not found', 404));
+  try {
+    const supplier = await Supplier.findById(req.params.id);
+    if (!supplier) {
+      return next(new ErrorResponse('Supplier not found', 404));
+    }
+
+    // Managers can only access their own suppliers
+    if (
+      req.user?.role === ROLES.MANAGER &&
+      supplier.user.toString() !== (req.user._id as string).toString()
+    ) {
+      return next(
+        new ErrorResponse(
+          'You are not authorized to access this resource',
+          HttpCode.UNAUTHORIZED
+        )
+      );
+    }
+
+    res.status(200).json(new SuccessResponse('Supplier retrieved', supplier));
+  } catch (error) {
+    next(new ErrorResponse('Failed to retrieve supplier', 500));
   }
-  res.status(200).json(new SuccessResponse('Supplier retrieved', supplier));
 };
 
 // Create a new supplier
@@ -57,20 +83,27 @@ export const createSupplier = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, email, phone, address } = req.body;
-  // Check if the email is already in use
-  const existingSupplier = await Supplier.findOne({ email });
-  if (existingSupplier) {
-    return next(new ErrorResponse('Email is already in use', 400));
-  }
+  try {
+    const { name, email, phone, address } = req.body;
 
-  const supplier = await Supplier.create({
-    name,
-    email,
-    phone,
-    address,
-  });
-  res.status(201).json(new SuccessResponse('Supplier created', supplier));
+    // Check if the email is already in use
+    const existingSupplier = await Supplier.findOne({ email });
+    if (existingSupplier) {
+      return next(new ErrorResponse('Email is already in use', 400));
+    }
+
+    const supplier = await Supplier.create({
+      name,
+      email,
+      phone,
+      address,
+      user: req.user?._id, // Associate the supplier with the manager creating it
+    });
+
+    res.status(201).json(new SuccessResponse('Supplier created', supplier));
+  } catch (error) {
+    next(new ErrorResponse('Failed to create supplier', 500));
+  }
 };
 
 // Update a supplier by ID
@@ -79,28 +112,52 @@ export const updateSupplier = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-  // Check if the email is already in use by another supplier
-  const existingSupplier = await Supplier.findOne({
-    email,
-    _id: { $ne: req.params.id },
-  });
+    // Check if the email is already in use by another supplier
+    const existingSupplier = await Supplier.findOne({
+      email,
+      _id: { $ne: req.params.id },
+    });
 
-  if (existingSupplier) {
-    return next(new ErrorResponse('Email is already in use', 400));
+    if (existingSupplier) {
+      return next(new ErrorResponse('Email is already in use', 400));
+    }
+
+    const supplier = await Supplier.findById(req.params.id);
+    if (!supplier) {
+      return next(new ErrorResponse('Supplier not found', 404));
+    }
+
+    // Managers can only update their own suppliers
+    if (
+      req.user?.role === ROLES.MANAGER &&
+      supplier.user.toString() !== (req.user._id as string).toString()
+    ) {
+      return next(
+        new ErrorResponse(
+          'You are not authorized to update this resource',
+          HttpCode.UNAUTHORIZED
+        )
+      );
+    }
+
+    const updatedSupplier = await Supplier.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    res
+      .status(200)
+      .json(new SuccessResponse('Supplier updated', updatedSupplier));
+  } catch (error) {
+    next(new ErrorResponse('Failed to update supplier', 500));
   }
-
-  const supplier = await Supplier.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!supplier) {
-    return next(new ErrorResponse('Supplier not found', 404));
-  }
-
-  res.status(200).json(new SuccessResponse('Supplier updated', supplier));
 };
 
 // Delete a supplier by ID
@@ -109,12 +166,31 @@ export const deleteSupplier = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log('🔵', req.params);
-  const supplier = await Supplier.findByIdAndDelete(req.params.id);
-  if (!supplier) {
-    return next(new ErrorResponse('Supplier not found', 404));
+  try {
+    const supplier = await Supplier.findById(req.params.id);
+    if (!supplier) {
+      return next(new ErrorResponse('Supplier not found', 404));
+    }
+
+    // Managers can only delete their own suppliers
+    if (
+      req.user?.role === ROLES.MANAGER &&
+      supplier.user.toString() !== (req.user._id as string).toString()
+    ) {
+      return next(
+        new ErrorResponse(
+          'You are not authorized to delete this resource',
+          HttpCode.UNAUTHORIZED
+        )
+      );
+    }
+
+    await supplier.deleteOne();
+
+    res.status(200).json(new SuccessResponse('Supplier deleted', supplier));
+  } catch (error) {
+    next(new ErrorResponse('Failed to delete supplier', 500));
   }
-  res.status(200).json(new SuccessResponse('Supplier deleted', supplier));
 };
 
 // Get total number of suppliers
@@ -123,10 +199,17 @@ export const getTotalSuppliers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const totalSuppliers = await Supplier.countDocuments();
-  res.status(200).json(
-    new SuccessResponse('Total suppliers retrieved', {
-      total: totalSuppliers,
-    })
-  );
+  try {
+    const query =
+      req.user?.role === ROLES.MANAGER ? { user: req.user?._id } : {};
+    const totalSuppliers = await Supplier.countDocuments(query);
+
+    res.status(200).json(
+      new SuccessResponse('Total suppliers retrieved', {
+        total: totalSuppliers,
+      })
+    );
+  } catch (error) {
+    next(new ErrorResponse('Failed to retrieve total suppliers', 500));
+  }
 };

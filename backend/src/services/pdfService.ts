@@ -159,12 +159,7 @@ function generatePurchaseOrderInformation(
     .text(orderData.supplier.email, 350, customerInformationTop + 15)
     .text(orderData.supplier.phone, 350, customerInformationTop + 30)
     .font('Helvetica')
-    .text(orderData.supplier.address.street, 350, customerInformationTop + 45)
-    .text(
-      orderData.supplier.address.city + ', ' + orderData.supplier.address.state,
-      350,
-      customerInformationTop + 60
-    )
+    .text(orderData.supplier.address, 350, customerInformationTop + 45)
     .moveDown();
 
   generateHr(doc, 285);

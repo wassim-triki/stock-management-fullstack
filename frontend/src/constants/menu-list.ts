@@ -13,6 +13,7 @@ import {
   Layers,
   Boxes,
   Truck,
+  ScrollText,
 } from "lucide-react";
 
 export type Submenu = {
@@ -57,13 +58,14 @@ export function getMenuList(pathname: string): Group[] {
           label: "Suppliers",
           active: pathname.includes("/suppliers"),
           icon: Truck,
-          submenus: [
-            {
-              label: "Invoices",
-              href: "/dashboard/suppliers/invoices",
-              active: pathname.includes("/suppliers/invoices"),
-            },
-          ],
+          submenus: [],
+        },
+        {
+          label: "Invoices",
+          href: "/dashboard/invoices",
+          active: pathname.includes("/invoices"),
+          icon: ScrollText,
+          submenus: [],
         },
         {
           href: "/dashboard/products",

@@ -14,6 +14,11 @@ const CategorySchema: Schema = new Schema(
       ref: 'Category',
       default: null,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User', // Reference to the manager who owns this product
+      required: true,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

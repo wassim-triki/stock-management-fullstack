@@ -20,6 +20,11 @@ const SupplierInvoiceSchema: Schema = new Schema(
       ref: 'PurchaseOrder',
       required: true,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User', // Reference to the manager who owns this product
+      required: true,
+    },
     totalAmount: {
       type: Number,
       required: true,

@@ -1,10 +1,6 @@
 // controllers/purchaseOrderController.ts
 import { Request, Response, NextFunction } from 'express';
-import {
-  getNextOrderNumber,
-  PO_STATUSES,
-  PurchaseOrder,
-} from '../models/PurchaseOrder';
+import { PO_STATUSES, PurchaseOrder } from '../models/PurchaseOrder';
 import {
   ErrorResponse,
   HttpCode,
@@ -17,6 +13,7 @@ import { generatePDF } from '../services/pdfService';
 import { Supplier } from '../models/Supplier';
 import { Product } from '../models/Product';
 import mailer from '../services/mailer';
+import { ROLES } from '../models/User';
 
 export type QueryParams = {
   limit?: string;
@@ -29,44 +26,63 @@ export const getPurchaseOrders = async (
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    offset = 0,
-    limit = 100,
-    sortBy = 'updatedAt',
-    order = 'desc',
-    ...filters
-  } = req.query;
+  try {
+    const {
+      offset = 0,
+      limit = 100,
+      sortBy = 'updatedAt',
+      order = 'desc',
+      ...filters
+    } = req.query;
 
-  const limitNum = parseInt(limit as string);
-  const offsetNum = parseInt(offset as string);
-  const sortOrder = order === 'desc' ? -1 : 1;
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+    const sortOrder = order === 'desc' ? -1 : 1;
 
-  const query: any = {};
-  if (filters.orderNumber)
-    query.orderNumber = new RegExp(filters.orderNumber as string, 'i');
+    const query: any = {};
+    if (filters.orderNumber)
+      query.orderNumber = new RegExp(filters.orderNumber as string, 'i');
 
-  const purchaseOrders = await PurchaseOrder.find(query)
-    .sort({ [sortBy as string]: sortOrder })
-    .skip(offsetNum)
-    .limit(limitNum)
-    .populate('supplier', 'name');
+    // Managers can only retrieve their own purchase orders
+    if (req.user?.role === ROLES.MANAGER) {
+      query.user = req.user._id;
+    }
 
-  res
-    .status(200)
-    .json(new SuccessResponseList('Purchase orders retrieved', purchaseOrders));
+    const purchaseOrders = await PurchaseOrder.find(query)
+      .sort({ [sortBy as string]: sortOrder })
+      .skip(offsetNum)
+      .limit(limitNum)
+      .populate('supplier', 'name');
+
+    res
+      .status(200)
+      .json(
+        new SuccessResponseList('Purchase orders retrieved', purchaseOrders)
+      );
+  } catch (error) {
+    next(new ErrorResponse('Failed to retrieve purchase orders', 500));
+  }
 };
+
 // Get total purchase orders
 export const getTotalPurchaseOrders = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const totalPurchaseOrders = await PurchaseOrder.countDocuments();
-  res.status(200).json(
-    new SuccessResponse('Total purchase orders retrieved', {
-      total: totalPurchaseOrders,
-    })
-  );
+  try {
+    const query =
+      req.user?.role === ROLES.MANAGER ? { user: req.user._id } : {};
+    const totalPurchaseOrders = await PurchaseOrder.countDocuments(query);
+
+    res.status(200).json(
+      new SuccessResponse('Total purchase orders retrieved', {
+        total: totalPurchaseOrders,
+      })
+    );
+  } catch (error) {
+    next(new ErrorResponse('Failed to retrieve total purchase orders', 500));
+  }
 };
 
 // Create a purchase order
@@ -75,10 +91,17 @@ export const createPurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  const purchaseOrder = await await PurchaseOrder.create(req.body);
-  res
-    .status(201)
-    .json(new SuccessResponse('Purchase Order created', purchaseOrder));
+  try {
+    const purchaseOrder = await PurchaseOrder.create({
+      ...req.body,
+      user: req.user?._id, // Assign the purchase order to the user creating it
+    });
+    res
+      .status(201)
+      .json(new SuccessResponse('Purchase Order created', purchaseOrder));
+  } catch (error) {
+    next(new ErrorResponse('Failed to create purchase order', 500));
+  }
 };
 
 // Delete a purchase order by ID
@@ -87,14 +110,33 @@ export const deletePurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  const purchaseOrder = await PurchaseOrder.findByIdAndDelete(req.params.id);
-  console.log(purchaseOrder, req.params);
-  if (!purchaseOrder) {
-    return next(new ErrorResponse('Purchase Order not found', 404));
+  try {
+    const purchaseOrder = await PurchaseOrder.findById(req.params.id);
+
+    if (!purchaseOrder) {
+      return next(new ErrorResponse('Purchase Order not found', 404));
+    }
+
+    // Managers can only delete their own purchase orders
+    if (
+      req.user?.role === ROLES.MANAGER &&
+      purchaseOrder.user.toString() !== (req.user._id as string).toString()
+    ) {
+      return next(
+        new ErrorResponse(
+          'You are not authorized to delete this order',
+          HttpCode.UNAUTHORIZED
+        )
+      );
+    }
+
+    await purchaseOrder.deleteOne();
+    res
+      .status(200)
+      .json(new SuccessResponse('Purchase Order deleted', purchaseOrder));
+  } catch (error) {
+    next(new ErrorResponse('Failed to delete purchase order', 500));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('Purchase Order deleted', purchaseOrder));
 };
 
 // Get a purchase order by ID
@@ -103,15 +145,34 @@ export const getPurchaseOrderById = async (
   res: Response,
   next: NextFunction
 ) => {
-  const purchaseOrder = await PurchaseOrder.findById(req.params.id).populate(
-    'supplier items.product'
-  );
-  if (!purchaseOrder) {
-    return next(new ErrorResponse('Purchase Order not found', 404));
+  try {
+    const purchaseOrder = await PurchaseOrder.findById(req.params.id)
+      .populate('supplier')
+      .populate('items.product');
+
+    if (!purchaseOrder) {
+      return next(new ErrorResponse('Purchase Order not found', 404));
+    }
+
+    // Managers can only access their own purchase orders
+    if (
+      req.user?.role === ROLES.MANAGER &&
+      purchaseOrder.user.toString() !== (req.user._id as string).toString()
+    ) {
+      return next(
+        new ErrorResponse(
+          'You are not authorized to access this resource',
+          HttpCode.UNAUTHORIZED
+        )
+      );
+    }
+
+    res
+      .status(200)
+      .json(new SuccessResponse('Purchase Order retrieved', purchaseOrder));
+  } catch (error) {
+    next(new ErrorResponse('Failed to retrieve purchase order', 500));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('Purchase Order retrieved', purchaseOrder));
 };
 
 // Update a purchase order by ID
@@ -120,26 +181,44 @@ export const updatePurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  const purchaseOrder = await PurchaseOrder.findById(req.params.id);
-  if (!purchaseOrder) {
-    throw new ErrorResponse('Purchase Order not found', 404);
-  }
-  const newStatus = req.body.status;
-  const orderPending = purchaseOrder.status === PO_STATUSES.PENDING;
-  const cancelingOrder = newStatus === PO_STATUSES.CANCELED;
-  if (orderPending && cancelingOrder) {
-    purchaseOrder.status = PO_STATUSES.CANCELED;
-  }
-  purchaseOrder.receiptDate =
-    newStatus === PO_STATUSES.RECEIVED ? new Date() : null;
+  try {
+    const purchaseOrder = await PurchaseOrder.findById(req.params.id);
+    if (!purchaseOrder) {
+      return next(new ErrorResponse('Purchase Order not found', 404));
+    }
 
-  await purchaseOrder.save({
-    validateBeforeSave: true,
-  });
+    // Managers can only update their own purchase orders
+    if (
+      req.user?.role === ROLES.MANAGER &&
+      purchaseOrder.user.toString() !== (req.user._id as string).toString()
+    ) {
+      return next(
+        new ErrorResponse(
+          'You are not authorized to update this order',
+          HttpCode.UNAUTHORIZED
+        )
+      );
+    }
 
-  res
-    .status(200)
-    .json(new SuccessResponse('Purchase Order updated', purchaseOrder));
+    const newStatus = req.body.status;
+    const orderPending = purchaseOrder.status === PO_STATUSES.PENDING;
+    const cancelingOrder = newStatus === PO_STATUSES.CANCELED;
+    if (orderPending && cancelingOrder) {
+      purchaseOrder.status = PO_STATUSES.CANCELED;
+    }
+    purchaseOrder.receiptDate =
+      newStatus === PO_STATUSES.RECEIVED ? new Date() : null;
+
+    await purchaseOrder.save({
+      validateBeforeSave: true,
+    });
+
+    res
+      .status(200)
+      .json(new SuccessResponse('Purchase Order updated', purchaseOrder));
+  } catch (error) {
+    next(new ErrorResponse('Failed to update purchase order', 500));
+  }
 };
 
 export const getPurchaseOrderPreview = async (req: Request, res: Response) => {

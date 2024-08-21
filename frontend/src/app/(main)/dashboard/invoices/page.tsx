@@ -16,8 +16,7 @@ type PageProps = {
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Suppliers", link: "/dashboard/suppliers" },
-  { title: "Invoices", link: "/dashboard/suppliers/invoices" },
+  { title: "Invoices", link: "/dashboard/invoices" },
 ];
 
 export default async function DemoPage({ searchParams }: PageProps) {
@@ -56,8 +55,8 @@ export default async function DemoPage({ searchParams }: PageProps) {
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
       addNewLink="/dashboard/suppliers/invoices/new"
-      title={`Supplier Invoices (${total})`}
-      description="Manage supplier invoices"
+      title={`Invoices (${total})`}
+      description="Manage invoices"
     >
       <DataTable
         searchableColumns={[{ id: "invoiceNumber", title: "Invoice number" }]}

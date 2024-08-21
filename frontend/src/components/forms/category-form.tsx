@@ -175,9 +175,9 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           <div></div>
 
           <div className="w-full md:w-min">
-            <SubmitButton loading={loading} type="submit">
+            <Button loading={loading} type="submit">
               {action}
-            </SubmitButton>
+            </Button>
           </div>
         </form>
       </Form>

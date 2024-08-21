@@ -28,16 +28,6 @@ import {
 } from "@/api/supplier";
 import { ApiErrorResponse, ApiSuccessResponse, Supplier } from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
-import { AlertModal } from "../modal/alert-modal";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/constants";
-
-const addressSchema = z.object({
-  street: z.string().min(1, { message: "" }),
-  city: z.string().min(1, { message: "" }),
-  state: z.string().min(1, { message: "" }),
-  zip: z.string().min(1, { message: "" }),
-});
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "" }),
@@ -45,8 +35,8 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "" })
     .email({ message: "Invalid email address" }),
-  phone: z.string().regex(/^\+216\d{8}$/, ""),
-  address: addressSchema,
+  phone: z.string().regex(/^$|^\d{8,14}$/, { message: "Invalid phone number" }),
+  address: z.string().optional(),
   active: z.boolean(),
 });
 
@@ -79,13 +69,8 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
         name: "",
         email: "",
         phone: "",
-        address: {
-          street: "",
-          city: "",
-          state: "",
-          zip: "",
-        },
-        active: false,
+        address: "",
+        active: true,
       };
 
   const form = useForm<SupplierFormValues>({
@@ -141,11 +126,11 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company Name</FormLabel>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
-                        placeholder="Company name"
+                        placeholder="Supplier name"
                         {...field}
                       />
                     </FormControl>
@@ -196,89 +181,42 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               />
               <FormField
                 control={form.control}
-                name="address.street"
+                name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Street</FormLabel>
+                    <FormLabel>Address</FormLabel>
                     <FormControl>
                       <Input
                         disabled={loading}
-                        placeholder="Street"
+                        placeholder="Address"
                         {...field}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address.city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input disabled={loading} placeholder="City" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address.state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="State"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address.zip"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Zip Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Zip code"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          disabled={loading}
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                        <FormLabel>Active</FormLabel>
-                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <div></div>
+
+            <FormField
+              control={form.control}
+              name="active"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        disabled={loading}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                      <FormLabel>Active</FormLabel>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="w-full md:w-min">
               <SubmitButton loading={loading} type="submit">
