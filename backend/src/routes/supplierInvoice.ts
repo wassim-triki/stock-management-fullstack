@@ -1,7 +1,6 @@
 import express from 'express';
 import { authHandler } from '../middleware/authHandler';
 import { authorizeRoles } from '../middleware/authorizeRoles';
-import { ROLES } from '../utils/constants';
 import {
   getSupplierInvoices,
   createSupplierInvoice,

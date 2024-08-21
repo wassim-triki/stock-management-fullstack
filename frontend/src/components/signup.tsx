@@ -66,10 +66,21 @@ function Signup() {
   const router = useRouter();
 
   const queryClient = useQueryClient();
-
+  const {
+    mutate: login,
+    isPending: isLoggingIn,
+    error: LoginError,
+    isError: isLoginError,
+  } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.auth] });
+      router.push("/dashboard");
+    },
+  });
   const {
     mutate: signup,
-    isPending,
+    isPending: isSigningUp,
     error,
     isError,
   } = useMutation({
@@ -80,13 +91,15 @@ function Signup() {
         variant: "success",
         title: data.message,
       });
-      router.refresh();
+      login({
+        email: form.getValues().email,
+        password: form.getValues().password,
+      });
     },
   });
 
   async function onSubmit(values: SignupFormValues) {
-    await signup(values);
-    await loginUser({ email: values.email, password: values.password });
+    signup(values);
   }
   return (
     <>
@@ -156,7 +169,7 @@ function Signup() {
           {isError && error?.message && (
             <AlertDestructive error={error.message} />
           )}
-          <Button loading={isPending}>Sing up</Button>
+          <Button loading={isSigningUp || isLoggingIn}>Sign up</Button>
         </form>
       </Form>
       <div className="text-center text-sm">

@@ -63,6 +63,9 @@ const PurchaseOrderSchema: Schema = new Schema(
       type: Number,
       required: [true, 'Subtotal is required'],
     },
+    receiptDate: {
+      type: Date,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

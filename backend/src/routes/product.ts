@@ -2,7 +2,6 @@
 import express from 'express';
 
 import { authorizeRoles } from '../middleware/authorizeRoles';
-import { ROLES } from '../utils/constants';
 import { authHandler } from '../middleware/authHandler';
 import {
   createProduct,
@@ -12,6 +11,7 @@ import {
   getTotalProducts,
   updateProduct,
 } from '../controllers/product';
+import { ROLES } from '../models/User';
 
 const router = express.Router();
 router.get('/total', authHandler, getTotalProducts);

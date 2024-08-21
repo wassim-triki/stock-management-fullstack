@@ -136,19 +136,17 @@ export const updatePurchaseOrder = async (
   if (!purchaseOrder) {
     throw new ErrorResponse('Purchase Order not found', 404);
   }
+  const newStatus = req.body.status;
   const orderPending = purchaseOrder.status === PO_STATUSES.PENDING;
-  const cancelingOrder = req.body.status === PO_STATUSES.CANCELED;
+  const cancelingOrder = newStatus === PO_STATUSES.CANCELED;
   if (orderPending && cancelingOrder) {
     purchaseOrder.status = PO_STATUSES.CANCELED;
-    await purchaseOrder.save();
-    return res
-      .status(200)
-      .json(new SuccessResponse('Purchase Order cancelled'));
   }
+  purchaseOrder.receiptDate =
+    newStatus === PO_STATUSES.RECEIVED ? new Date() : null;
 
-  await PurchaseOrder.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
+  await purchaseOrder.save({
+    validateBeforeSave: true,
   });
 
   res

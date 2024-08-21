@@ -1,8 +1,8 @@
 import mongoose, { Document } from 'mongoose';
-import { Role } from '../utils/constants';
 import config from '../config/config';
 import { PaymentStatus } from '../models/SupplierInvoice';
 import { PO_STATUSES } from '../models/PurchaseOrder';
+import { Role, ROLES } from '../models/User';
 
 // export class SuccessResponse<T> {
 //   success: boolean;
@@ -75,16 +75,19 @@ export class ErrorResponse extends Error {
 export type User = {
   password: string;
   email: string;
-  profile: {
-    firstName: string;
-    lastName: string;
+  company: {
+    name: string;
+    address: string;
     phone: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
+    logo: string;
+    email: string;
+    website: string;
+  };
+  profile: {
+    // firstName: string;
+    // lastName: string;
+    // phone: string;
+    address: string;
   };
   role: Role;
   createdAt: Date;
@@ -122,6 +125,7 @@ export interface IPurchaseOrder extends Document {
   orderDate: Date;
   status: PO_STATUSES;
   orderTotal: number;
+  receiptDate: Date | null;
   items: IPurchaseOrderItem[];
   createdAt: Date;
   updatedAt: Date;

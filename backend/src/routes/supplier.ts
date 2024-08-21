@@ -9,9 +9,9 @@ import {
   getTotalSuppliers,
 } from '../controllers/supplier';
 import { authorizeRoles } from '../middleware/authorizeRoles';
-import { ROLES } from '../utils/constants';
 import { authHandler } from '../middleware/authHandler';
 import 'express-async-errors';
+import { ROLES } from '../models/User';
 
 const router = express.Router();
 router.get('/total', authHandler, getTotalSuppliers);

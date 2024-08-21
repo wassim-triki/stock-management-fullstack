@@ -44,7 +44,6 @@ export default function UserNav() {
       toast({
         variant: "success",
         title: data.message,
-        action: <ToastAction altText="Okay">Okay</ToastAction>,
       });
       router.refresh();
     },
@@ -85,14 +84,13 @@ export default function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            {/* <p className="text-sm font-medium leading-none">
-              {user?.profile?.firstName} {user?.profile?.lastName}
-              qsdfsd qsdfsqd
-            </p> */}
             <p className="flex items-center justify-between text-xs leading-none text-muted-foreground">
-              {user?.email}{" "}
-              <Badge variant={user?.role === "admin" ? "default" : "outline"}>
-                {user?.role && capitalize(user.role)}
+              <span className="truncate">{user?.email}</span>
+              <Badge
+                className="ml-2 flex-shrink-0"
+                variant={user?.role === "Admin" ? "default" : "outline"}
+              >
+                {user?.role}
               </Badge>
             </p>
           </div>

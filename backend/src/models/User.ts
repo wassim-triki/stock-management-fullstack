@@ -3,9 +3,15 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { Role, ROLES } from '../utils/constants';
 import { IUser } from '../types/types';
 
+export enum ROLES {
+  ADMIN = 'Admin',
+  MANAGER = 'Manager',
+  USER = 'User',
+}
+
+export type Role = ROLES.ADMIN | ROLES.MANAGER | ROLES.USER;
 // Define the User schema
 const UserSchema: Schema = new Schema(
   {
@@ -23,22 +29,34 @@ const UserSchema: Schema = new Schema(
       unique: true,
       index: true,
     },
-    profile: {
-      firstName: { type: String },
-      lastName: { type: String },
+    company: {
+      name: { type: String },
+      logo: { type: String },
+      address: { type: String },
+      website: { type: String },
       phone: { type: String },
-      address: {
-        street: { type: String },
-        city: { type: String },
-        state: { type: String },
-        zip: { type: String },
+      email: {
+        type: String,
+        lowercase: true,
+        match: [
+          /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+          'Please use a valid address',
+        ],
+        unique: true,
+        index: true,
       },
+    },
+    profile: {
+      // firstName: { type: String },
+      // lastName: { type: String },
+      // phone: { type: String },
+      address: { type: String },
     },
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: String },
     role: {
       type: String,
-      enum: Object.values(ROLES),
+      enum: ROLES,
       default: ROLES.MANAGER,
     },
     createdAt: {

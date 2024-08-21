@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "./ui/button";
 import { getAuthUser } from "@/api/auth";
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/constants";
+import { queryKeys } from "@/constants/query-keys";
 const Header = async () => {
   const { data } = useQuery({
     queryKey: [queryKeys.users],

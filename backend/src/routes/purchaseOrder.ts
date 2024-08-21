@@ -14,8 +14,8 @@ import {
 } from '../controllers/purchaseOrder';
 import { authorizeRoles } from '../middleware/authorizeRoles';
 import { authHandler } from '../middleware/authHandler';
-import { ROLES } from '../utils/constants';
 import 'express-async-errors';
+import { ROLES } from '../models/User';
 const router = express.Router();
 
 router.get('/total', authHandler, getTotalPurchaseOrders);

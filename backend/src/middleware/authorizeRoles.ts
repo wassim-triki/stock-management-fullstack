@@ -1,7 +1,7 @@
 // middleware/authorize.ts
 import { Request, Response, NextFunction } from 'express';
-import { Role } from '../utils/constants';
 import { ErrorResponse, HttpCode } from '../types/types';
+import { Role } from '../models/User';
 
 export const authorizeRoles = (...roles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {

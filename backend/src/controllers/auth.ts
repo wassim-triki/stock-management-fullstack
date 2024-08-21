@@ -6,18 +6,7 @@ import { ErrorResponse, IUser, SuccessResponse } from '../types/types';
 import { User } from '../models/User';
 
 export const signup = async (req: Request, res: Response, next: any) => {
-  const {
-    email,
-    password,
-    firstName,
-    lastName,
-    phone,
-    street,
-    city,
-    state,
-    zip,
-  } = req.body;
-  const address = { street, city, state, zip };
+  const { email, password, firstName, lastName, phone, address } = req.body;
   const profile = { firstName, lastName, phone, address };
   const userWithEmail = await User.findOne({ email });
   if (userWithEmail) {
@@ -38,7 +27,7 @@ export const login = async (req: Request, res: Response, next: any) => {
     (err: Error, user: any, info: { message: string }) => {
       if (err) return next(err);
       if (!user) {
-        return next(new ErrorResponse(info.message, 401));
+        throw new ErrorResponse(info.message, 401);
       }
       req.logIn(user, (err) => {
         if (err) return next(err);
