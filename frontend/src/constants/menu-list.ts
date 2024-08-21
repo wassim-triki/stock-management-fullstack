@@ -15,6 +15,7 @@ import {
   Boxes,
   Truck,
   ScrollText,
+  Store,
 } from "lucide-react";
 
 export type Submenu = {
@@ -114,6 +115,15 @@ export function getMenuList(pathname: string, role: Role): Group[] {
     {
       groupLabel: "Settings",
       menus: [
+        {
+          href: "/settings/my-company",
+          label: "My Company",
+          active: pathname.includes("/account"),
+          icon: Store,
+          submenus: [],
+          // Available to all roles
+          roles: [ROLES.MANAGER],
+        },
         {
           href: "/account",
           label: "Account",
