@@ -117,7 +117,7 @@ export const UserForm: React.FC<UserFormProps> = ({
       address: initUser?.profile.address || "",
     },
     role: initUser?.role || "User",
-    active: initUser?.active || true,
+    active: initUser?.active || false,
   };
 
   const form = useForm<UserFormValues>({
