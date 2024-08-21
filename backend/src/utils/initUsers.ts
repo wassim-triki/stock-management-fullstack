@@ -22,6 +22,7 @@ const initUsers = async () => {
     role: ROLES.USER,
   }));
 
+  // TODO: add generic admin
   users.push({
     email: 'wsmtriki@gmail.com',
     password: 'wsmtriki1',
