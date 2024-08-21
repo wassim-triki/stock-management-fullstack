@@ -13,7 +13,7 @@ const UserSchema: Schema = new Schema(
       type: String,
       required: [true, "Can't be blank"],
       select: false,
-      minlength: [6, 'Please use a minimum of 8 characters'],
+      minlength: [6, 'Please use a minimum of 6 characters'],
     },
     email: {
       type: String,

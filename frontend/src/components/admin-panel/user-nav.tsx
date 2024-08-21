@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutGrid, LogOut, User as UserUI } from "lucide-react";
+import { LayoutGrid, LogOut, User as UserIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,13 +21,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getAuthUser, logoutUser } from "@/api/auth";
-import { getInitials } from "@/lib/utils";
+import { capitalize, getInitials } from "@/lib/utils";
 import { ApiSuccessResponse, User } from "@/lib/types";
 import { useToast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/constants/query-keys";
+import { Badge } from "../ui/badge";
 
 export default function UserNav() {
   const { data } = useQuery({
@@ -68,9 +69,10 @@ export default function UserNav() {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="#" alt="Avatar" />
                   <AvatarFallback className="bg-transparent">
-                    {getInitials(
+                    {/* {getInitials(
                       user?.profile.firstName + " " + user?.profile.lastName,
-                    )}
+                    )} */}
+                    <UserIcon className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -83,11 +85,15 @@ export default function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {user?.profile.firstName} {user?.profile.lastName}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
+            {/* <p className="text-sm font-medium leading-none">
+              {user?.profile?.firstName} {user?.profile?.lastName}
+              qsdfsd qsdfsqd
+            </p> */}
+            <p className="flex items-center justify-between text-xs leading-none text-muted-foreground">
+              {user?.email}{" "}
+              <Badge variant={user?.role === "admin" ? "default" : "outline"}>
+                {user?.role && capitalize(user.role)}
+              </Badge>
             </p>
           </div>
         </DropdownMenuLabel>
@@ -101,7 +107,7 @@ export default function UserNav() {
           </DropdownMenuItem>
           <DropdownMenuItem className="hover:cursor-pointer" asChild>
             <Link href="/account" className="flex items-center">
-              <UserUI className="mr-3 h-4 w-4 text-muted-foreground" />
+              <UserIcon className="mr-3 h-4 w-4 text-muted-foreground" />
               Account
             </Link>
           </DropdownMenuItem>

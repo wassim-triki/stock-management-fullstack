@@ -1,5 +1,6 @@
 import AuthLayout from "@/components/layouts/auth-layout";
 import Login from "@/components/login";
+import Signup from "@/components/signup";
 import {
   Card,
   CardContent,
@@ -7,14 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { LogIn } from "lucide-react";
 
 const Page = async () => {
   return (
     <AuthLayout
-      title="Login"
-      description=" Enter your email and password below to login to your account."
+      title="Signup"
+      description="Enter your information below to get started."
     >
-      <Login />
+      <Signup />
     </AuthLayout>
   );
 };

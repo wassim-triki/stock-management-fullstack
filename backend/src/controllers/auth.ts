@@ -21,7 +21,7 @@ export const signup = async (req: Request, res: Response, next: any) => {
   const profile = { firstName, lastName, phone, address };
   const userWithEmail = await User.findOne({ email });
   if (userWithEmail) {
-    throw new ErrorResponse('Email is already in use', 400);
+    return next(new ErrorResponse('Email is already in use', 400));
   }
   const user: IUser = await User.create({
     email,
@@ -29,7 +29,6 @@ export const signup = async (req: Request, res: Response, next: any) => {
     profile,
     address,
   });
-  console.log('user created');
   return res.status(201).json(new SuccessResponse('Account created', user));
 };
 
@@ -45,7 +44,7 @@ export const login = async (req: Request, res: Response, next: any) => {
         if (err) return next(err);
 
         logging.warning(
-          'cookie from login controller:',
+          '🍪 cookie from login controller:',
           'session',
           req.cookies.session
         );

@@ -90,3 +90,13 @@ export const timeAgo = (dateString: string): string => {
   }
   return Math.floor(seconds) + " seconds ago";
 };
+
+// Declare 'capitalize' method on 'String' interface
+interface String {
+  capitalize(): string;
+}
+
+// Add 'capitalize' method to 'String' prototype
+export const capitalize = function (string: string): string {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};

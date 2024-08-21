@@ -9,12 +9,13 @@ async function fetchHelper<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const cookieStore = cookies();
-  const cookieValue = cookieStore.get("session")?.value;
+  const cookie =
+    cookieStore.get("session")?.name + "=" + cookieStore.get("session")?.value;
   const response = await fetch(`${config.apiUrl}${url}`, {
     credentials: "include", // Ensure credentials are sent
     headers: {
       "Content-Type": "application/json",
-      Cookie: "session=" + cookieValue,
+      Cookie: cookie,
 
       ...(options.headers || {}),
     },

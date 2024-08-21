@@ -29,26 +29,37 @@ import { ToastAction } from "./ui/toast";
 import { ApiErrorResponse, ApiSuccessResponse } from "@/lib/types";
 import { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { loginUser } from "@/api/auth";
+import { loginUser, signUpUser } from "@/api/auth";
 import { Button } from "./ui/button";
 import { queryKeys } from "@/constants/query-keys";
-export interface ILoginForm {
-  email: string;
-  password: string;
-}
-const formSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email"),
-  password: z.string().min(1, "Password is required"),
-});
 
-function Login() {
-  const defaultValues: ILoginForm = {
+const formSchema = z
+  .object({
+    email: z.string().min(1, "Email is required").email("Invalid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "The passwords must match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+
+export type SignupFormValues = z.infer<typeof formSchema>;
+
+function Signup() {
+  const defaultValues = {
     email: "",
     password: "",
+    confirmPassword: "",
   };
 
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<SignupFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
@@ -57,12 +68,12 @@ function Login() {
   const queryClient = useQueryClient();
 
   const {
-    mutate: login,
-    isPending: isLoggingIn,
+    mutate: signup,
+    isPending,
     error,
     isError,
   } = useMutation({
-    mutationFn: loginUser,
+    mutationFn: signUpUser,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.auth] });
       toast({
@@ -70,19 +81,18 @@ function Login() {
         title: data.message,
       });
       router.refresh();
-      // router.push("/dashboard");
     },
   });
 
-  // const { loading, error, apiRequest } = useApi();
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    login(values);
+  async function onSubmit(values: SignupFormValues) {
+    await signup(values);
+    await loginUser({ email: values.email, password: values.password });
   }
   return (
     <>
       <Form {...form}>
         <form
-          id="login-form"
+          id="signup-form"
           className="grid gap-4"
           onSubmit={form.handleSubmit(onSubmit)}
         >
@@ -107,6 +117,7 @@ function Login() {
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="password"
@@ -115,7 +126,25 @@ function Login() {
                 <FormControl>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Password*</FormLabel>
+                    </div>
+                    <Input type="password" {...field} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="grid gap-2">
+                    <div className="flex items-center">
+                      <FormLabel>Confirm password*</FormLabel>
                     </div>
                     <Input type="password" {...field} />
                   </div>
@@ -127,17 +156,17 @@ function Login() {
           {isError && error?.message && (
             <AlertDestructive error={error.message} />
           )}
-          <Button loading={isLoggingIn}>Login</Button>
+          <Button loading={isPending}>Sing up</Button>
         </form>
       </Form>
       <div className="text-center text-sm">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="underline">
-          Sign up
+        Already have an account?{" "}
+        <Link href="/login" className="underline">
+          Login
         </Link>
       </div>
     </>
   );
 }
 
-export default Login;
+export default Signup;
