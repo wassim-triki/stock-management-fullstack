@@ -10,6 +10,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { deleteUser } from "@/api/user";
 import { Badge } from "@/components/ui/badge";
+import ActiveBadge from "@/components/ui/active-bage";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -88,18 +89,7 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="STATUS" />
     ),
     enableSorting: false,
-    cell: ({ row }) => {
-      const active = row.getValue("active");
-      const status = active ? "Active" : "Inactive";
-      const badgeVariant = active ? "success" : "secondary";
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[100px] truncate font-medium">
-            <Badge variant={badgeVariant}>{status}</Badge>
-          </span>
-        </div>
-      );
-    },
+    cell: ({ row }) => <ActiveBadge active={row.getValue("active")} />,
   },
   {
     id: "actions",

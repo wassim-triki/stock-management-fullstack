@@ -9,6 +9,15 @@ export interface NavItem {
   label?: string;
   description?: string;
 }
+// Define the Role type
+export type Role = "Manager" | "Admin" | "User";
+
+// Define role constants
+export const ROLES = {
+  MANAGER: "Manager" as Role,
+  ADMIN: "Admin" as Role,
+  USER: "User" as Role,
+};
 
 export interface NavItemWithChildren extends NavItem {
   items: NavItemWithChildren[];
@@ -67,7 +76,7 @@ export type User = {
     // phone: string;
     address: string;
   };
-  role: string;
+  role: Role;
   createdAt: Date;
   updatedAt: Date;
   active: boolean;

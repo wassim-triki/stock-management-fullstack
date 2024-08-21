@@ -1,3 +1,4 @@
+import { Role, ROLES } from "@/lib/types";
 import {
   Tag,
   Users,
@@ -29,6 +30,7 @@ type Menu = {
   active: boolean;
   icon: LucideIcon;
   submenus: Submenu[];
+  roles?: string[];
 };
 
 export type Group = {
@@ -36,8 +38,8 @@ export type Group = {
   menus: Menu[];
 };
 
-export function getMenuList(pathname: string): Group[] {
-  return [
+export function getMenuList(pathname: string, role: Role): Group[] {
+  const menuList: Group[] = [
     {
       groupLabel: "",
       menus: [
@@ -59,6 +61,8 @@ export function getMenuList(pathname: string): Group[] {
           active: pathname.includes("/suppliers"),
           icon: Truck,
           submenus: [],
+          // Only Admins should see this
+          roles: [ROLES.ADMIN, ROLES.MANAGER],
         },
         {
           label: "Invoices",
@@ -66,6 +70,8 @@ export function getMenuList(pathname: string): Group[] {
           active: pathname.includes("/invoices"),
           icon: ScrollText,
           submenus: [],
+          // Available to both Admin and Manager roles
+          roles: [ROLES.ADMIN, ROLES.MANAGER],
         },
         {
           href: "/dashboard/products",
@@ -73,6 +79,8 @@ export function getMenuList(pathname: string): Group[] {
           active: pathname === "/dashboard/products",
           icon: PackageOpen,
           submenus: [],
+          // Available to both Admin and Manager roles
+          roles: [ROLES.ADMIN, ROLES.MANAGER],
         },
         {
           href: "/dashboard/categories",
@@ -80,6 +88,8 @@ export function getMenuList(pathname: string): Group[] {
           active: pathname === "/dashboard/categories",
           icon: Layers,
           submenus: [],
+          // Available to Admins only
+          roles: [ROLES.ADMIN, ROLES.MANAGER],
         },
         {
           href: "/dashboard/purchase-orders",
@@ -87,60 +97,39 @@ export function getMenuList(pathname: string): Group[] {
           active: pathname.includes("/purchase-orders"),
           icon: ShoppingCart,
           submenus: [],
+          // Available to both Admin and Manager roles
+          roles: [ROLES.ADMIN, ROLES.MANAGER],
         },
-
-        // {
-        //   href: "",
-        //   label: "Posts",
-        //   active: pathname.includes("/posts"),
-        //   icon: SquarePen,
-        //   submenus: [
-        //     // {
-        //     //   href: "/posts",
-        //     //   label: "All Posts",
-        //     //   active: pathname === "/posts"
-        //     // },
-        //     // {
-        //     //   href: "/posts/new",
-        //     //   label: "New Post",
-        //     //   active: pathname === "/posts/new"
-        //     // }
-        //   ],
-        // },
-        // {
-        //   href: "/categories",
-        //   label: "Categories",
-        //   active: pathname.includes("/categories"),
-        //   icon: Bookmark,
-        //   submenus: [],
-        // },
-        // {
-        //   href: "/tags",
-        //   label: "Tags",
-        //   active: pathname.includes("/tags"),
-        //   icon: Tag,
-        //   submenus: [],
-        // },
-      ],
-    },
-    {
-      groupLabel: "Settings",
-      menus: [
         {
           href: "/dashboard/users",
           label: "Users",
           active: pathname.includes("/users"),
           icon: Users,
           submenus: [],
+          // Only Admins should see this
+          roles: [ROLES.ADMIN],
         },
+      ],
+    },
+    {
+      groupLabel: "Settings",
+      menus: [
         {
           href: "/account",
           label: "Account",
           active: pathname.includes("/account"),
           icon: Settings,
           submenus: [],
+          // Available to all roles
+          roles: [ROLES.ADMIN, ROLES.MANAGER],
         },
       ],
     },
   ];
+
+  // Filter the menu based on the user's role
+  return menuList.map((group) => ({
+    ...group,
+    menus: group.menus.filter((menu) => menu.roles?.includes(role)),
+  }));
 }

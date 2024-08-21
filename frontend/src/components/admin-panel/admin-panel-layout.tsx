@@ -7,16 +7,18 @@ import { Sidebar } from "@/components/admin-panel/sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { Navbar } from "./navbar";
 import AdminPanelContent from "./admin-panel-content";
+import { getAuthUser } from "@/api/auth";
 
-export default function AdminPanelLayout({
+export default async function AdminPanelLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getAuthUser();
   return (
     <>
       <Navbar />
-      <Sidebar />
+      <Sidebar user={user.data} />
       <AdminPanelContent>{children}</AdminPanelContent>
       {/* <footer
         className={cn(

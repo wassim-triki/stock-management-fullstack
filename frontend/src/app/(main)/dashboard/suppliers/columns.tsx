@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
+import ActiveBadge from "@/components/ui/active-bage";
 
 export const columns: ColumnDef<Supplier>[] = [
   {
@@ -67,11 +68,19 @@ export const columns: ColumnDef<Supplier>[] = [
   },
   {
     accessorKey: "address",
-    accessorFn: (row) => row.address.street,
+    accessorFn: (row) => row.address,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ADDRESS" />
     ),
     enableSorting: false,
+  },
+  {
+    accessorKey: "active",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="STATUS" />
+    ),
+    enableSorting: false,
+    cell: ({ row }) => <ActiveBadge active={row.getValue("active")} />,
   },
   {
     accessorKey: "updatedAt",
@@ -83,6 +92,7 @@ export const columns: ColumnDef<Supplier>[] = [
       return <span>{formattedDate}</span>;
     },
   },
+
   {
     id: "actions",
     cell: ({ row }) => (

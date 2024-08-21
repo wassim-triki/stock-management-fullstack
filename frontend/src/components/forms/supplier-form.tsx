@@ -219,9 +219,9 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
             />
 
             <div className="w-full md:w-min">
-              <SubmitButton loading={loading} type="submit">
+              <Button loading={loading} type="submit">
                 {action}
-              </SubmitButton>
+              </Button>
             </div>
           </form>
         </Form>
