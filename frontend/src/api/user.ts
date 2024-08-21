@@ -1,4 +1,5 @@
 "use server";
+import { UserFormValues } from "@/components/forms/user-form";
 import { axiosInstance } from "@/lib/axios";
 import fetchHelper from "@/lib/fetchInstance";
 import {
@@ -40,26 +41,8 @@ export async function getUserById(id: string): Promise<User> {
   return response.data;
 }
 
-export type CreateUserData = {
-  email: string;
-  password?: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-    phone: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
-  };
-  role: string;
-  active: boolean;
-};
-
 export const createUser = async (
-  data: CreateUserData,
+  data: UserFormValues,
 ): Promise<ApiSuccessResponse<User>> => {
   revalidateTag("users");
   return await fetchHelper("/api/users", {
@@ -73,7 +56,7 @@ export const updateUser = async ({
   data,
 }: {
   id: string;
-  data: Partial<User>;
+  data: UserFormValues;
 }): Promise<ApiSuccessResponse<User>> => {
   revalidateTag("users");
   return await fetchHelper(`/api/users/${id}`, {

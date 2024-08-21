@@ -42,8 +42,6 @@ const UserSchema: Schema = new Schema(
           /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
           'Please use a valid address',
         ],
-        unique: true,
-        index: true,
       },
     },
     profile: {

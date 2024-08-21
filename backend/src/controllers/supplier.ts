@@ -35,9 +35,7 @@ export const getSuppliers = async (
 
   res
     .status(200)
-    .json(
-      new SuccessResponseList('Suppliers retrieved successfully', suppliers)
-    );
+    .json(new SuccessResponseList('Suppliers retrieved', suppliers));
 };
 
 // Get a single supplier by ID
@@ -50,9 +48,7 @@ export const getSupplierById = async (
   if (!supplier) {
     return next(new ErrorResponse('Supplier not found', 404));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('Supplier retrieved successfully', supplier));
+  res.status(200).json(new SuccessResponse('Supplier retrieved', supplier));
 };
 
 // Create a new supplier
@@ -74,9 +70,7 @@ export const createSupplier = async (
     phone,
     address,
   });
-  res
-    .status(201)
-    .json(new SuccessResponse('Supplier created successfully', supplier));
+  res.status(201).json(new SuccessResponse('Supplier created', supplier));
 };
 
 // Update a supplier by ID
@@ -106,9 +100,7 @@ export const updateSupplier = async (
     return next(new ErrorResponse('Supplier not found', 404));
   }
 
-  res
-    .status(200)
-    .json(new SuccessResponse('Supplier updated successfully', supplier));
+  res.status(200).json(new SuccessResponse('Supplier updated', supplier));
 };
 
 // Delete a supplier by ID
@@ -122,9 +114,7 @@ export const deleteSupplier = async (
   if (!supplier) {
     return next(new ErrorResponse('Supplier not found', 404));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('Supplier deleted successfully', supplier));
+  res.status(200).json(new SuccessResponse('Supplier deleted', supplier));
 };
 
 // Get total number of suppliers
@@ -135,7 +125,7 @@ export const getTotalSuppliers = async (
 ) => {
   const totalSuppliers = await Supplier.countDocuments();
   res.status(200).json(
-    new SuccessResponse('Total suppliers retrieved successfully', {
+    new SuccessResponse('Total suppliers retrieved', {
       total: totalSuppliers,
     })
   );

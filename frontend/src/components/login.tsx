@@ -32,6 +32,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { loginUser } from "@/api/auth";
 import { Button } from "./ui/button";
 import { queryKeys } from "@/constants/query-keys";
+
+const adminCredentials = {
+  email: "admin@admin.com",
+  password: "adminadmin",
+};
 export interface ILoginForm {
   email: string;
   password: string;
@@ -128,6 +133,16 @@ function Login() {
             <AlertDestructive error={error.message} />
           )}
           <Button loading={isLoggingIn}>Login</Button>
+          <Button
+            variant={"outline"}
+            onClick={() => {
+              form.setValue("email", adminCredentials.email);
+              form.setValue("password", adminCredentials.password);
+            }}
+            loading={isLoggingIn}
+          >
+            Login as admin
+          </Button>
         </form>
       </Form>
       <div className="text-center text-sm">

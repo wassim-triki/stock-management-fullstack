@@ -51,17 +51,21 @@ export type ApiSuccessResponseList<T> = {
 
 export type User = {
   _id: string;
+  password: string;
   email: string;
-  profile: {
-    firstName: string;
-    lastName: string;
+  company: {
+    name: string;
+    address: string;
     phone: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
+    logo: string;
+    email: string;
+    website: string;
+  };
+  profile: {
+    // firstName: string;
+    // lastName: string;
+    // phone: string;
+    address: string;
   };
   role: string;
   createdAt: Date;

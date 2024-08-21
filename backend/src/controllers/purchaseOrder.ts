@@ -53,12 +53,7 @@ export const getPurchaseOrders = async (
 
   res
     .status(200)
-    .json(
-      new SuccessResponseList(
-        'Purchase orders retrieved successfully',
-        purchaseOrders
-      )
-    );
+    .json(new SuccessResponseList('Purchase orders retrieved', purchaseOrders));
 };
 // Get total purchase orders
 export const getTotalPurchaseOrders = async (
@@ -68,7 +63,7 @@ export const getTotalPurchaseOrders = async (
 ) => {
   const totalPurchaseOrders = await PurchaseOrder.countDocuments();
   res.status(200).json(
-    new SuccessResponse('Total purchase orders retrieved successfully', {
+    new SuccessResponse('Total purchase orders retrieved', {
       total: totalPurchaseOrders,
     })
   );
@@ -99,9 +94,7 @@ export const deletePurchaseOrder = async (
   }
   res
     .status(200)
-    .json(
-      new SuccessResponse('Purchase Order deleted successfully', purchaseOrder)
-    );
+    .json(new SuccessResponse('Purchase Order deleted', purchaseOrder));
 };
 
 // Get a purchase order by ID
@@ -118,12 +111,7 @@ export const getPurchaseOrderById = async (
   }
   res
     .status(200)
-    .json(
-      new SuccessResponse(
-        'Purchase Order retrieved successfully',
-        purchaseOrder
-      )
-    );
+    .json(new SuccessResponse('Purchase Order retrieved', purchaseOrder));
 };
 
 // Update a purchase order by ID
@@ -151,9 +139,7 @@ export const updatePurchaseOrder = async (
 
   res
     .status(200)
-    .json(
-      new SuccessResponse('Purchase Order updated successfully', purchaseOrder)
-    );
+    .json(new SuccessResponse('Purchase Order updated', purchaseOrder));
 };
 
 export const getPurchaseOrderPreview = async (req: Request, res: Response) => {
@@ -263,5 +249,5 @@ export const handleAddToStock = async (req: Request, res: Response) => {
 
   purchaseOrder.status = PO_STATUSES.RECEIVED;
   await purchaseOrder.save();
-  res.status(200).json(new SuccessResponse('Stock updated successfully'));
+  res.status(200).json(new SuccessResponse('Stock updated'));
 };

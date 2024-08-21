@@ -36,9 +36,7 @@ export const getCategories = async (
 
   res
     .status(200)
-    .json(
-      new SuccessResponseList('Categories retrieved successfully', categories)
-    );
+    .json(new SuccessResponseList('Categories retrieved', categories));
 };
 
 // Get a single category by ID
@@ -53,9 +51,7 @@ export const getCategoryById = async (
   if (!category) {
     return next(new ErrorResponse('Category not found', 404));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('Category retrieved successfully', category));
+  res.status(200).json(new SuccessResponse('Category retrieved', category));
 };
 
 // Create a new category
@@ -76,9 +72,7 @@ export const createCategory = async (
   }
 
   const category = await Category.create(req.body);
-  res
-    .status(201)
-    .json(new SuccessResponse('Category created successfully', category));
+  res.status(201).json(new SuccessResponse('Category created', category));
 };
 
 // Update a category by ID
@@ -96,9 +90,7 @@ export const updateCategory = async (
     return next(new ErrorResponse('Category not found', 404));
   }
 
-  res
-    .status(200)
-    .json(new SuccessResponse('Category updated successfully', category));
+  res.status(200).json(new SuccessResponse('Category updated', category));
 };
 
 // Delete a category by ID
@@ -111,9 +103,7 @@ export const deleteCategory = async (
   if (!category) {
     return next(new ErrorResponse('Category not found', 404));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('Category deleted successfully', category));
+  res.status(200).json(new SuccessResponse('Category deleted', category));
 };
 
 // Get total number of categories
@@ -124,7 +114,7 @@ export const getTotalCategories = async (
 ) => {
   const totalCategories = await Category.countDocuments();
   res.status(200).json(
-    new SuccessResponse('Total categories retrieved successfully', {
+    new SuccessResponse('Total categories retrieved', {
       total: totalCategories,
     })
   );

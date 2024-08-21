@@ -77,9 +77,7 @@ export const getProducts = async (
 
     res
       .status(200)
-      .json(
-        new SuccessResponseList('Products retrieved successfully', products)
-      );
+      .json(new SuccessResponseList('Products retrieved', products));
   } catch (error: any) {
     next(new ErrorResponse('Failed to retrieve products', 500));
   }
@@ -98,9 +96,7 @@ export const getProductById = async (
     if (!product) {
       return next(new ErrorResponse('Product not found', 404));
     }
-    res
-      .status(200)
-      .json(new SuccessResponse('Product retrieved successfully', product));
+    res.status(200).json(new SuccessResponse('Product retrieved', product));
   } catch (error: any) {
     next(new ErrorResponse('Failed to retrieve product', 500));
   }
@@ -114,9 +110,7 @@ export const createProduct = async (
 ) => {
   try {
     const product = await Product.create(req.body);
-    res
-      .status(201)
-      .json(new SuccessResponse('Product created successfully', product));
+    res.status(201).json(new SuccessResponse('Product created', product));
   } catch (error: any) {
     next(new ErrorResponse(error, 500));
   }
@@ -137,9 +131,7 @@ export const updateProduct = async (
     return next(new ErrorResponse('Product not found', 404));
   }
 
-  res
-    .status(200)
-    .json(new SuccessResponse('Product updated successfully', product));
+  res.status(200).json(new SuccessResponse('Product updated', product));
 };
 
 // Delete a product by ID
@@ -152,9 +144,7 @@ export const deleteProduct = async (
   if (!product) {
     return next(new ErrorResponse('Product not found', 404));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('Product deleted successfully', product));
+  res.status(200).json(new SuccessResponse('Product deleted', product));
 };
 
 // Get total number of products
@@ -165,7 +155,7 @@ export const getTotalProducts = async (
 ) => {
   const totalProducts = await Product.countDocuments();
   res.status(200).json(
-    new SuccessResponse('Total products retrieved successfully', {
+    new SuccessResponse('Total products retrieved', {
       total: totalProducts,
     })
   );

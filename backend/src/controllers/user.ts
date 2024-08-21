@@ -34,9 +34,7 @@ export const getAllUsers = async (
     .sort({ [sortBy as string]: sortOrder })
     .skip(offsetNum)
     .limit(limitNum);
-  return res
-    .status(200)
-    .json(new SuccessResponseList('Users retrived successfully', users));
+  return res.status(200).json(new SuccessResponseList('Users retrived', users));
 };
 
 export const getUserById = async (
@@ -50,9 +48,7 @@ export const getUserById = async (
   if (!user) {
     return next(new ErrorResponse('User not found', 404));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('User retrieved successfully', user));
+  res.status(200).json(new SuccessResponse('User retrieved', user));
 };
 
 export const deleteUser = async (
@@ -70,9 +66,20 @@ export const deleteUser = async (
     return next(new ErrorResponse('User not found', 404));
   }
 
-  return res
-    .status(200)
-    .json(new SuccessResponse('User deleted successfully', user));
+  return res.status(200).json(new SuccessResponse('User deleted', user));
+};
+
+export const getTotalUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const totalUsers = await User.countDocuments();
+  res.status(200).json(
+    new SuccessResponse('Total users retrieved', {
+      total: totalUsers,
+    })
+  );
 };
 
 export const createUser = async (req: Request, res: Response, next: any) => {
@@ -89,36 +96,32 @@ export const createUser = async (req: Request, res: Response, next: any) => {
     role,
     active,
   });
-  console.log('user created');
   return res.status(201).json(new SuccessResponse('Account created', user));
 };
-
-export const getTotalUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const totalUsers = await User.countDocuments();
-  res.status(200).json(
-    new SuccessResponse('Total users retrieved successfully', {
-      total: totalUsers,
-    })
-  );
-};
-
 export const updateUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const data = req.body;
+  const { password, confirmPassword } = data;
+  if (!password && !confirmPassword) {
+    delete data.password;
+  }
+  if (data.password && password !== confirmPassword) {
+    return next(new ErrorResponse('Passwords do not match', 400));
+  }
 
+  const user = await User.findById(req.params.id);
   if (!user) {
     return next(new ErrorResponse('User not found', 404));
   }
 
-  res.status(200).json(new SuccessResponse('User updated successfully', user));
+  // Update user fields manually
+  user.set(data);
+
+  // If password is being updated, Mongoose pre('save') will hash it
+  await user.save();
+
+  res.status(200).json(new SuccessResponse('User updated', user));
 };

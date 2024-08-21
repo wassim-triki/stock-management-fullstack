@@ -21,18 +21,11 @@ import { Heading } from "@/components/ui/heading";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "../ui/use-toast";
 import { PhoneInput } from "../ui/phone-input";
-import {
-  createUser,
-  CreateUserData,
-  deleteUser,
-  getUserById,
-  updateUser,
-} from "@/api/user";
+import { createUser, deleteUser, getUserById, updateUser } from "@/api/user";
 import { ApiErrorResponse, ApiSuccessResponse, User } from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
 import { AlertModal } from "../modal/alert-modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { queryKeys, ROLES } from "@/lib/constants";
 import {
   Select,
   SelectContent,
@@ -40,33 +33,62 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { registerSchema } from "../signup";
 
-const addressSchema = z.object({
-  street: z.string().min(1, { message: "" }),
-  city: z.string().min(1, { message: "" }),
-  state: z.string().min(1, { message: "" }),
-  zip: z.string().min(1, { message: "" }),
-});
+const optionalPasswordsSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .optional()
+      .or(z.literal("")),
+    confirmPassword: z.string().optional().or(z.literal("")),
+  })
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    // Only validate if one of them is not empty
+    if (password || confirmPassword) {
+      // If the user fills out password, confirmPassword should also be filled
+      if (password && !confirmPassword) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Please confirm your password",
+          path: ["confirmPassword"],
+        });
+      }
 
-const profileSchema = z.object({
-  firstName: z.string().min(1, { message: "" }),
-  lastName: z.string().min(1, { message: "" }),
-  phone: z.string().regex(/^\+216\d{8}$/, ""),
-  address: addressSchema,
-});
+      // If the user fills out confirmPassword, password should also be filled
+      if (confirmPassword && !password) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Please provide a password",
+          path: ["password"],
+        });
+      }
 
-const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: "" })
-    .email({ message: "Invalid email address" }),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  profile: profileSchema,
-  role: z.string().min(1, { message: "" }),
-  active: z.boolean(),
-});
+      // Ensure passwords match when both are provided
+      if (password && confirmPassword && confirmPassword !== password) {
+        ctx.addIssue({
+          code: "custom",
+          message: "The passwords must match",
+          path: ["confirmPassword"],
+        });
+      }
+    }
+  });
 
-type UserFormValues = z.infer<typeof formSchema>;
+const userAdminSchema = z.intersection(
+  optionalPasswordsSchema,
+  z.object({
+    email: z.string().min(1, "Email is required").email("Invalid email"),
+    profile: z.object({
+      address: z.string().optional(),
+    }),
+    role: z.string().min(1, { message: "" }),
+    active: z.boolean(),
+  }),
+);
+
+export type UserFormValues = z.infer<typeof userAdminSchema>;
 
 interface UserFormProps {
   title: string;
@@ -87,33 +109,24 @@ export const UserForm: React.FC<UserFormProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const defaultValues = initUser
-    ? initUser
-    : {
-        email: "",
-        profile: {
-          firstName: "",
-          lastName: "",
-          phone: "",
-          password: "",
-          address: {
-            street: "",
-            city: "",
-            state: "",
-            zip: "",
-          },
-        },
-        role: "",
-        active: false,
-      };
+  const defaultValues = {
+    email: initUser?.email || "",
+    password: "",
+    confirmPassword: "",
+    profile: {
+      address: initUser?.profile.address || "",
+    },
+    role: initUser?.role || "User",
+    active: initUser?.active || true,
+  };
 
-  const form = useForm<CreateUserData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userAdminSchema),
     // defaultValues,
     values: defaultValues,
   });
 
-  const onSubmit = async (data: CreateUserData) => {
+  const onSubmit = async (data: UserFormValues) => {
     setLoading(true);
     try {
       if (initUser) {
@@ -152,7 +165,7 @@ export const UserForm: React.FC<UserFormProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full space-y-8"
         >
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
+          <div className="flex flex-col gap-4 md:grid md:grid-cols-1 md:gap-8">
             <FormField
               control={form.control}
               name="email"
@@ -186,56 +199,15 @@ export const UserForm: React.FC<UserFormProps> = ({
 
             <FormField
               control={form.control}
-              name="profile.firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="First Name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="profile.lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Last Name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="profile.phone"
+              name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <div className="grid gap-2">
                       <div className="flex items-center">
-                        <FormLabel>Phone</FormLabel>
+                        <FormLabel>Confirm password</FormLabel>
                       </div>
-                      <PhoneInput
-                        defaultCountry="TN"
-                        placeholder="12 345 678"
-                        {...field}
-                        disabled={loading}
-                      />
+                      <Input type="password" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -245,56 +217,14 @@ export const UserForm: React.FC<UserFormProps> = ({
 
             <FormField
               control={form.control}
-              name="profile.address.street"
+              name="profile.address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Street</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder="Street" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="profile.address.city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>City</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder="City" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="profile.address.state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder="State" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="profile.address.zip"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Zip Code</FormLabel>
+                  <FormLabel>Address</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Zip code"
+                      placeholder="Address"
                       {...field}
                     />
                   </FormControl>
@@ -303,23 +233,6 @@ export const UserForm: React.FC<UserFormProps> = ({
               )}
             />
 
-            {/* <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Role"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
             <FormField
               control={form.control}
               name="role"
@@ -342,9 +255,9 @@ export const UserForm: React.FC<UserFormProps> = ({
                     </FormControl>
                     <SelectContent>
                       {/* @ts-ignore  */}
-                      {ROLES.map((role) => (
-                        <SelectItem key={role._id} value={role._id}>
-                          {role.name}
+                      {["Admin", "Manager", "User"].map((role) => (
+                        <SelectItem key={role} value={role}>
+                          {role}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -374,12 +287,10 @@ export const UserForm: React.FC<UserFormProps> = ({
               )}
             />
           </div>
-          <div></div>
-
           <div className="w-full md:w-min">
-            <SubmitButton loading={loading} type="submit">
+            <Button loading={loading} type="submit">
               {action}
-            </SubmitButton>
+            </Button>
           </div>
         </form>
       </Form>

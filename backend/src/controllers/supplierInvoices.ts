@@ -33,9 +33,7 @@ export const getSupplierInvoices = async (
     .limit(limitNum)
     .populate('purchaseOrder', 'orderNumber');
 
-  res
-    .status(200)
-    .json(new SuccessResponseList('Invoices retrieved successfully', invoices));
+  res.status(200).json(new SuccessResponseList('Invoices retrieved', invoices));
 };
 
 export const createSupplierInvoice = async (
@@ -60,9 +58,7 @@ export const createSupplierInvoice = async (
     paymentStatus: status,
   });
 
-  res
-    .status(201)
-    .json(new SuccessResponse('Invoice created successfully', newInvoice));
+  res.status(201).json(new SuccessResponse('Invoice created', newInvoice));
 };
 
 export const updateSupplierInvoice = async (
@@ -90,9 +86,7 @@ export const updateSupplierInvoice = async (
     { new: true }
   );
 
-  res
-    .status(200)
-    .json(new SuccessResponse('Invoice updated successfully', updatedInvoice));
+  res.status(200).json(new SuccessResponse('Invoice updated', updatedInvoice));
 };
 
 export const getSupplierInvoiceById = async (
@@ -108,9 +102,7 @@ export const getSupplierInvoiceById = async (
   if (!invoice) {
     return next(new ErrorResponse('Invoice not found', 404));
   }
-  res
-    .status(200)
-    .json(new SuccessResponse('Invoice retrieved successfully', invoice));
+  res.status(200).json(new SuccessResponse('Invoice retrieved', invoice));
 };
 
 export const deleteSupplierInvoice = async (
@@ -120,9 +112,7 @@ export const deleteSupplierInvoice = async (
 ) => {
   const { id } = req.params;
   await SupplierInvoice.findByIdAndDelete(id);
-  res
-    .status(200)
-    .json(new SuccessResponse('Invoice deleted successfully', null));
+  res.status(200).json(new SuccessResponse('Invoice deleted', null));
 };
 
 export const getTotalSupplierInvoices = async (

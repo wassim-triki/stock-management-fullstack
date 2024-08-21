@@ -33,7 +33,7 @@ import { loginUser, signUpUser } from "@/api/auth";
 import { Button } from "./ui/button";
 import { queryKeys } from "@/constants/query-keys";
 
-const formSchema = z
+export const registerSchema = z
   .object({
     email: z.string().min(1, "Email is required").email("Invalid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
@@ -49,7 +49,7 @@ const formSchema = z
     }
   });
 
-export type SignupFormValues = z.infer<typeof formSchema>;
+export type SignupFormValues = z.infer<typeof registerSchema>;
 
 function Signup() {
   const defaultValues = {
@@ -60,7 +60,7 @@ function Signup() {
 
   const { toast } = useToast();
   const form = useForm<SignupFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues,
   });
   const router = useRouter();
@@ -139,7 +139,7 @@ function Signup() {
                 <FormControl>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <FormLabel>Password*</FormLabel>
+                      <FormLabel>Password</FormLabel>
                     </div>
                     <Input type="password" {...field} />
                   </div>
@@ -157,7 +157,7 @@ function Signup() {
                 <FormControl>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <FormLabel>Confirm password*</FormLabel>
+                      <FormLabel>Confirm password</FormLabel>
                     </div>
                     <Input type="password" {...field} />
                   </div>

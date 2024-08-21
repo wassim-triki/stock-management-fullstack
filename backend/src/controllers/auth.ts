@@ -78,9 +78,7 @@ export const stepTwoHandler = async (
       throw new ErrorResponse('Validation failed', 400);
     }
 
-    return res
-      .status(200)
-      .json(new SuccessResponse('Step 2 completed successfully'));
+    return res.status(200).json(new SuccessResponse('Step 2 completed'));
   } catch (error: any) {
     next(error);
   }
