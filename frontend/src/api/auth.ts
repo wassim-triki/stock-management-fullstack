@@ -1,10 +1,8 @@
-import { axiosInstance } from "@/lib/axios";
+import config from "@/lib/config";
 import fetchHelper from "@/lib/fetchInstance";
 import { ApiSuccessResponse, User } from "@/lib/types";
-import { AxiosResponse } from "axios";
-
 export const getAuthUser = async (): Promise<ApiSuccessResponse<User>> => {
-  return fetchHelper("/api/auth/me");
+  return await fetchHelper("/api/auth/me");
 };
 export const loginUser = async ({
   email,
@@ -13,11 +11,16 @@ export const loginUser = async ({
   email: string;
   password: string;
 }): Promise<ApiSuccessResponse<User>> => {
-  return axiosInstance
-    .post("/api/auth/login", { email, password })
-    .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
+  return await fetch(`${config.apiUrl}/api/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({ email, password }),
+  }).then((res) => res.json());
 };
 
 export const logoutUser = async (): Promise<ApiSuccessResponse> => {
-  return fetchHelper("/api/auth/logout");
+  return await fetchHelper("/api/auth/logout");
 };

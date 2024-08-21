@@ -67,3 +67,10 @@ export const deleteSupplierInvoice = async (
     method: "DELETE",
   });
 };
+
+export const getTotalSupplierInvoices = async (): Promise<number> => {
+  const response: ApiSuccessResponseList<Promise<number>> = await fetchHelper(
+    `/api/suppliers/invoices/total`,
+  );
+  return response.data.total;
+};

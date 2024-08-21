@@ -72,6 +72,12 @@ function Login() {
       router.refresh();
       // router.push("/dashboard");
     },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: error.message,
+      });
+    },
   });
 
   // const { loading, error, apiRequest } = useApi();
@@ -124,7 +130,9 @@ function Login() {
               </FormItem>
             )}
           />
-          {isError && <AlertDestructive error={error?.message} />}
+          {isError && error?.message && (
+            <AlertDestructive error={error.message} />
+          )}
           <Button loading={isLoggingIn}>Login</Button>
         </form>
       </Form>

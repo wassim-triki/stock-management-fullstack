@@ -8,10 +8,11 @@ import {
   getSupplierInvoiceById,
   updateSupplierInvoice,
   deleteSupplierInvoice,
+  getTotalSupplierInvoices,
 } from '../controllers/supplierInvoices';
 
 const router = express.Router();
-
+router.get('/total', getTotalSupplierInvoices);
 router.get(
   '/',
   // authHandler,

@@ -124,3 +124,14 @@ export const deleteSupplierInvoice = async (
     .status(200)
     .json(new SuccessResponse('Invoice deleted successfully', null));
 };
+
+export const getTotalSupplierInvoices = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const total = await SupplierInvoice.countDocuments();
+  res
+    .status(200)
+    .json(new SuccessResponse('Total invoices retrieved', { total }));
+};

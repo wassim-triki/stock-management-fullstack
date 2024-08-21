@@ -1,7 +1,10 @@
 import { SupplierInvoice } from "@/lib/types";
 import { DataTable } from "@/components/data-table/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { getSuppliersInvoices } from "@/api/supplier-invoices";
+import {
+  getSuppliersInvoices,
+  getTotalSupplierInvoices,
+} from "@/api/supplier-invoices";
 import { columns } from "./columns";
 import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
 
@@ -40,7 +43,6 @@ export default async function DemoPage({ searchParams }: PageProps) {
         ])
       : [];
 
-  console.log({ offset, limit, sortBy, order, ...filters });
   const data = await getSuppliersInvoices({
     offset,
     limit,
@@ -48,9 +50,8 @@ export default async function DemoPage({ searchParams }: PageProps) {
     order,
     ...filters,
   });
-  const total = data.length;
+  const total = await getTotalSupplierInvoices();
   const pageCount = Math.ceil(total / limit);
-  console.log(data);
   return (
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
