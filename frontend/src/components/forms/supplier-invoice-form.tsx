@@ -58,7 +58,12 @@ const formSchema = z.object({
       },
       { message: "Paid amount must be a positive number" },
     ),
-  dueDate: z.date().optional(),
+  dueDate: z.preprocess((val) => {
+    if (typeof val === "string" || val instanceof Date) {
+      return new Date(val);
+    }
+    return val;
+  }, z.date().optional()),
 });
 
 export type SupplierInvoiceFormValues = z.infer<typeof formSchema>;
@@ -126,7 +131,7 @@ export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
           title: res.message,
         });
       }
-      router.push("/dashboard/suppliers/invoices");
+      router.push("/dashboard/invoices");
     } catch (error) {
       toast({
         variant: "destructive",

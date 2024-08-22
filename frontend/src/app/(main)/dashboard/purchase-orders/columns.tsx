@@ -302,7 +302,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
             <DropdownMenuItem disabled={oldStatus !== "Received"}>
               <Link
                 className="flex w-full items-center"
-                href={`/dashboard/suppliers/invoices/new?purchaseOrderId=${row.original._id}`}
+                href={`/dashboard/invoices/new?purchaseOrderId=${row.original._id}`}
               >
                 <ScrollText className="mr-2 h-4 w-4" />
                 Create invoice

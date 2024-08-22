@@ -32,7 +32,6 @@ export function SingleDatePicker({
     if (onDateChange) {
       onDateChange(date);
     }
-    console.log("date", date);
   }, [date]);
 
   return (

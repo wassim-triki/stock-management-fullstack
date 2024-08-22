@@ -42,9 +42,7 @@ export const columns: ColumnDef<SupplierInvoice>[] = [
     ),
     cell: ({ cell, row }) => {
       return (
-        <TableCellLink
-          href={`/dashboard/suppliers/invoices/${row.original._id}`}
-        >
+        <TableCellLink href={`/dashboard/invoices/${row.original._id}`}>
           {cell.getValue() as string}
         </TableCellLink>
       );
@@ -205,7 +203,7 @@ export const columns: ColumnDef<SupplierInvoice>[] = [
     cell: ({ row }) => (
       <DataTableRowActions
         deleteFunction={deleteSupplierInvoice}
-        editUrl={`/dashboard/suppliers/invoices/${row.original._id}`}
+        editUrl={`/dashboard/invoices/${row.original._id}`}
         row={row}
       />
     ),

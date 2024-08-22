@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { PanelsTopLeft } from "lucide-react";
+import { Boxes, PanelsTopLeft } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
@@ -9,6 +9,7 @@ import { Menu } from "@/components/admin-panel/menu";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { SidebarToggle } from "@/components/admin-panel/sidebar-toggle";
 import { User } from "@/lib/types";
+import config from "@/lib/config";
 
 export function Sidebar({ user }: { user: User }) {
   const sidebar = useStore(useSidebarToggle, (state) => state);
@@ -33,7 +34,7 @@ export function Sidebar({ user }: { user: User }) {
           asChild
         >
           <Link href="/dashboard" className="flex items-center gap-2">
-            <PanelsTopLeft className="mr-1 h-6 w-6" />
+            <Boxes className="mr-1 h-6 w-6" />
             <h1
               className={cn(
                 "whitespace-nowrap text-lg font-bold transition-[transform,opacity,display] duration-300 ease-in-out",
@@ -42,7 +43,7 @@ export function Sidebar({ user }: { user: User }) {
                   : "translate-x-0 opacity-100",
               )}
             >
-              Brand
+              {config.appName}
             </h1>
           </Link>
         </Button>
