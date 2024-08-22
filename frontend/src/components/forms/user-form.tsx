@@ -114,7 +114,7 @@ export const UserForm: React.FC<UserFormProps> = ({
     password: "",
     confirmPassword: "",
     profile: {
-      address: initUser?.profile.address || "",
+      address: initUser?.profile?.address || "",
     },
     role: initUser?.role || "User",
     active: initUser?.active || false,
@@ -154,18 +154,17 @@ export const UserForm: React.FC<UserFormProps> = ({
   };
 
   return (
-    <>
+    <div className="flex-1 space-y-4 lg:max-w-3xl">
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
       </div>
       <Separator />
-
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-8"
-        >
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-1 md:gap-8">
+      <div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full space-y-8"
+          >
             <FormField
               control={form.control}
               name="email"
@@ -286,14 +285,12 @@ export const UserForm: React.FC<UserFormProps> = ({
                 </FormItem>
               )}
             />
-          </div>
-          <div className="w-full md:w-min">
-            <Button loading={loading} type="submit">
+            <Button className="w-full md:w-min" loading={loading} type="submit">
               {action}
             </Button>
-          </div>
-        </form>
-      </Form>
-    </>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 };

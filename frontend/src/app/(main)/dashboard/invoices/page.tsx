@@ -54,7 +54,7 @@ export default async function DemoPage({ searchParams }: PageProps) {
   return (
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
-      addNewLink="/dashboard/suppliers/invoices/new"
+      addNewLink="/dashboard/invoices/new"
       title={`Invoices (${total})`}
       description="Manage invoices"
     >

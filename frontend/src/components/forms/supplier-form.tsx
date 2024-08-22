@@ -110,94 +110,93 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
   };
 
   return (
-    <>
+    <div className="flex-1 space-y-4 lg:max-w-3xl">
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
       </div>
       <Separator />
-      {true && (
+      <div>
+        {" "}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-8"
           >
-            <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Supplier name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Supplier name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        disabled={loading}
-                        placeholder="Contact email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="grid gap-2">
-                        <div className="flex items-center">
-                          <FormLabel>Phone</FormLabel>
-                        </div>
-                        <PhoneInput
-                          defaultCountry="TN"
-                          placeholder="12 345 678"
-                          {...field}
-                          disabled={loading}
-                        />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      disabled={loading}
+                      placeholder="Contact email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <FormLabel>Phone</FormLabel>
                       </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Address"
+                      <PhoneInput
+                        defaultCountry="TN"
+                        placeholder="12 345 678"
                         {...field}
+                        disabled={loading}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Address"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -219,14 +218,12 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               )}
             />
 
-            <div className="w-full md:w-min">
-              <Button loading={loading} type="submit">
-                {action}
-              </Button>
-            </div>
+            <Button className="w-full md:w-min" loading={loading} type="submit">
+              {action}
+            </Button>
           </form>
         </Form>
-      )}
-    </>
+      </div>
+    </div>
   );
 };

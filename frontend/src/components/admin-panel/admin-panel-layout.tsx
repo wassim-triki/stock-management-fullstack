@@ -13,6 +13,7 @@ export default async function AdminPanelLayout({
   children,
 }: {
   children: React.ReactNode;
+  isForm?: boolean;
 }) {
   const user = await getAuthUser();
   return (

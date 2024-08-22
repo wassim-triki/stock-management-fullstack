@@ -1,7 +1,6 @@
 import { getTotalUsers, getUsers } from "@/api/user";
 import { DataTable } from "@/components/data-table/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import { queryKeys } from "@/lib/constants";
 import { ApiSearchFilter, QueryParams, User } from "@/lib/types";
 import {
   dehydrate,

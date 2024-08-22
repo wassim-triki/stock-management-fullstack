@@ -254,53 +254,52 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   }
 
   return (
-    <>
+    <div className="flex-1 space-y-4 lg:max-w-3xl">
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
       </div>
       <Separator />
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-8"
-        >
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-4 md:gap-8">
-            <div className="md:col-span-1">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      disabled={loading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Select a status"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {PO_STATUSES.map((status) => (
-                          <SelectItem key={status.name} value={status.name}>
-                            <div className="flex items-center gap-2">
-                              <status.icon className="h-4 w-4" /> {status.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+      <div>
+        {" "}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full space-y-8"
+          >
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Select a status"
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {PO_STATUSES.map((status) => (
+                        <SelectItem key={status.name} value={status.name}>
+                          <div className="flex items-center gap-2">
+                            <status.icon className="h-4 w-4" /> {status.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="md:col-span-1">
               <FormField
                 control={form.control}
@@ -367,242 +366,241 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                 )}
               />
             </div>
-          </div>
 
-          <div className="space-y-8">
-            <Separator />
-            {fields.map((item, index) => (
-              <div key={item.id} className="flex gap-4">
-                <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-4">
-                  <FormField
-                    control={form.control}
-                    name={`items.${index}.product`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Product</FormLabel>
-                        <Select
-                          disabled={loading}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          defaultValue={field.value}
-                        >
+            <div className="space-y-8">
+              <Separator />
+              {fields.map((item, index) => (
+                <div key={item.id} className="flex gap-4">
+                  <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-4">
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.product`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Product</FormLabel>
+                          <Select
+                            disabled={loading}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <div className="flex items-center gap-4">
+                                <SelectTrigger>
+                                  <SelectValue
+                                    defaultValue={field.value}
+                                    placeholder="Select a product"
+                                  />
+                                </SelectTrigger>
+                              </div>
+                            </FormControl>
+                            <SelectContent>
+                              <Button variant={"link"}>
+                                <Link
+                                  className="flex items-center gap-2"
+                                  href={"/dashboard/products/new"}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                  Add a new product
+                                </Link>
+                              </Button>
+                              <DropdownMenuSeparator />
+
+                              {products.map((product) => (
+                                <SelectItem
+                                  key={product._id}
+                                  value={product._id}
+                                >
+                                  {product.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.quantity`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Quantity</FormLabel>
                           <FormControl>
-                            <div className="flex items-center gap-4">
-                              <SelectTrigger>
-                                <SelectValue
-                                  defaultValue={field.value}
-                                  placeholder="Select a product"
-                                />
-                              </SelectTrigger>
-                            </div>
-                          </FormControl>
-                          <SelectContent>
-                            <Button variant={"link"}>
-                              <Link
-                                className="flex items-center gap-2"
-                                href={"/dashboard/products/new"}
-                              >
-                                <Plus className="h-4 w-4" />
-                                Add a new product
-                              </Link>
-                            </Button>
-                            <DropdownMenuSeparator />
-
-                            {products.map((product) => (
-                              <SelectItem key={product._id} value={product._id}>
-                                {product.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`items.${index}.quantity`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Quantity</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            disabled={loading}
-                            placeholder="Quantity"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`items.${index}.unitPrice`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Unit price</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            disabled={loading}
-                            placeholder="Unit price"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`items.${index}.lineTotal`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Line total</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center gap-4">
                             <Input
                               type="number"
-                              disabled
-                              placeholder="Line total"
+                              disabled={loading}
+                              placeholder="Quantity"
                               {...field}
                             />
-                            {fields.length > 1 && (
-                              <Button
-                                variant="destructive"
-                                className="msb-[2px] mt-auto flex h-10 min-w-11 max-w-11 items-center justify-center p-0"
-                                onClick={() => remove(index)}
-                                disabled={loading}
-                              >
-                                <X className="h-5 w-5" />
-                              </Button>
-                            )}
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.unitPrice`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Unit price</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              disabled={loading}
+                              placeholder="Unit price"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`items.${index}.lineTotal`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Line total</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-4">
+                              <Input
+                                type="number"
+                                disabled
+                                placeholder="Line total"
+                                {...field}
+                              />
+                              {fields.length > 1 && (
+                                <Button
+                                  variant="destructive"
+                                  className="msb-[2px] mt-auto flex h-10 min-w-11 max-w-11 items-center justify-center p-0"
+                                  onClick={() => remove(index)}
+                                  disabled={loading}
+                                >
+                                  <X className="h-5 w-5" />
+                                </Button>
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
-            <Separator />
-          </div>
-
-          <div className="flex justify-between">
-            <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-4">
-              <FormField
-                control={form.control}
-                name={`subTotal`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subtotal</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        disabled
-                        placeholder="Subtotal"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`vat`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="">VAT (%) </FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        // disabled
-                        placeholder="eg: 13%"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`vatAmount`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="">VAT amount </FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled
-                        type="number"
-                        // disabled
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={`orderTotal`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Total</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        disabled
-                        placeholder="Order total"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              ))}
+              <Separator />
             </div>
-          </div>
 
-          <div className="flex w-full gap-2 md:w-min">
-            <Button loading={loading} type="submit">
-              {action}
-            </Button>
-            <Button
-              onClick={() =>
-                append({
-                  product: "",
-                  quantity: "",
-                  unitPrice: "",
-                  lineTotal: "0",
-                })
-              }
-              type="button"
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <PackagePlus className="h-5 w-5" />
-              Add product
-            </Button>
-            {initPurchaseOrder && (
-              <Button
-                className="flex w-full gap-2 md:w-min"
-                onClick={handlePrintAndSend}
-                variant={"outline"}
-                type="button"
-              >
-                <Send className="h-4 w-4" />
-                Print and send
+            <FormField
+              control={form.control}
+              name={`subTotal`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subtotal</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled
+                      placeholder="Subtotal"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`vat`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="">VAT (%) </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      // disabled
+                      placeholder="eg: 13%"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`vatAmount`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="">VAT amount </FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled
+                      type="number"
+                      // disabled
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name={`orderTotal`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Total</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled
+                      placeholder="Order total"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex w-full gap-2 md:w-min">
+              <Button loading={loading} type="submit">
+                {action}
               </Button>
-            )}
-          </div>
-        </form>
-      </Form>
-    </>
+              <Button
+                onClick={() =>
+                  append({
+                    product: "",
+                    quantity: "",
+                    unitPrice: "",
+                    lineTotal: "0",
+                  })
+                }
+                type="button"
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <PackagePlus className="h-5 w-5" />
+                Add product
+              </Button>
+              {initPurchaseOrder && (
+                <Button
+                  className="flex w-full gap-2 md:w-min"
+                  onClick={handlePrintAndSend}
+                  variant={"outline"}
+                  type="button"
+                >
+                  <Send className="h-4 w-4" />
+                  Print and send
+                </Button>
+              )}
+            </div>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 };

@@ -153,17 +153,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   return (
-    <>
+    <div className="flex-1 space-y-4 lg:max-w-3xl">
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
       </div>
       <Separator />
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-8"
-        >
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-8">
+      <div>
+        {" "}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full space-y-8"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -263,9 +264,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-          </div>
 
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
             <FormField
               control={form.control}
               name="price"
@@ -303,33 +302,32 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-          </div>
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    disabled={loading}
-                    placeholder="Description"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      disabled={loading}
+                      placeholder="Description"
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <div className="w-full md:w-min">
-            <Button loading={loading} type="submit">
+            <Button className="w-full md:w-min" loading={loading} type="submit">
               {action}
             </Button>
-          </div>
-        </form>
-      </Form>
-    </>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 };

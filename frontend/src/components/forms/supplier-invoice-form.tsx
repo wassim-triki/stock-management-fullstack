@@ -138,142 +138,131 @@ export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
   };
 
   return (
-    <>
+    <div className="flex-1 space-y-4 lg:max-w-3xl">
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
       </div>
       <Separator />
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-8"
-        >
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-4 md:gap-8">
-            <div className="md:col-span-1">
-              <FormField
-                control={form.control}
-                name="invoiceNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Invoice Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Enter invoice number"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <FormField
-                control={form.control}
-                name="purchaseOrder"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Purchase Order</FormLabel>
-                    <Select
+      <div>
+        {" "}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full space-y-8"
+          >
+            <FormField
+              control={form.control}
+              name="invoiceNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Invoice Number</FormLabel>
+                  <FormControl>
+                    <Input
                       disabled={loading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Select a purchase order"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {purchaseOrders.map((po) => (
-                          <SelectItem key={po._id} value={po._id}>
-                            {po.orderNumber}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="md:col-span-1">
-              <FormField
-                control={form.control}
-                name="totalAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Total Amount</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        disabled={loading}
-                        placeholder="Enter total amount"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="md:col-span-1">
-              <FormField
-                control={form.control}
-                name="paidAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Paid Amount</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        disabled={loading}
-                        placeholder="Enter paid amount"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <FormField
-                control={form.control}
-                name="dueDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Due Date</FormLabel>
-                    <SingleDatePicker
-                      className="w-full"
-                      selectedDate={field.value || undefined}
-                      onDateChange={(date: Date | undefined) =>
-                        field.onChange(date)
-                      }
+                      placeholder="Enter invoice number"
+                      {...field}
                     />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <div className="flex w-full gap-2 md:w-min">
-            <Button loading={loading} type="submit">
+            <FormField
+              control={form.control}
+              name="purchaseOrder"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Purchase Order</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Select a purchase order"
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {purchaseOrders.map((po) => (
+                        <SelectItem key={po._id} value={po._id}>
+                          {po.orderNumber}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="totalAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Total Amount</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Enter total amount"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="paidAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Paid Amount</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Enter paid amount"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Date</FormLabel>
+                  <SingleDatePicker
+                    className="w-full"
+                    selectedDate={field.value || undefined}
+                    onDateChange={(date: Date | undefined) =>
+                      field.onChange(date)
+                    }
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button className="w-full md:w-min" loading={loading} type="submit">
               {action}
             </Button>
-          </div>
-        </form>
-      </Form>
-    </>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 };

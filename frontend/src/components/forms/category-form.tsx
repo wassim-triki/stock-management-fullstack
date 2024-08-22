@@ -110,17 +110,18 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   };
 
   return (
-    <>
+    <div className="flex-1 space-y-4 lg:max-w-3xl">
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
       </div>
       <Separator />
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full space-y-8"
-        >
-          <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8">
+      <div>
+        {" "}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full space-y-8"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -171,16 +172,13 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                 </FormItem>
               )}
             />
-          </div>
-          <div></div>
 
-          <div className="w-full md:w-min">
-            <Button loading={loading} type="submit">
+            <Button className="w-full md:w-min" loading={loading} type="submit">
               {action}
             </Button>
-          </div>
-        </form>
-      </Form>
-    </>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 };

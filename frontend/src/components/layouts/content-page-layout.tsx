@@ -14,6 +14,7 @@ type ContentPageLayoutProps = {
   description: string;
   addNewLink: string;
   children: React.ReactNode;
+  isForm?: boolean;
 };
 
 const ContentPageLayout: React.FC<ContentPageLayoutProps> = ({
@@ -26,7 +27,6 @@ const ContentPageLayout: React.FC<ContentPageLayoutProps> = ({
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
       <Breadcrumbs items={breadcrumbItems} />
-
       <div className="flex items-start justify-between">
         <Heading title={title} description={description} />
         <AddNewLink href={addNewLink} />
