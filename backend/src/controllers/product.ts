@@ -65,7 +65,8 @@ export const getProducts = async (
       .skip(offsetNum)
       .limit(limitNum)
       .populate('supplier', 'name')
-      .populate('category', 'name');
+      .populate('category', 'name')
+      .populate('user', ['email', 'role']);
 
     res
       .status(200)

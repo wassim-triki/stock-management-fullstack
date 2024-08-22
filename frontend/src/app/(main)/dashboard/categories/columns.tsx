@@ -10,6 +10,7 @@ import { DataTableRowActions } from "@/components/data-table/data-table-row-acti
 import { timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
 import { deleteCategory } from "@/api/category";
+import { getUserColumn } from "../products/columns";
 
 export const columns: ColumnDef<Category>[] = [
   {
@@ -36,6 +37,7 @@ export const columns: ColumnDef<Category>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+  getUserColumn(),
   {
     accessorKey: "name",
     header: ({ column }) => (

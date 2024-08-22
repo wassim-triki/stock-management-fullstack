@@ -1,7 +1,7 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { Product } from "@/lib/types";
+import { Product, ROLES, User } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,32 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
+import TableCellLink from "@/components/ui/table-link";
+import { getAuthUser } from "@/api/auth";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/auth-provider";
+
+export function getUserColumn<T>(): ColumnDef<T> {
+  return {
+    accessorKey: "user",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="USER" />
+    ),
+    cell: async ({ row, cell, column, table }) => {
+      const auth = useAuth();
+      const user = (row.original as { user: User }).user;
+      if (auth.role !== ROLES.ADMIN) {
+        column.toggleVisibility(false);
+      }
+
+      return (
+        <TableCellLink href={`/dashboard/users/${user._id}`}>
+          {user.email}
+        </TableCellLink>
+      );
+    },
+  };
+}
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -35,15 +61,7 @@ export const columns: ColumnDef<Product>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  // {
-  //   accessorKey: "_id",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="REF" />
-  //   ),
-  //   cell: ({ row }) => <div className="w-[80px]">{row.getValue("_id")}</div>,
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
+  getUserColumn(),
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -82,39 +100,21 @@ export const columns: ColumnDef<Product>[] = [
       );
     },
   },
-  // {
-  //   accessorKey: "status",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Status" />
-  //   ),
-  //   cell: ({ row }) => {
-  //     const status = statuses.find(
-  //       (status) => status.value === row.getValue("status")
-  //     )
-
-  //     if (!status) {
-  //       return null
-  //     }
-
-  //     return (
-  //       <div className="flex w-[100px] items-center">
-  //         {status.icon && (
-  //           <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-  //         )}
-  //         <span>{status.label}</span>
-  //       </div>
-  //     )
-  //   },
-  //   filterFn: (row, id, value) => {
-  //     return value.includes(row.getValue(id))
-  //   },
-  // },
   {
     accessorKey: "supplier",
     accessorFn: (row) => row.supplier.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="SUPPLIER" />
     ),
+    cell: async ({ row }) => {
+      const supplier = row.original.supplier;
+
+      return (
+        <TableCellLink href={`/dashboard/suppliers/${supplier._id}`}>
+          {supplier.name}
+        </TableCellLink>
+      );
+    },
     enableSorting: false,
   },
 

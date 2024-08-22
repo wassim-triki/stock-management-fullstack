@@ -35,6 +35,7 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "" })
     .email({ message: "Invalid email address" }),
+  //TODO: fix phone input
   phone: z.string().regex(/^$|^\d{8,14}$/, { message: "Invalid phone number" }),
   address: z.string().optional(),
   active: z.boolean(),

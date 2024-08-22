@@ -52,7 +52,8 @@ export const getPurchaseOrders = async (
       .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
       .limit(limitNum)
-      .populate('supplier', 'name');
+      .populate('supplier', 'name')
+      .populate('user', 'email');
 
     res
       .status(200)

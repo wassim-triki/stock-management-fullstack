@@ -29,6 +29,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/constants/query-keys";
 import { Badge } from "../ui/badge";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function UserNav() {
   const { data } = useQuery({
@@ -37,7 +38,7 @@ export default function UserNav() {
   });
 
   const user = data?.data;
-
+  const auth = useAuth();
   const { mutate: logout, isPending: isSigningOut } = useMutation({
     mutationFn: logoutUser,
     onSuccess: (data) => {
@@ -45,6 +46,7 @@ export default function UserNav() {
         variant: "success",
         title: data.message,
       });
+      auth.logout();
       router.refresh();
     },
   });
