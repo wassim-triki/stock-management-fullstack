@@ -9,6 +9,7 @@ import {
   login,
   checkEmailAvailability,
   stepTwoHandler,
+  handleChangePassword,
   logout, // Import the logout controller
 } from '../controllers/auth';
 import { authHandler } from '../middleware/authHandler';
@@ -20,9 +21,7 @@ router.post('/signup', signup);
 router.post('/login', login);
 router.post('/check-email', authHandler, checkEmailAvailability);
 router.post('/step-two', stepTwoHandler);
-router.get('/check-session', authHandler, (req, res) =>
-  res.status(200).json(new SuccessResponse('Authorized'))
-);
+router.post('/change-password', authHandler, handleChangePassword);
 router.get('/logout', authHandler, logout); // Add the logout route
 
 // router.post('/forgotpassword', forgotPassword);

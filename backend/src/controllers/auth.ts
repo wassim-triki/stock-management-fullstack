@@ -98,3 +98,23 @@ export const logout = async (req: Request, res: Response, next: any) => {
     return res.status(200).json(new SuccessResponse('Logout successful'));
   });
 };
+
+export const handleChangePassword = async (
+  req: Request,
+  res: Response,
+  next: any
+) => {
+  const { oldPassword, newPassword, confirmNewPassword } = req.body;
+  if (newPassword !== confirmNewPassword) {
+    return next(new ErrorResponse('Passwords do not match', 400));
+  }
+  const user = await User.findById(req.user?.id).select('+password');
+  if (!user) return next(new ErrorResponse('User not found', 404));
+  const isMatch = await user.matchPassword(oldPassword);
+  if (!isMatch) {
+    return next(new ErrorResponse('Incorrect old password', 400));
+  }
+  user.password = newPassword;
+  await user.save();
+  return res.status(200).json(new SuccessResponse('Password updated'));
+};

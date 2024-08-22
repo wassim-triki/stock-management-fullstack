@@ -13,7 +13,7 @@ export function AlertDestructive({
   error,
 }: IAlertDestructiveProps) {
   return (
-    <Alert className="text-sm" variant="destructive">
+    <Alert className="bg-red-100 text-sm" variant="destructive">
       <div className="flex items-center gap-2">
         <AlertCircle className="mb-[2px] h-4 w-4" />
         <AlertTitle>{error}</AlertTitle>

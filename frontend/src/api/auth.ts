@@ -1,3 +1,4 @@
+import { ChangePasswordFormValues } from "@/components/forms/account-form";
 import { SignupFormValues } from "@/components/signup";
 import { axiosInstance } from "@/lib/axios";
 import config from "@/lib/config";
@@ -26,6 +27,15 @@ export const signUpUser = async (
   data: SignupFormValues,
 ): Promise<ApiSuccessResponse<User>> => {
   return await fetchHelper("/api/auth/signup", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+};
+
+export const changePassword = async (
+  data: ChangePasswordFormValues,
+): Promise<ApiSuccessResponse> => {
+  return await fetchHelper("/api/auth/change-password", {
     method: "POST",
     body: JSON.stringify(data),
   });

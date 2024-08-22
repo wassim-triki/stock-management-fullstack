@@ -12,7 +12,7 @@ type ContentPageLayoutProps = {
   breadcrumbItems: { title: string; link: string }[];
   title: string;
   description: string;
-  addNewLink: string;
+  addNewLink?: string;
   children: React.ReactNode;
   isForm?: boolean;
 };
@@ -29,7 +29,7 @@ const ContentPageLayout: React.FC<ContentPageLayoutProps> = ({
       <Breadcrumbs items={breadcrumbItems} />
       <div className="flex items-start justify-between">
         <Heading title={title} description={description} />
-        <AddNewLink href={addNewLink} />
+        {addNewLink && <AddNewLink href={addNewLink} />}
       </div>
       <Separator />
       {children}

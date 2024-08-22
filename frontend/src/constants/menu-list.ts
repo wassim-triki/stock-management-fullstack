@@ -125,7 +125,7 @@ export function getMenuList(pathname: string, role: Role): Group[] {
           roles: [ROLES.MANAGER],
         },
         {
-          href: "/account",
+          href: "/dashboard/account",
           label: "Account",
           active: pathname.includes("/account"),
           icon: Settings,

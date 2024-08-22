@@ -1,4 +1,5 @@
 "use server";
+import { ChangePasswordFormValues } from "@/components/forms/account-form";
 import { UserFormValues } from "@/components/forms/user-form";
 import { axiosInstance } from "@/lib/axios";
 import fetchHelper from "@/lib/fetchInstance";
