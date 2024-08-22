@@ -72,20 +72,25 @@ export class ErrorResponse extends Error {
   }
 }
 
+export interface ICompany extends Document {
+  name: string;
+  logo: string;
+  address: string;
+  phone: string;
+  email: string;
+  website: string;
+  user: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type User = {
   password: string;
   email: string;
-  company: {
-    name: string;
-    address: string;
-    phone: string;
-    logo: string;
-    email: string;
-    website: string;
-  };
+  company: mongoose.Types.ObjectId;
   profile: {
-    // firstName: string;
-    // lastName: string;
+    firstName: string;
+    lastName: string;
     // phone: string;
     address: string;
   };
@@ -103,16 +108,11 @@ export interface IUser extends Document {
   matchPassword(password: string): boolean | PromiseLike<boolean>;
   password: string;
   email: string;
+  company: mongoose.Types.ObjectId;
   profile: {
     firstName: string;
     lastName: string;
-    phone: string;
-    address: {
-      street: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
+    address: string;
   };
   role: Role;
   createdAt: Date;

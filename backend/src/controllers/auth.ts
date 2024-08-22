@@ -4,6 +4,7 @@ import passport from '../config/passport';
 
 import { ErrorResponse, IUser, SuccessResponse } from '../types/types';
 import { User } from '../models/User';
+import { Company } from '../models/Company';
 
 export const signup = async (req: Request, res: Response, next: any) => {
   const { email, password, confirmPassword } = req.body;
@@ -54,7 +55,8 @@ export const checkEmailAvailability = async (
   const { email } = req.body;
 
   const user = await User.findOne({ email });
-  if (user) {
+  const company = await Company.findOne({ email });
+  if (user || company) {
     throw new ErrorResponse('Email is already in use', 400);
   }
   next();

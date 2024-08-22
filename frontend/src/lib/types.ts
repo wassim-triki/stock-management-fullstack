@@ -58,6 +58,19 @@ export type ApiSuccessResponseList<T> = {
   data: { total: number; items: T[] };
 };
 
+export type Company = {
+  _id: string;
+  name: string;
+  logo: string;
+  address: string;
+  phone: string;
+  email: string;
+  website: string;
+  user: User;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type User = {
   _id: string;
   password: string;

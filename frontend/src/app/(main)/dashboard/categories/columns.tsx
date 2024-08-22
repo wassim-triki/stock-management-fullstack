@@ -41,7 +41,7 @@ export const columns: ColumnDef<Category>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+      <DataTableColumnHeader column={column} title="NAME" />
     ),
     cell: ({ row }) => {
       // const label = labels.find((label) => label.value === row.original.label)

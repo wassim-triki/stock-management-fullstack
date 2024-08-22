@@ -10,32 +10,32 @@ import {
 } from "@tanstack/react-query";
 import { getCategories, getCategoryById } from "@/api/category";
 import { CategoryForm } from "@/components/forms/category-form";
+import { CompanyForm } from "@/components/forms/company-form";
+import { getCompanyById } from "@/api/company";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Categories", link: "/dashboard/categories" },
+  { title: "Companies", link: "/dashboard/companies" },
   { title: "Edit", link: "" },
 ];
 
 type Props = {
-  params: { categoryId: string };
+  params: { companyId: string };
 };
 
 export default async function Page({ params }: Props) {
-  const categoryId = params.categoryId;
+  const companyId = params.companyId;
 
-  const category = await getCategoryById(categoryId);
-  const categories = await getCategories();
+  const company = await getCompanyById(companyId);
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
-        <CategoryForm
-          categories={categories}
-          initCategory={category}
+        <CompanyForm
+          initCompany={company}
           action="Save Changes"
-          description="Edit category information"
-          title="Edit Category"
+          description="Edit company information"
+          title="Edit Company"
         />
       </div>
     </ScrollArea>

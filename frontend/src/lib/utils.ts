@@ -100,3 +100,26 @@ interface String {
 export const capitalize = function (string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
+
+export function getDirtyValues<
+  DirtyFields extends Record<string, unknown>,
+  Values extends Partial<Record<keyof DirtyFields, unknown>>,
+>(dirtyFields: DirtyFields, values: Values): Partial<Values> {
+  const dirtyValues = Object.keys(dirtyFields).reduce((prev, key) => {
+    // Unsure when RFH sets this to `false`, but omit the field if so.
+    if (!dirtyFields[key]) return prev;
+
+    return {
+      ...prev,
+      [key]:
+        typeof dirtyFields[key] === "object"
+          ? getDirtyValues(
+              dirtyFields[key] as DirtyFields,
+              values[key] as Values,
+            )
+          : values[key],
+    };
+  }, {});
+
+  return dirtyValues;
+}

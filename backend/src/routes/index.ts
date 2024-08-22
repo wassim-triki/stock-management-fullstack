@@ -6,6 +6,7 @@ import supplierRouter from './supplier';
 import categoryRouter from './category';
 import purchaseOrderRouter from './purchaseOrder';
 import supplierInvoiceRouter from './supplierInvoice';
+import companyRouter from './company';
 const routes = Router();
 
 routes.use('/api/auth', authRouter);
@@ -15,5 +16,6 @@ routes.use('/api/suppliers/invoices', supplierInvoiceRouter);
 routes.use('/api/suppliers', supplierRouter);
 routes.use('/api/categories', categoryRouter);
 routes.use('/api/purchase-orders', purchaseOrderRouter);
+routes.use('/api/companies', companyRouter);
 
 export default routes;

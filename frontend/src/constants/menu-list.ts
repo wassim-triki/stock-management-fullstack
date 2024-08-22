@@ -110,6 +110,15 @@ export function getMenuList(pathname: string, role: Role): Group[] {
           // Only Admins should see this
           roles: [ROLES.ADMIN],
         },
+        {
+          href: "/dashboard/companies",
+          label: "Companies",
+          active: pathname.includes("/companies"),
+          icon: Store,
+          submenus: [],
+          // Only Admins should see this
+          roles: [ROLES.ADMIN],
+        },
       ],
     },
     {

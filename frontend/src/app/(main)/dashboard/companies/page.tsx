@@ -6,13 +6,14 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { getCategories, getTotalCategories } from "@/api/category";
-import { ApiSearchFilter, Category, QueryParams } from "@/lib/types";
+import { ApiSearchFilter, Category, Company, QueryParams } from "@/lib/types";
 import { columns } from "./columns";
 import { DataTable } from "@/components/data-table/data-table";
+import { getCompanies, getTotalCompanies } from "@/api/company";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
-  { title: "Categories", link: "/dashboard/categories" },
+  { title: "Companies", link: "/dashboard/companies" },
 ];
 
 type ParamsProps = {
@@ -39,26 +40,26 @@ export default async function Page({ searchParams }: ParamsProps) {
   const [sortBy, order] =
     typeof sort === "string"
       ? (sort.split(".") as [
-          keyof Category | undefined,
+          keyof Company | undefined,
           "asc" | "desc" | undefined,
         ])
       : [];
 
-  const data = await getCategories({
+  const data = await getCompanies({
     offset,
     limit,
     sortBy,
     order,
     ...filters,
   });
-  const total = await getTotalCategories();
+  const total = await getTotalCompanies();
   const pageCount = Math.ceil(total / limit);
   return (
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
-      addNewLink="/dashboard/categories/new"
-      title={`Categories (${total})`}
-      description="Manage categories"
+      addNewLink="/dashboard/companies/new"
+      title={`Companies (${total})`}
+      description="Manage Companies"
     >
       <DataTable
         searchableColumns={[{ id: "name", title: "Name" }]}
