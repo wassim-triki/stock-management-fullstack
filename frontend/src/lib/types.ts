@@ -75,14 +75,7 @@ export type User = {
   _id: string;
   password: string;
   email: string;
-  company: {
-    name: string;
-    address: string;
-    phone: string;
-    logo: string;
-    email: string;
-    website: string;
-  };
+  company?: Company;
   profile: {
     firstName: string;
     lastName: string;

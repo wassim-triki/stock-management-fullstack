@@ -80,3 +80,10 @@ export const getCompanyById = async (id: string): Promise<Company> => {
   );
   return response.data;
 };
+
+export const getCompanyByUserId = async (userId: string): Promise<Company> => {
+  const response: ApiSuccessResponse<Company> = await fetchHelper(
+    `/api/companies/${userId}`,
+  );
+  return response.data;
+};

@@ -13,7 +13,8 @@ import { generatePDF } from '../services/pdfService';
 import { Supplier } from '../models/Supplier';
 import { Product } from '../models/Product';
 import mailer from '../services/mailer';
-import { ROLES } from '../models/User';
+import { ROLES, User } from '../models/User';
+import { Company } from '../models/Company';
 
 export type QueryParams = {
   limit?: string;
@@ -225,7 +226,8 @@ export const updatePurchaseOrder = async (
 export const getPurchaseOrderPreview = async (req: Request, res: Response) => {
   const purchaseOrder = await PurchaseOrder.findById(req.params.id)
     .populate('supplier')
-    .populate('items.product');
+    .populate('items.product')
+    .populate('user', '-password');
 
   if (!purchaseOrder) {
     throw new ErrorResponse(
@@ -233,9 +235,10 @@ export const getPurchaseOrderPreview = async (req: Request, res: Response) => {
       HttpCode.NOT_FOUND
     );
   }
+  const user = await User.findById(purchaseOrder.user).populate('company');
 
   // Generate the PDF
-  const doc = generatePDF('purchaseOrder', purchaseOrder);
+  const doc = generatePDF('purchaseOrder', purchaseOrder, user);
 
   // Set headers for PDF download
   res.setHeader('Content-Type', 'application/pdf');
@@ -256,15 +259,22 @@ export const sendPurchaseOrder = async (req: Request, res: Response) => {
   if (!purchaseOrder) {
     throw new ErrorResponse('Purchase Order not found', 404);
   }
-  const doc = generatePDF('purchaseOrder', purchaseOrder);
+  const user = await User.findById(purchaseOrder.user._id);
+  if (!user) {
+    throw new ErrorResponse('User not found', 404);
+  }
+  const doc = generatePDF('purchaseOrder', purchaseOrder, user);
   const pdfBuffer: Buffer = await new Promise((resolve, reject) => {
     const buffers: Buffer[] = [];
     doc.on('data', buffers.push.bind(buffers));
     doc.on('end', () => resolve(Buffer.concat(buffers)));
     doc.on('error', reject);
   });
+  const company = await Company.findOne({ user: user._id });
+
   await mailer.sendMail({
     to: purchaseOrder.supplier.email,
+    from: company?.email || user.email,
     subject: 'Purchase Order',
     text: 'Please find attached your purchase order.',
     attachments: [

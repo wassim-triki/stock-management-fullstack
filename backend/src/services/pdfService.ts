@@ -1,15 +1,16 @@
 import PDFDocument from 'pdfkit';
-import { IPurchaseOrder } from '../types/types';
+import { IPurchaseOrder, User } from '../types/types';
 import fs from 'fs';
 // General function to generate a PDF from provided data
 export const generatePDF = (
   type: 'purchaseOrder',
   data: any,
+  user: any,
   path?: string
 ): PDFKit.PDFDocument => {
   const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
-  generateHeader(doc);
+  generateHeader(doc, user);
 
   switch (type) {
     case 'purchaseOrder':
@@ -114,20 +115,33 @@ const generatePurchaseOrderTable = (
 };
 
 // Header Section
-function generateHeader(doc: PDFKit.PDFDocument) {
+function generateHeader(doc: PDFKit.PDFDocument, user: any) {
   const currentDate = formatDate(new Date());
+
+  // Check if the company exists, otherwise use the user's info
+  console.log(user, '🤞🤞🤞🤞');
+  const senderName =
+    user.company?.name ||
+    `${user.profile?.firstName} ${user.profile?.lastName}`.trim() ||
+    'No name available';
+  const senderAddress = user.company?.address || 'No address available';
+  const senderEmail = user.company?.email || user.email;
+  const senderPhone = user.company?.phone || 'No phone available';
+
   doc
     .image('logo.png', 50, 45, { width: 50 }) // Adjust the logo path
     .fillColor('#444444')
     .fontSize(20)
-    .text('ACME Inc.', 110, 57)
+    .text(senderName, 110, 57)
     .fontSize(10)
-    .text('ACME Inc.', 200, 50, { align: 'right' })
-    .text('123 Main Street', 200, 65, { align: 'right' })
-    .text('New York, NY, 10025', 200, 80, { align: 'right' })
-    .text(`${currentDate}`, 200, 95, { align: 'right' })
+    .text(senderName, 200, 50, { align: 'right' })
+    .text(senderAddress, 200, 65, { align: 'right' })
+    .text(senderEmail, 200, 80, { align: 'right' })
+    .text(`${senderPhone}`, 200, 95, { align: 'right' })
+    .text(`${currentDate}`, 200, 110, { align: 'right' })
     .moveDown();
 }
+
 function generatePurchaseOrderInformation(
   doc: PDFKit.PDFDocument,
   orderData: IPurchaseOrder
@@ -157,9 +171,9 @@ function generatePurchaseOrderInformation(
     .text(orderData.supplier.name, 350, customerInformationTop)
     .font('Helvetica')
     .text(orderData.supplier.email, 350, customerInformationTop + 15)
-    .text(orderData.supplier.phone, 350, customerInformationTop + 30)
+    .text(orderData.supplier.phone || 'N/A', 350, customerInformationTop + 30)
     .font('Helvetica')
-    .text(orderData.supplier.address, 350, customerInformationTop + 45)
+    .text(orderData.supplier.address || 'N/A', 350, customerInformationTop + 45)
     .moveDown();
 
   generateHr(doc, 285);

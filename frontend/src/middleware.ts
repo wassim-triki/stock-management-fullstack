@@ -1,7 +1,6 @@
-//middleware.ts
 import { NextRequest, NextResponse } from "next/server";
 import fetchHelper from "./lib/fetchInstance";
-import { ApiSuccessResponse, User } from "./lib/types";
+import { ApiSuccessResponse, User, ROLES } from "./lib/types"; // Assuming ROLES is defined
 import { cookies } from "next/headers";
 import appConfig from "@/lib/config";
 
@@ -10,24 +9,26 @@ const middleware = async (req: NextRequest) => {
   const cookieStore = cookies();
   const cookieValue = cookieStore.get("session")?.value;
 
-  let isAuthenticated = false; // Default assumption is that the user is not authenticated
+  let isAuthenticated = false;
+  let userRole: string | null = null; // Store the user's role if authenticated
 
   try {
-    // Try fetching the authentication status from the API
+    // Fetch user details from the authentication API
     const response = await fetch(`${appConfig.apiUrl}/api/auth/me`, {
-      credentials: "include", // Ensure credentials are sent
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Cookie: "session=" + cookieValue,
       },
     });
 
-    // Check if the user is authenticated
-    isAuthenticated = response.ok;
+    if (response.ok) {
+      const { data: user }: ApiSuccessResponse<User> = await response.json();
+      isAuthenticated = true;
+      userRole = user.role; // Set the user's role
+    }
   } catch (error) {
     console.error("Error fetching authentication status:", error);
-
-    // Optionally, you could redirect the user to a maintenance page if the server is down
     return NextResponse.redirect(new URL("/maintenance", req.url));
   }
 
@@ -38,6 +39,28 @@ const middleware = async (req: NextRequest) => {
 
   if (isAuthenticated && (pathname === "/login" || pathname === "/signup")) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // Role-based access control (RBAC)
+  const rolePermissions: Record<string, string[]> = {
+    "/dashboard/companies": [ROLES.ADMIN], // Only admin can access /dashboard/admin
+    "/dashboard/users": [ROLES.ADMIN], // Only admin can access /dashboard/admin
+    // "/dashboard/manager": [ROLES.MANAGER, ROLES.ADMIN], // Both managers and admins can access /dashboard/manager
+    // "/dashboard/user": [ROLES.USER, ROLES.MANAGER, ROLES.ADMIN], // All roles can access /dashboard/user
+  };
+
+  // Check if the current path has role restrictions
+  const restrictedPath = Object.keys(rolePermissions).find((path) =>
+    pathname.startsWith(path),
+  );
+
+  if (restrictedPath) {
+    const allowedRoles = rolePermissions[restrictedPath];
+
+    // If the user is not authorized, redirect them to an unauthorized page or dashboard
+    if (!allowedRoles?.includes(userRole as string)) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url));
+    }
   }
 
   return NextResponse.next();

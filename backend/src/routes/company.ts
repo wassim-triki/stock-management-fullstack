@@ -9,6 +9,7 @@ import {
   getCompanyById,
   getTotalCompanies,
   updateCompany,
+  getCompanyByUserId,
 } from '../controllers/company';
 import { checkEmailAvailability } from '../controllers/auth';
 const router = express.Router();
@@ -41,6 +42,12 @@ router.delete(
   deleteCompany
 );
 
+router.get(
+  '/:userId',
+  authHandler,
+  authorizeRoles(ROLES.ADMIN, ROLES.MANAGER),
+  getCompanyByUserId
+);
 router.get('/:id', authHandler, authorizeRoles(ROLES.ADMIN), getCompanyById);
 
 export default router;

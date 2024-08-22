@@ -6,7 +6,7 @@ import {
   ErrorResponse,
   HttpCode,
 } from '../types/types';
-import { ROLES } from '../models/User';
+import { ROLES, User } from '../models/User';
 
 // Get all companies with pagination, sorting, and filtering
 export const getCompanies = async (
@@ -79,10 +79,15 @@ export const createCompany = async (
     return next(new ErrorResponse('You already have a company', 400));
   }
 
-  // Create the company
+  // Create the company and link it to the user
   const newCompany = await Company.create({
     ...req.body,
     user: req.user?._id, // Link the company to the user creating it
+  });
+
+  // Update the user to assign the new company's ID
+  await User.findByIdAndUpdate(req.user?._id, {
+    company: newCompany._id,
   });
 
   res.status(201).json(new SuccessResponse('Company created', newCompany));
@@ -118,7 +123,6 @@ export const updateCompany = async (
     new: true,
     runValidators: true,
   });
-
   res.status(200).json(new SuccessResponse('Company updated', updatedCompany));
 };
 
@@ -150,4 +154,15 @@ export const deleteCompany = async (
 
   await company.deleteOne();
   res.status(200).json(new SuccessResponse('Company deleted', null));
+};
+
+export const getCompanyByUserId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { userId } = req.params;
+  const company = await Company.findOne({ user: userId });
+
+  res.status(200).json(new SuccessResponse('Company retrieved', company));
 };

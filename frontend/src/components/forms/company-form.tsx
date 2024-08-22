@@ -22,10 +22,16 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import { useToast } from "../ui/use-toast";
-import { ApiErrorResponse, ApiSuccessResponse, Company } from "@/lib/types";
+import {
+  ApiErrorResponse,
+  ApiSuccessResponse,
+  Company,
+  ROLES,
+} from "@/lib/types";
 import SubmitButton from "../ui/submit-button";
 import { createCompany, updateCompany } from "@/api/company";
 import { getDirtyValues } from "@/lib/utils";
+import { useAuth } from "@/providers/auth-provider";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Company name is required" }),
@@ -57,6 +63,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
   const [loading, setLoading] = useState(false);
 
   const defaultValues = {
@@ -91,7 +98,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({
           title: res.message,
         });
       }
-      router.push("/dashboard/companies");
+      auth.role === ROLES.ADMIN && router.push("/dashboard/companies");
     } catch (error) {
       toast({
         variant: "destructive",
