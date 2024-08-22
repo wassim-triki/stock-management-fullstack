@@ -50,6 +50,7 @@ export function getMenuList(pathname: string, role: Role): Group[] {
           active: pathname.includes("/dashboard"),
           icon: LayoutGrid,
           submenus: [],
+          roles: [ROLES.ADMIN, ROLES.MANAGER],
         },
       ],
     },

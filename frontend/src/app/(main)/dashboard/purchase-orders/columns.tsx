@@ -147,7 +147,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     cell: ({ cell, row }) => {
       return (
         <TableCellLink
-          href={`/dashboard/suppliers/${row.original.supplier._id}`}
+          href={`/dashboard/suppliers/${row.original.supplier?._id}`}
         >
           {cell.getValue() as string}
         </TableCellLink>

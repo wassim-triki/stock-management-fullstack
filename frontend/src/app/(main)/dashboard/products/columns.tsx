@@ -28,8 +28,8 @@ export function getUserColumn<T>(): ColumnDef<T> {
       }
 
       return (
-        <TableCellLink href={`/dashboard/users/${user._id}`}>
-          {user.email}
+        <TableCellLink href={`/dashboard/users/${user?._id}`}>
+          {user?.email}
         </TableCellLink>
       );
     },
@@ -110,8 +110,8 @@ export const columns: ColumnDef<Product>[] = [
       const supplier = row.original.supplier;
 
       return (
-        <TableCellLink href={`/dashboard/suppliers/${supplier._id}`}>
-          {supplier.name}
+        <TableCellLink href={`/dashboard/suppliers/${supplier?._id}`}>
+          {supplier?.name}
         </TableCellLink>
       );
     },
@@ -120,7 +120,7 @@ export const columns: ColumnDef<Product>[] = [
 
   {
     accessorKey: "category",
-    accessorFn: (row) => row.category.name,
+    accessorFn: (row) => row.category?.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="CATEGORY" />
     ),

@@ -39,6 +39,7 @@ export default function UserNav() {
 
   const user = data?.data;
   const auth = useAuth();
+  const router = useRouter();
   const { mutate: logout, isPending: isSigningOut } = useMutation({
     mutationFn: logoutUser,
     onSuccess: (data) => {
@@ -51,10 +52,10 @@ export default function UserNav() {
     },
   });
   const { toast } = useToast();
-  const router = useRouter();
 
   const handleLogout = async () => {
     logout();
+    auth.logout();
   };
 
   return (
