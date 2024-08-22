@@ -10,6 +10,7 @@ import {
   checkEmailAvailability,
   handleChangePassword,
   changeEmail,
+  handleChangeInfo,
   logout, // Import the logout controller
 } from '../controllers/auth';
 import { authHandler } from '../middleware/authHandler';
@@ -21,6 +22,7 @@ router.post('/signup', signup);
 router.post('/login', login);
 router.post('/change-email', authHandler, checkEmailAvailability, changeEmail);
 router.post('/change-password', authHandler, handleChangePassword);
+router.post('/change-info', authHandler, handleChangeInfo);
 router.get('/logout', authHandler, logout); // Add the logout route
 
 // router.post('/forgotpassword', forgotPassword);

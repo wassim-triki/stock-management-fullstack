@@ -116,16 +116,16 @@ export function getMenuList(pathname: string, role: Role): Group[] {
       groupLabel: "Settings",
       menus: [
         {
-          href: "/settings/my-company",
+          href: "/dashbaord/settings/my-company",
           label: "My Company",
-          active: pathname.includes("/account"),
+          active: pathname.includes("/my-company"),
           icon: Store,
           submenus: [],
           // Available to all roles
           roles: [ROLES.MANAGER],
         },
         {
-          href: "/dashboard/account",
+          href: "/dashboard/settings/account",
           label: "Account",
           active: pathname.includes("/account"),
           icon: Settings,

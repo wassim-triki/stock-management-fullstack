@@ -60,7 +60,7 @@ export const updateUser = async ({
   data,
 }: {
   id: string;
-  data: AccountInfoFormValues | UserFormValues;
+  data: UserFormValues;
 }): Promise<ApiSuccessResponse<User>> => {
   revalidateTag("users");
   return await fetchHelper(`/api/users/${id}`, {

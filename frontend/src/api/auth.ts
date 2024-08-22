@@ -1,4 +1,7 @@
-import { ChangePasswordFormValues } from "@/components/forms/account-form";
+import {
+  AccountInfoFormValues,
+  ChangePasswordFormValues,
+} from "@/components/forms/account-form";
 import { SignupFormValues } from "@/components/signup";
 import { axiosInstance } from "@/lib/axios";
 import config from "@/lib/config";
@@ -47,5 +50,14 @@ export const changeEmail = async (
   return await fetchHelper("/api/auth/change-email", {
     method: "POST",
     body: JSON.stringify({ email }),
+  });
+};
+
+export const changeInfo = async (
+  data: AccountInfoFormValues,
+): Promise<ApiSuccessResponse<AccountInfoFormValues>> => {
+  return await fetchHelper("/api/auth/change-info", {
+    method: "POST",
+    body: JSON.stringify(data),
   });
 };

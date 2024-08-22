@@ -71,6 +71,21 @@ export const changeEmail = async (req: Request, res: Response, next: any) => {
     .json(new SuccessResponse('Email updated', { email: newUser.email }));
 };
 
+export const handleChangeInfo = async (
+  req: Request,
+  res: Response,
+  next: any
+) => {
+  const { profile } = req.body;
+  const user = await User.findById(req.user?.id);
+  if (!user) return next(new ErrorResponse('User not found', 404));
+  user.profile = profile;
+  const newUser = await user.save();
+  return res
+    .status(200)
+    .json(new SuccessResponse('Profile updated', { profile: newUser.profile }));
+};
+
 export const getAuthUserDetails = async (
   req: Request,
   res: Response,

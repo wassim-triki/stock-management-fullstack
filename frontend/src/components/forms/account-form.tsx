@@ -34,7 +34,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { registerSchema } from "../signup";
-import { changeEmail, changePassword } from "@/api/auth";
+import { changeEmail, changeInfo, changePassword } from "@/api/auth";
 import { AlertDestructive } from "../ui/alert-destructive";
 
 const changEmailSchema = z.object({
@@ -158,20 +158,14 @@ export const AccountForm: React.FC<AccountFormProps> = ({
     isPending: updatingInfo,
     error: updateInfoError,
   } = useMutation({
-    mutationFn: updateUser,
+    mutationFn: changeInfo,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["auth"] });
       toast({
         variant: "success",
         title: data.message,
       });
-      accountInfoForm.reset({
-        profile: {
-          address: data.data.profile.address,
-          firstName: data.data.profile.firstName,
-          lastName: data.data.profile.lastName,
-        },
-      });
+      accountInfoForm.reset(data.data);
     },
   });
 
@@ -188,7 +182,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({
   };
   const onSubmitChangeInfo = async (data: AccountInfoFormValues) => {
     setLoading(true);
-    handleUpdateInfo({ id: authUser._id, data });
+    handleUpdateInfo(data);
     setLoading(false);
   };
 
@@ -203,7 +197,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({
         <Form {...changeEmailForm}>
           <form
             onSubmit={changeEmailForm.handleSubmit(onSubmitChangeEmail)}
-            className="w-full space-y-8"
+            className="w-full space-y-4"
           >
             <FormField
               control={changeEmailForm.control}
@@ -234,7 +228,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({
         <Form {...accountInfoForm}>
           <form
             onSubmit={accountInfoForm.handleSubmit(onSubmitChangeInfo)}
-            className="w-full space-y-8"
+            className="w-full space-y-4"
           >
             <FormField
               control={accountInfoForm.control}
@@ -304,7 +298,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({
         <Form {...changePasswordForm}>
           <form
             onSubmit={changePasswordForm.handleSubmit(onSubmitChangePassword)}
-            className="w-full space-y-8"
+            className="w-full space-y-4"
           >
             <FormField
               control={changePasswordForm.control}

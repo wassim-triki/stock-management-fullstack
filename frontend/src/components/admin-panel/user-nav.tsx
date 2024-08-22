@@ -88,21 +88,20 @@ export default function UserNav() {
 
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {user?.profile?.firstName} {user?.profile?.lastName}
-              </p>
-              <p className="flex items-center justify-between text-xs leading-none text-muted-foreground">
-                <span className="truncate">{user?.email}</span>
-              </p>
-            </div>
-            <Badge
-              className="ml-2 flex-shrink-0"
-              variant={user?.role === "Admin" ? "default" : "outline"}
-            >
-              {user?.role}
-            </Badge>
+          <div className="flex justify-between"></div>
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">
+              {user?.profile?.firstName} {user?.profile?.lastName}
+            </p>
+            <p className="flex items-center justify-between text-xs leading-none text-muted-foreground">
+              <span className="truncate">{user?.email}</span>
+              <Badge
+                className="ml-2 flex-shrink-0"
+                variant={user?.role === "Admin" ? "default" : "outline"}
+              >
+                {user?.role}
+              </Badge>
+            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -114,7 +113,10 @@ export default function UserNav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <Link href="/account" className="flex items-center">
+            <Link
+              href="/dashboard/settings/account"
+              className="flex items-center"
+            >
               <UserIcon className="mr-3 h-4 w-4 text-muted-foreground" />
               Account
             </Link>
