@@ -52,6 +52,29 @@ export const columns: ColumnDef<User>[] = [
       );
     },
   },
+  {
+    accessorKey: "profile",
+    accessorFn: (row) => {
+      let name = "";
+      if (row.profile?.firstName) {
+        name += row.profile?.firstName;
+      }
+      if (row.profile?.lastName) {
+        name += " " + row.profile?.lastName;
+      }
+      return name.trim() || "N/A";
+    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="FULL NAME" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <span className="max-w-[150px] truncate font-medium">
+          {row.getValue("profile")}
+        </span>
+      );
+    },
+  },
 
   {
     accessorKey: "address",

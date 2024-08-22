@@ -82,6 +82,8 @@ const userAdminSchema = z.intersection(
     email: z.string().min(1, "Email is required").email("Invalid email"),
     profile: z.object({
       address: z.string().optional(),
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
     }),
     role: z.string().min(1, { message: "" }),
     active: z.boolean(),
@@ -115,6 +117,8 @@ export const UserForm: React.FC<UserFormProps> = ({
     confirmPassword: "",
     profile: {
       address: initUser?.profile?.address || "",
+      firstName: initUser?.profile?.firstName || "",
+      lastName: initUser?.profile?.lastName || "",
     },
     role: initUser?.role || "User",
     active: initUser?.active || false,
@@ -123,7 +127,7 @@ export const UserForm: React.FC<UserFormProps> = ({
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userAdminSchema),
     // defaultValues,
-    values: defaultValues,
+    defaultValues: defaultValues,
   });
 
   const onSubmit = async (data: UserFormValues) => {
@@ -141,8 +145,9 @@ export const UserForm: React.FC<UserFormProps> = ({
           variant: "success",
           title: res.message,
         });
+        form.reset(res.data);
       }
-      router.push("/dashboard/users");
+      // router.push("/dashboard/users");
     } catch (error) {
       toast({
         variant: "destructive",
@@ -188,7 +193,11 @@ export const UserForm: React.FC<UserFormProps> = ({
                       <div className="flex items-center">
                         <FormLabel>Password</FormLabel>
                       </div>
-                      <Input type="password" {...field} />
+                      <Input
+                        placeholder="Password"
+                        type="password"
+                        {...field}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -206,8 +215,46 @@ export const UserForm: React.FC<UserFormProps> = ({
                       <div className="flex items-center">
                         <FormLabel>Confirm password</FormLabel>
                       </div>
-                      <Input type="password" {...field} />
+                      <Input
+                        placeholder="Confirm password"
+                        type="password"
+                        {...field}
+                      />
                     </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="profile.firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="First name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="profile.lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Last name"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -285,7 +332,12 @@ export const UserForm: React.FC<UserFormProps> = ({
                 </FormItem>
               )}
             />
-            <Button className="w-full md:w-min" loading={loading} type="submit">
+            <Button
+              className="w-full md:w-min"
+              loading={loading}
+              type="submit"
+              disabled={!form.formState.isDirty}
+            >
               {action}
             </Button>
           </form>
