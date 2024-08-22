@@ -41,7 +41,8 @@ export const getCategories = async (
     .sort({ [sortBy as string]: sortOrder })
     .skip(offsetNum)
     .limit(limitNum)
-    .populate('parentCategory');
+    .populate('parentCategory')
+    .populate('user', 'email');
 
   res
     .status(200)

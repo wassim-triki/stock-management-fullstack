@@ -9,6 +9,7 @@ import { ArrowUpDown } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import ActiveBadge from "@/components/ui/active-bage";
+import { getUserColumn } from "../products/columns";
 
 export const columns: ColumnDef<Supplier>[] = [
   {
@@ -30,6 +31,7 @@ export const columns: ColumnDef<Supplier>[] = [
     enableSorting: false,
     enableHiding: false,
   },
+  getUserColumn(),
   {
     accessorKey: "name",
     header: ({ column }) => (

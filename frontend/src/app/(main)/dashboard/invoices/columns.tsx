@@ -12,6 +12,7 @@ import TableCellLink from "@/components/ui/table-link";
 import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
 import { Badge } from "@/components/ui/badge";
 import { deleteSupplierInvoice } from "@/api/supplier-invoices";
+import { getUserColumn } from "../products/columns";
 
 export const columns: ColumnDef<SupplierInvoice>[] = [
   // {
@@ -33,6 +34,7 @@ export const columns: ColumnDef<SupplierInvoice>[] = [
   //   enableSorting: false,
   //   enableHiding: false,
   // },
+  getUserColumn(),
   {
     accessorKey: "invoiceNumber",
     header: ({ column }) => (

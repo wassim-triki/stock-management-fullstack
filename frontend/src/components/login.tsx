@@ -32,6 +32,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { loginUser } from "@/api/auth";
 import { Button } from "./ui/button";
 import { queryKeys } from "@/constants/query-keys";
+import { useAuth } from "@/providers/auth-provider";
 
 const adminCredentials = {
   email: "admin@admin.com",
@@ -58,6 +59,7 @@ function Login() {
     defaultValues,
   });
   const router = useRouter();
+  const auth = useAuth();
 
   const queryClient = useQueryClient();
 
@@ -74,6 +76,7 @@ function Login() {
         variant: "success",
         title: data.message,
       });
+      auth.login(data.data);
       router.refresh();
       // router.push("/dashboard");
     },

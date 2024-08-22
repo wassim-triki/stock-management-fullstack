@@ -100,6 +100,7 @@ export type Product = {
   description?: string;
   price: number;
   quantityInStock: number;
+  user: User;
   createdAt: Date;
   updatedAt: Date;
 };

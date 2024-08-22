@@ -11,6 +11,7 @@ import { DataTableRowActions } from "@/components/data-table/data-table-row-acti
 import { deleteUser } from "@/api/user";
 import { Badge } from "@/components/ui/badge";
 import ActiveBadge from "@/components/ui/active-bage";
+import TableCellLink from "@/components/ui/table-link";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -40,11 +41,14 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex space-x-2">
+        <TableCellLink
+          href={`/dashboard/users/${row.original._id}`}
+          className="flex space-x-2"
+        >
           <span className="max-w-[150px] truncate font-medium">
             {row.getValue("email")}
           </span>
-        </div>
+        </TableCellLink>
       );
     },
   },

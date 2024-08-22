@@ -36,7 +36,8 @@ export const getSuppliers = async (
     const suppliers = await Supplier.find(query)
       .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
-      .limit(limitNum);
+      .limit(limitNum)
+      .populate('user', 'email');
 
     res
       .status(200)
