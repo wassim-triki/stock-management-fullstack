@@ -70,10 +70,13 @@ export default function UserNav() {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="#" alt="Avatar" />
                   <AvatarFallback className="bg-transparent">
-                    {/* {getInitials(
-                      user?.profile.firstName + " " + user?.profile.lastName,
-                    )} */}
-                    <UserIcon className="h-4 w-4" />
+                    {user?.profile.firstName &&
+                      getInitials(user.profile.firstName)}
+                    {user?.profile.lastName &&
+                      getInitials(user.profile.lastName)}
+                    {!user?.profile.firstName && !user?.profile.lastName && (
+                      <UserIcon className="h-4 w-4" />
+                    )}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -85,16 +88,21 @@ export default function UserNav() {
 
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="flex items-center justify-between text-xs leading-none text-muted-foreground">
-              <span className="truncate">{user?.email}</span>
-              <Badge
-                className="ml-2 flex-shrink-0"
-                variant={user?.role === "Admin" ? "default" : "outline"}
-              >
-                {user?.role}
-              </Badge>
-            </p>
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {user?.profile?.firstName} {user?.profile?.lastName}
+              </p>
+              <p className="flex items-center justify-between text-xs leading-none text-muted-foreground">
+                <span className="truncate">{user?.email}</span>
+              </p>
+            </div>
+            <Badge
+              className="ml-2 flex-shrink-0"
+              variant={user?.role === "Admin" ? "default" : "outline"}
+            >
+              {user?.role}
+            </Badge>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
