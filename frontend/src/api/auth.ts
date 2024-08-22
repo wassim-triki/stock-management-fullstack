@@ -40,3 +40,12 @@ export const changePassword = async (
     body: JSON.stringify(data),
   });
 };
+
+export const changeEmail = async (
+  email: string,
+): Promise<ApiSuccessResponse<{ email: string }>> => {
+  return await fetchHelper("/api/auth/change-email", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+};

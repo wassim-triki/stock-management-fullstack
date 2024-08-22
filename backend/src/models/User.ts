@@ -45,8 +45,8 @@ const UserSchema: Schema = new Schema(
       },
     },
     profile: {
-      // firstName: { type: String },
-      // lastName: { type: String },
+      firstName: { type: String },
+      lastName: { type: String },
       // phone: { type: String },
       address: { type: String },
     },

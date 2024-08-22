@@ -1,5 +1,8 @@
 "use server";
-import { ChangePasswordFormValues } from "@/components/forms/account-form";
+import {
+  AccountInfoFormValues,
+  ChangePasswordFormValues,
+} from "@/components/forms/account-form";
 import { UserFormValues } from "@/components/forms/user-form";
 import { axiosInstance } from "@/lib/axios";
 import fetchHelper from "@/lib/fetchInstance";
@@ -57,7 +60,7 @@ export const updateUser = async ({
   data,
 }: {
   id: string;
-  data: UserFormValues;
+  data: AccountInfoFormValues;
 }): Promise<ApiSuccessResponse<User>> => {
   revalidateTag("users");
   return await fetchHelper(`/api/users/${id}`, {

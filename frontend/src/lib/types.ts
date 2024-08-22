@@ -71,8 +71,8 @@ export type User = {
     website: string;
   };
   profile: {
-    // firstName: string;
-    // lastName: string;
+    firstName: string;
+    lastName: string;
     // phone: string;
     address: string;
   };

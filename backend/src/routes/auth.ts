@@ -8,8 +8,8 @@ import {
   getAuthUserDetails,
   login,
   checkEmailAvailability,
-  stepTwoHandler,
   handleChangePassword,
+  changeEmail,
   logout, // Import the logout controller
 } from '../controllers/auth';
 import { authHandler } from '../middleware/authHandler';
@@ -19,8 +19,7 @@ import 'express-async-errors';
 router.get('/me', authHandler, getAuthUserDetails);
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/check-email', authHandler, checkEmailAvailability);
-router.post('/step-two', stepTwoHandler);
+router.post('/change-email', authHandler, checkEmailAvailability, changeEmail);
 router.post('/change-password', authHandler, handleChangePassword);
 router.get('/logout', authHandler, logout); // Add the logout route
 

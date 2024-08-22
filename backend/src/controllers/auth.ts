@@ -1,13 +1,15 @@
 import { Response, Request, CookieOptions } from 'express';
 import crypto from 'crypto';
 import passport from '../config/passport';
-import { validateStepOne, validateStepTwo } from '../schemas/userSchemas';
+
 import { ErrorResponse, IUser, SuccessResponse } from '../types/types';
 import { User } from '../models/User';
 
 export const signup = async (req: Request, res: Response, next: any) => {
-  const { email, password, firstName, lastName, phone, address } = req.body;
-  const profile = { firstName, lastName, phone, address };
+  const { email, password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    return next(new ErrorResponse('Passwords do not match', 400));
+  }
   const userWithEmail = await User.findOne({ email });
   if (userWithEmail) {
     return next(new ErrorResponse('Email is already in use', 400));
@@ -15,8 +17,6 @@ export const signup = async (req: Request, res: Response, next: any) => {
   const user: IUser = await User.create({
     email,
     password,
-    profile,
-    address,
   });
   return res.status(201).json(new SuccessResponse('Account created', user));
 };
@@ -53,35 +53,22 @@ export const checkEmailAvailability = async (
 ) => {
   const { email } = req.body;
 
-  const valid = validateStepOne(req.body);
-  if (!valid) {
-    throw new ErrorResponse('Validation failed', 400);
-  }
-
   const user = await User.findOne({ email });
   if (user) {
     throw new ErrorResponse('Email is already in use', 400);
   }
-  return res.status(200).json(new SuccessResponse('Email is available'));
+  next();
 };
 
-export const stepTwoHandler = async (
-  req: Request,
-  res: Response,
-  next: any
-) => {
-  const { firstName, lastName } = req.body;
-
-  const valid = validateStepTwo(req.body);
-  try {
-    if (!valid) {
-      throw new ErrorResponse('Validation failed', 400);
-    }
-
-    return res.status(200).json(new SuccessResponse('Step 2 completed'));
-  } catch (error: any) {
-    next(error);
-  }
+export const changeEmail = async (req: Request, res: Response, next: any) => {
+  const { email } = req.body;
+  const user = await User.findById(req.user?.id);
+  if (!user) return next(new ErrorResponse('User not found', 404));
+  user.email = email;
+  const newUser = await user.save();
+  return res
+    .status(200)
+    .json(new SuccessResponse('Email updated', { email: newUser.email }));
 };
 
 export const getAuthUserDetails = async (

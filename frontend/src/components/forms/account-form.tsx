@@ -34,8 +34,13 @@ import {
   SelectValue,
 } from "../ui/select";
 import { registerSchema } from "../signup";
-import { changePassword } from "@/api/auth";
+import { changeEmail, changePassword } from "@/api/auth";
 import { AlertDestructive } from "../ui/alert-destructive";
+
+const changEmailSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email"),
+});
+export type ChangeEmailFormValues = z.infer<typeof changEmailSchema>;
 
 const changePasswordSchema = z
   .object({
@@ -55,10 +60,15 @@ const changePasswordSchema = z
 
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
+// const accountInfoSchema = z.object({
+//   email: z.string().min(1, "Email is required").email("Invalid email"),
+
+// });
 const accountInfoSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email"),
   profile: z.object({
-    address: z.string().optional(),
+    firstName: z.string(),
+    lastName: z.string(),
+    address: z.string(),
   }),
 });
 
@@ -68,7 +78,7 @@ interface AccountFormProps {
   title: string;
   description: string;
   action: string;
-  authUser?: User;
+  authUser: User;
 }
 
 export const AccountForm: React.FC<AccountFormProps> = ({
@@ -81,28 +91,51 @@ export const AccountForm: React.FC<AccountFormProps> = ({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const changeEmailForm = useForm<ChangeEmailFormValues>({
+    resolver: zodResolver(changEmailSchema),
+    defaultValues: {
+      email: authUser.email || "",
+    },
+  });
+
   const changePasswordForm = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
-    values: {
+    defaultValues: {
       oldPassword: "",
       newPassword: "",
       confirmNewPassword: "",
     },
   });
 
-  const defaultValues = {
-    email: authUser?.email || "",
-    password: "",
-    profile: {
-      address: authUser?.profile?.address || "",
-    },
-    role: authUser?.role || "User",
-  };
-  const form = useForm<AccountInfoFormValues>({
+  const accountInfoForm = useForm<AccountInfoFormValues>({
     resolver: zodResolver(accountInfoSchema),
-    // defaultValues,
-    values: defaultValues,
+    defaultValues: {
+      profile: {
+        address: authUser.profile?.address || "",
+        firstName: authUser.profile?.firstName || "",
+        lastName: authUser.profile?.lastName || "",
+      },
+    },
   });
+
+  const {
+    mutate: handleUpdateEmail,
+    isPending: updatingEmail,
+    error: updateEmailError,
+  } = useMutation({
+    mutationFn: changeEmail,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+      toast({
+        variant: "success",
+        title: data.message,
+      });
+      changeEmailForm.reset({
+        email: data.data.email,
+      });
+    },
+  });
+
   const queryClient = useQueryClient();
   const {
     mutate: handleChangePass,
@@ -120,35 +153,43 @@ export const AccountForm: React.FC<AccountFormProps> = ({
     },
   });
 
+  const {
+    mutate: handleUpdateInfo,
+    isPending: updatingInfo,
+    error: updateInfoError,
+  } = useMutation({
+    mutationFn: updateUser,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+      toast({
+        variant: "success",
+        title: data.message,
+      });
+      accountInfoForm.reset({
+        profile: {
+          address: data.data.profile.address,
+          firstName: data.data.profile.firstName,
+          lastName: data.data.profile.lastName,
+        },
+      });
+    },
+  });
+
+  const onSubmitChangeEmail = async (data: ChangeEmailFormValues) => {
+    setLoading(true);
+    handleUpdateEmail(data.email);
+    setLoading(false);
+  };
+
   const onSubmitChangePassword = async (data: ChangePasswordFormValues) => {
     setLoading(true);
-    try {
-      handleChangePass(data);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: (error as ApiErrorResponse).message,
-      });
-    } finally {
-      setLoading(false);
-    }
+    handleChangePass(data);
+    setLoading(false);
   };
   const onSubmitChangeInfo = async (data: AccountInfoFormValues) => {
     setLoading(true);
-    try {
-      console.log(data);
-      // toast({
-      //   variant: "success",
-      //   title: res.message,
-      // });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: (error as ApiErrorResponse).message,
-      });
-    } finally {
-      setLoading(false);
-    }
+    handleUpdateInfo({ id: authUser._id, data });
+    setLoading(false);
   };
 
   return (
@@ -158,13 +199,14 @@ export const AccountForm: React.FC<AccountFormProps> = ({
       </div>
       <Separator />
       <div className="space-y-8">
-        <Form {...form}>
+        {/* Email form */}
+        <Form {...changeEmailForm}>
           <form
-            onSubmit={form.handleSubmit(onSubmitChangeInfo)}
+            onSubmit={changeEmailForm.handleSubmit(onSubmitChangeEmail)}
             className="w-full space-y-8"
           >
             <FormField
-              control={form.control}
+              control={changeEmailForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
@@ -176,9 +218,26 @@ export const AccountForm: React.FC<AccountFormProps> = ({
                 </FormItem>
               )}
             />
-
+            {updateEmailError && (
+              <AlertDestructive error={updateEmailError.message} />
+            )}
+            <Button
+              className="w-full md:w-min"
+              disabled={!changeEmailForm.formState.isDirty}
+              loading={updatingEmail}
+              type="submit"
+            >
+              {action}
+            </Button>
+          </form>
+        </Form>
+        <Form {...accountInfoForm}>
+          <form
+            onSubmit={accountInfoForm.handleSubmit(onSubmitChangeInfo)}
+            className="w-full space-y-8"
+          >
             <FormField
-              control={form.control}
+              control={accountInfoForm.control}
               name="profile.address"
               render={({ field }) => (
                 <FormItem>
@@ -194,8 +253,49 @@ export const AccountForm: React.FC<AccountFormProps> = ({
                 </FormItem>
               )}
             />
-
-            <Button className="w-full md:w-min" loading={loading} type="submit">
+            <FormField
+              control={accountInfoForm.control}
+              name="profile.firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="First name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={accountInfoForm.control}
+              name="profile.lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Last name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {updateInfoError && (
+              <AlertDestructive error={updateInfoError.message} />
+            )}
+            <Button
+              className="w-full md:w-min"
+              disabled={!accountInfoForm.formState.isDirty}
+              loading={updatingInfo}
+              type="submit"
+            >
               {action}
             </Button>
           </form>
@@ -264,6 +364,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({
             <Button
               className="w-full md:w-min"
               loading={changingPass}
+              disabled={!changePasswordForm.formState.isDirty}
               type="submit"
             >
               {action}

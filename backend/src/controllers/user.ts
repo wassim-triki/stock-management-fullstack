@@ -83,18 +83,19 @@ export const getTotalUsers = async (
 };
 
 export const createUser = async (req: Request, res: Response, next: any) => {
-  const { email, password, profile, address, role, active } = req.body;
+  const { email, password, confirmPassword } = req.body;
+
+  if (password !== confirmPassword) {
+    return next(new ErrorResponse('Passwords do not match', 400));
+  }
   const userWithEmail = await User.findOne({ email });
   if (userWithEmail) {
     throw new ErrorResponse('Email is already in use', 400);
   }
   const user: IUser = await User.create({
-    email,
-    profile,
-    address,
+    ...req.body,
     password,
-    role,
-    active,
+    email,
   });
   return res.status(201).json(new SuccessResponse('Account created', user));
 };
@@ -121,7 +122,7 @@ export const updateUser = async (
   user.set(data);
 
   // If password is being updated, Mongoose pre('save') will hash it
-  await user.save();
+  const updatedUser = await user.save({});
 
-  res.status(200).json(new SuccessResponse('User updated', user));
+  res.status(200).json(new SuccessResponse('User updated', updatedUser));
 };
