@@ -14,7 +14,7 @@ import { PieGraph } from "@/components/admin-panel/charts/pie-graph";
 import { AreaGraph } from "@/components/admin-panel/charts/area-graph";
 import { RecentSales } from "@/components/admin-panel/recent-sales";
 import Spinner from "@/components/spinner";
-
+//TODO: add loading.ts
 export default function DashboardPage() {
   return (
     <ScrollArea className="h-full">

@@ -567,7 +567,11 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             />
 
             <div className="flex w-full gap-2 md:w-min">
-              <Button loading={loading} type="submit">
+              <Button
+                loading={loading}
+                type="submit"
+                disabled={!form.formState.isDirty}
+              >
                 {action}
               </Button>
               <Button

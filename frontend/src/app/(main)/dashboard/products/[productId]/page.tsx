@@ -4,7 +4,6 @@ import { getSuppliers } from "@/api/supplier";
 import { ProductForm } from "@/components/forms/product-form";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { queryKeys } from "@/lib/constants";
 import {
   dehydrate,
   HydrationBoundary,

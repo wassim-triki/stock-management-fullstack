@@ -53,32 +53,8 @@ import { useModal } from "@/providers/modal-provider";
 import Link from "next/link";
 import TableCellLink from "@/components/ui/table-link";
 import { PO_STATUSES } from "@/constants/po-statuses";
+import { CustomTableCell } from "@/components/data-table/data-table-utils";
 export const columns: ColumnDef<PurchaseOrder>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-
   // {
   //   accessorKey: "name",
   //   header: ({ column }) => (
@@ -113,12 +89,14 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
       }
 
       return (
-        <div className="flex w-[100px] items-center">
-          {status.icon && (
-            <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-          )}
-          <span>{status.name}</span>
-        </div>
+        <CustomTableCell>
+          <div className="flex items-center">
+            {status.icon && (
+              <status.icon className="mb-[0.2rem] mr-2 h-4 w-4 text-muted-foreground" />
+            )}
+            <span>{status.name}</span>
+          </div>
+        </CustomTableCell>
       );
     },
     filterFn: (row, id, value) => {
@@ -132,9 +110,14 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     ),
     cell: ({ cell, row }) => {
       return (
-        <TableCellLink href={`/dashboard/purchase-orders/${row.original._id}`}>
-          {cell.getValue() as string}
-        </TableCellLink>
+        <CustomTableCell>
+          {" "}
+          <TableCellLink
+            href={`/dashboard/purchase-orders/${row.original._id}`}
+          >
+            {cell.getValue() as string}
+          </TableCellLink>
+        </CustomTableCell>
       );
     },
   },
@@ -146,11 +129,13 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     ),
     cell: ({ cell, row }) => {
       return (
-        <TableCellLink
-          href={`/dashboard/suppliers/${row.original.supplier?._id}`}
-        >
-          {cell.getValue() as string}
-        </TableCellLink>
+        <CustomTableCell>
+          <TableCellLink
+            href={`/dashboard/suppliers/${row.original.supplier?._id}`}
+          >
+            {cell.getValue() as string}
+          </TableCellLink>
+        </CustomTableCell>
       );
     },
     enableSorting: false,
@@ -163,7 +148,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = formatDate(cell.getValue() as string);
-      return <span>{formattedDate}</span>;
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
 
@@ -180,11 +165,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
         maximumFractionDigits: 2,
       }).format(total);
 
-      return (
-        <div className="flex items-center">
-          <span>{formatted}</span>
-        </div>
-      );
+      return <CustomTableCell>{formatted}</CustomTableCell>;
     },
   },
 
@@ -195,7 +176,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
-      return <span>{formattedDate}</span>;
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
   {

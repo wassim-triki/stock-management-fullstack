@@ -12,28 +12,9 @@ import { deleteUser } from "@/api/user";
 import { Badge } from "@/components/ui/badge";
 import ActiveBadge from "@/components/ui/active-bage";
 import TableCellLink from "@/components/ui/table-link";
+import { CustomTableCell } from "@/components/data-table/data-table-utils";
 
 export const columns: ColumnDef<User>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-
   {
     accessorKey: "email",
     header: ({ column }) => (
@@ -41,14 +22,14 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <TableCellLink
-          href={`/dashboard/users/${row.original._id}`}
-          className="flex space-x-2"
-        >
-          <span className="max-w-[150px] truncate font-medium">
+        <CustomTableCell>
+          <TableCellLink
+            href={`/dashboard/users/${row.original._id}`}
+            className="flex space-x-2"
+          >
             {row.getValue("email")}
-          </span>
-        </TableCellLink>
+          </TableCellLink>
+        </CustomTableCell>
       );
     },
   },
@@ -62,17 +43,13 @@ export const columns: ColumnDef<User>[] = [
       if (row.profile?.lastName) {
         name += " " + row.profile?.lastName;
       }
-      return name.trim() || "N/A";
+      return name.trim();
     },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="FULL NAME" />
     ),
     cell: ({ row }) => {
-      return (
-        <span className="max-w-[150px] truncate font-medium">
-          {row.getValue("profile")}
-        </span>
-      );
+      return <CustomTableCell>{row.getValue("profile")}</CustomTableCell>;
     },
   },
 
@@ -84,13 +61,7 @@ export const columns: ColumnDef<User>[] = [
     ),
     enableSorting: false,
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[100px] truncate font-medium">
-            {row.getValue("address") || "N/A"}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("address")}</CustomTableCell>;
     },
   },
 
@@ -99,6 +70,9 @@ export const columns: ColumnDef<User>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ROLE" />
     ),
+    cell: ({ row }) => {
+      return <CustomTableCell>{row.getValue("role")}</CustomTableCell>;
+    },
   },
   {
     accessorKey: "updatedAt",
@@ -107,7 +81,7 @@ export const columns: ColumnDef<User>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
-      return <span>{formattedDate}</span>;
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
   {
@@ -116,7 +90,11 @@ export const columns: ColumnDef<User>[] = [
       <DataTableColumnHeader column={column} title="STATUS" />
     ),
     enableSorting: false,
-    cell: ({ row }) => <ActiveBadge active={row.getValue("active")} />,
+    cell: ({ row }) => (
+      <CustomTableCell>
+        <ActiveBadge active={row.getValue("active")} />
+      </CustomTableCell>
+    ),
   },
   {
     id: "actions",

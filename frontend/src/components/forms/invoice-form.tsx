@@ -344,7 +344,12 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
               )}
             />
 
-            <Button className="w-full md:w-min" loading={loading} type="submit">
+            <Button
+              className="w-full md:w-min"
+              loading={loading}
+              type="submit"
+              disabled={!form.formState.isDirty}
+            >
               {action}
             </Button>
           </form>

@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { FileDown, Send } from "lucide-react";
 import { toast } from "./ui/use-toast";
-import { ApiSuccessResponse } from "@/lib/types";
-import { fetchPurchaseOrderPdf, sendPurchaseOrder } from "@/api/purchase-order";
+import { sendPurchaseOrder } from "@/api/purchase-order";
 import config from "@/lib/config";
 import { useRouter } from "next/navigation";
-import Loading from "@/app/(main)/dashboard/loading";
+import Spinner from "./spinner";
 
 type PdfPreviewerProps = {
   filename: string;
@@ -115,7 +114,9 @@ const PurchaseOrderPreview = ({ filename, id }: PdfPreviewerProps) => {
           </div>
         </>
       ) : (
-        <Loading />
+        <div className="flex h-screen items-center justify-center">
+          <Spinner size="64px" width="1" />
+        </div>
       )}
     </>
   );

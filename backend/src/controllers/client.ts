@@ -38,7 +38,8 @@ export const getClients = async (
     const clients = await Client.find(query)
       .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
-      .limit(limitNum);
+      .limit(limitNum)
+      .populate('user', 'email');
 
     res.status(200).json(new SuccessResponseList('Clients retrieved', clients));
   } catch (error) {

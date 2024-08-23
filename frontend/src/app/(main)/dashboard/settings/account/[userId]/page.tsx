@@ -2,7 +2,6 @@ import { getUserById } from "@/api/user";
 import { UserForm } from "@/components/forms/user-form";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { queryKeys } from "@/lib/constants";
 import {
   dehydrate,
   HydrationBoundary,

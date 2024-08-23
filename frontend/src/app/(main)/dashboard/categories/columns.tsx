@@ -10,33 +10,12 @@ import { DataTableRowActions } from "@/components/data-table/data-table-row-acti
 import { timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
 import { deleteCategory } from "@/api/category";
-import { getUserColumn } from "../products/columns";
+import {
+  CustomTableCell,
+  getUserColumn,
+} from "@/components/data-table/data-table-utils";
 
 export const columns: ColumnDef<Category>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   getUserColumn(),
   {
     accessorKey: "name",
@@ -46,14 +25,7 @@ export const columns: ColumnDef<Category>[] = [
     cell: ({ row }) => {
       // const label = labels.find((label) => label.value === row.original.label)
 
-      return (
-        <div className="flex space-x-2">
-          {/* {label && <Badge variant="outline">{label.label}</Badge>} */}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("name")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("name")}</CustomTableCell>;
     },
   },
 
@@ -64,8 +36,8 @@ export const columns: ColumnDef<Category>[] = [
       <DataTableColumnHeader column={column} title="PARENT CATEGORY" />
     ),
     cell: ({ cell }) => {
-      const formatted = (cell.getValue() as string) || "N/A";
-      return <span>{formatted}</span>;
+      const formatted = cell.getValue() as string;
+      return <CustomTableCell>{formatted}</CustomTableCell>;
     },
     enableSorting: false,
   },
@@ -77,7 +49,7 @@ export const columns: ColumnDef<Category>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
-      return <span>{formattedDate}</span>;
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
   {
