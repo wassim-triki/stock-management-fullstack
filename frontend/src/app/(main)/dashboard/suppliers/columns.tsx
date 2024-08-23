@@ -9,28 +9,12 @@ import { ArrowUpDown } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import ActiveBadge from "@/components/ui/active-bage";
-import { getUserColumn } from "../products/columns";
+import {
+  CustomTableCell,
+  getUserColumn,
+} from "@/components/data-table/data-table-utils";
 
 export const columns: ColumnDef<Supplier>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   getUserColumn(),
   {
     accessorKey: "name",
@@ -38,13 +22,7 @@ export const columns: ColumnDef<Supplier>[] = [
       <DataTableColumnHeader column={column} title="NAME" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("name")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("name")}</CustomTableCell>;
     },
   },
 
@@ -54,19 +32,18 @@ export const columns: ColumnDef<Supplier>[] = [
       <DataTableColumnHeader column={column} title="EMAIL" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("email")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("email")}</CustomTableCell>;
     },
   },
 
   {
     accessorKey: "phone",
-    header: "PHONE",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="PHONE" />
+    ),
+    cell: ({ row }) => {
+      return <CustomTableCell>{row.getValue("phone")}</CustomTableCell>;
+    },
   },
   {
     accessorKey: "address",
@@ -74,15 +51,20 @@ export const columns: ColumnDef<Supplier>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ADDRESS" />
     ),
-    enableSorting: false,
+    cell: ({ row }) => {
+      return <CustomTableCell>{row.getValue("address")}</CustomTableCell>;
+    },
   },
   {
     accessorKey: "active",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="STATUS" />
     ),
-    enableSorting: false,
-    cell: ({ row }) => <ActiveBadge active={row.getValue("active")} />,
+    cell: ({ row }) => (
+      <CustomTableCell>
+        <ActiveBadge active={row.getValue("active")} />
+      </CustomTableCell>
+    ),
   },
   {
     accessorKey: "updatedAt",
@@ -91,7 +73,7 @@ export const columns: ColumnDef<Supplier>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
-      return <span>{formattedDate}</span>;
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
 

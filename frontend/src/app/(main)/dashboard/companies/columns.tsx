@@ -10,34 +10,14 @@ import { DataTableRowActions } from "@/components/data-table/data-table-row-acti
 import { timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
 import { deleteCategory } from "@/api/category";
-import { getUserColumn } from "../products/columns";
+
 import { deleteCompany } from "@/api/company";
+import {
+  CustomTableCell,
+  getUserColumn,
+} from "@/components/data-table/data-table-utils";
 
 export const columns: ColumnDef<Company>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   getUserColumn(),
   {
     accessorKey: "name",
@@ -45,13 +25,7 @@ export const columns: ColumnDef<Company>[] = [
       <DataTableColumnHeader column={column} title="NAME" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("name")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("name")}</CustomTableCell>;
     },
   },
   {
@@ -60,13 +34,7 @@ export const columns: ColumnDef<Company>[] = [
       <DataTableColumnHeader column={column} title="ADDRESS" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("address")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("address")}</CustomTableCell>;
     },
   },
   {
@@ -75,13 +43,7 @@ export const columns: ColumnDef<Company>[] = [
       <DataTableColumnHeader column={column} title="PHONE" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("phone")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("phone")}</CustomTableCell>;
     },
   },
   {
@@ -90,13 +52,7 @@ export const columns: ColumnDef<Company>[] = [
       <DataTableColumnHeader column={column} title="EMAIL" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("email")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("email")}</CustomTableCell>;
     },
   },
   {
@@ -105,13 +61,7 @@ export const columns: ColumnDef<Company>[] = [
       <DataTableColumnHeader column={column} title="WEBSITE" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("website")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("website")}</CustomTableCell>;
     },
   },
   {
@@ -120,13 +70,7 @@ export const columns: ColumnDef<Company>[] = [
       <DataTableColumnHeader column={column} title="LOGO" />
     ),
     cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("logo")}
-          </span>
-        </div>
-      );
+      return <CustomTableCell>{row.getValue("logo")}</CustomTableCell>;
     },
   },
 
@@ -137,7 +81,7 @@ export const columns: ColumnDef<Company>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
-      return <span>{formattedDate}</span>;
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
   {

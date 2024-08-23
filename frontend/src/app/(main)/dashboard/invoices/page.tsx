@@ -1,3 +1,4 @@
+//invoices/page.tsx
 import { DataTable } from "@/components/data-table/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 

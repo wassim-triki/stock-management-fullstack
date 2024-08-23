@@ -1,3 +1,4 @@
+// invoices/columns.tsx
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
@@ -11,7 +12,10 @@ import { DataTableRowActions } from "@/components/data-table/data-table-row-acti
 import TableCellLink from "@/components/ui/table-link";
 import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
 import { Badge } from "@/components/ui/badge";
-import { getUserColumn } from "../products/columns";
+import {
+  CustomTableCell,
+  getUserColumn,
+} from "@/components/data-table/data-table-utils";
 
 export const columns: ColumnDef<Invoice>[] = [
   getUserColumn(),
@@ -22,9 +26,11 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ cell, row }) => {
       return (
-        <TableCellLink href={`/dashboard/invoices/${row.original._id}`}>
-          {cell.getValue() as string}
-        </TableCellLink>
+        <CustomTableCell>
+          <TableCellLink href={`/dashboard/invoices/${row.original._id}`}>
+            {cell.getValue() as string}
+          </TableCellLink>
+        </CustomTableCell>
       );
     },
   },
@@ -35,7 +41,11 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ row }) => {
       const type = row.getValue("invoiceType") as string;
-      return <Badge variant="default">{type}</Badge>;
+      return (
+        <CustomTableCell>
+          <Badge variant="default">{type}</Badge>
+        </CustomTableCell>
+      );
     },
   },
   {
@@ -55,11 +65,13 @@ export const columns: ColumnDef<Invoice>[] = [
       }
 
       return (
-        <TableCellLink
-          href={`/dashboard/${invoiceType.toLowerCase()}s/${entity._id}`}
-        >
-          {entity.name}
-        </TableCellLink>
+        <CustomTableCell>
+          <TableCellLink
+            href={`/dashboard/${invoiceType.toLowerCase()}s/${entity._id}`}
+          >
+            {entity.name}
+          </TableCellLink>
+        </CustomTableCell>
       );
     },
   },
@@ -70,9 +82,13 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ cell, row }) => {
       return (
-        <TableCellLink href={`/dashboard/purchase-orders/${row.original._id}`}>
-          {cell.getValue() as string}
-        </TableCellLink>
+        <CustomTableCell>
+          <TableCellLink
+            href={`/dashboard/purchase-orders/${row.original._id}`}
+          >
+            {cell.getValue() as string}
+          </TableCellLink>
+        </CustomTableCell>
       );
     },
   },
@@ -90,9 +106,9 @@ export const columns: ColumnDef<Invoice>[] = [
       }).format(total);
 
       return (
-        <div className="flex items-center">
+        <CustomTableCell>
           <span>{formatted}</span>
-        </div>
+        </CustomTableCell>
       );
     },
   },
@@ -110,9 +126,9 @@ export const columns: ColumnDef<Invoice>[] = [
       }).format(total);
 
       return (
-        <div className="flex items-center">
+        <CustomTableCell>
           <span>{formatted}</span>
-        </div>
+        </CustomTableCell>
       );
     },
   },
@@ -132,9 +148,9 @@ export const columns: ColumnDef<Invoice>[] = [
       }).format(due);
 
       return (
-        <div className="flex items-center">
+        <CustomTableCell>
           <span>{formatted}</span>
-        </div>
+        </CustomTableCell>
       );
     },
   },
@@ -170,9 +186,9 @@ export const columns: ColumnDef<Invoice>[] = [
       }
 
       return (
-        <div className="flex w-[100px] items-center">
+        <CustomTableCell>
           <Badge variant={badgeVariant}>{status}</Badge>
-        </div>
+        </CustomTableCell>
       );
     },
     filterFn: (row, id, value) => {
@@ -185,10 +201,12 @@ export const columns: ColumnDef<Invoice>[] = [
       <DataTableColumnHeader column={column} title="PAYMENT DATE" />
     ),
     cell: ({ cell }) => {
-      const formattedDate = cell.getValue()
-        ? formatDate(cell.getValue() as string)
-        : "N/A";
-      return <span>{formattedDate}</span>;
+      const formattedDate = cell.getValue() as string;
+      return (
+        <CustomTableCell>
+          <span>{formattedDate}</span>
+        </CustomTableCell>
+      );
     },
   },
   {
@@ -198,7 +216,11 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = formatDate(cell.getValue() as string);
-      return <span>{formattedDate}</span>;
+      return (
+        <CustomTableCell>
+          <span>{formattedDate}</span>
+        </CustomTableCell>
+      );
     },
   },
   {
@@ -208,7 +230,11 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
-      return <span>{formattedDate}</span>;
+      return (
+        <CustomTableCell>
+          <span>{formattedDate}</span>
+        </CustomTableCell>
+      );
     },
   },
   {

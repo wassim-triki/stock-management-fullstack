@@ -47,7 +47,7 @@ export function Sidebar({ user }: { user: User }) {
             </h1>
           </Link>
         </Button>
-        <Menu isOpen={sidebar?.isOpen} userRole={user.role} />
+        <Menu isOpen={sidebar?.isOpen} />
       </div>
     </aside>
   );

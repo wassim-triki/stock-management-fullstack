@@ -1,0 +1,46 @@
+"use client";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTableColumnHeader } from "./data-table-column-header";
+import { useAuth } from "@/providers/auth-provider";
+import { ROLES, User } from "@/lib/types";
+import TableCellLink from "../ui/table-link";
+
+export const CustomTableCell = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="flex w-full justify-center space-x-2 pr-3">
+      <span className="max-w-[120px] truncate font-medium">
+        {children || "N/A"}
+      </span>
+    </div>
+  );
+};
+
+export function getUserColumn<T>(): ColumnDef<T> {
+  return {
+    accessorKey: "user",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="USER" />
+    ),
+    cell: ({ row, cell, column, table }) => {
+      const auth = useAuth();
+      const user = (row.original as { user: User }).user;
+      if (auth.role !== ROLES.ADMIN) {
+        column.toggleVisibility(false);
+      }
+
+      console.log("user", user);
+
+      return (
+        <CustomTableCell>
+          <TableCellLink href={`/dashboard/users/${user?._id}`}>
+            {user?.email}
+          </TableCellLink>
+        </CustomTableCell>
+      );
+    },
+  };
+}

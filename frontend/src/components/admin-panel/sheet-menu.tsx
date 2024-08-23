@@ -33,7 +33,7 @@ export async function SheetMenu() {
             </Link>
           </Button>
         </SheetHeader>
-        <Menu isOpen userRole={user.data.role} />
+        <Menu isOpen />
       </SheetContent>
     </Sheet>
   );

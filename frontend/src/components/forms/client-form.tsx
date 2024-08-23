@@ -1,10 +1,8 @@
 "use client";
 import * as z from "zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Trash } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,88 +15,74 @@ import {
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "../ui/use-toast";
-import { PhoneInput } from "../ui/phone-input";
-import {
-  createSupplier,
-  deleteSupplier,
-  getSupplierById,
-  updateSupplier,
-} from "@/api/supplier";
-import { ApiErrorResponse, ApiSuccessResponse, Supplier } from "@/lib/types";
-import SubmitButton from "../ui/submit-button";
+import { useToast } from "@/components/ui/use-toast";
+import { Client, ApiErrorResponse } from "@/lib/types";
+import { createClient, updateClient } from "@/api/client";
+import { Checkbox } from "../ui/checkbox";
 
+// Zod validation schema for the client form
 const formSchema = z.object({
-  name: z.string().min(1, { message: "" }),
+  name: z.string().min(1, { message: "Client name is required" }),
   email: z
     .string()
-    .min(1, { message: "" })
-    .email({ message: "Invalid email address" }),
-  //TODO: fix phone input
-  phone: z.string().regex(/^$|^\d{8,14}$/, { message: "Invalid phone number" }),
+    .email({ message: "Please enter a valid email" })
+    .min(1, { message: "Email is required" }),
+  phone: z.string().min(1, { message: "Phone number is required" }).optional(),
   address: z.string().optional(),
   active: z.boolean(),
 });
 
-type SupplierFormValues = z.infer<typeof formSchema>;
+export type ClientFormValues = z.infer<typeof formSchema>;
 
-interface SupplierFormProps {
-  // initialData?: SupplierFormValues | null;
+interface ClientFormProps {
   title: string;
   description: string;
   action: string;
-  initSupplier?: Supplier;
+  initClient?: Client;
 }
 
-export const SupplierForm: React.FC<SupplierFormProps> = ({
+export const ClientForm: React.FC<ClientFormProps> = ({
   title,
   description,
   action,
-  initSupplier,
-  // initialData,
+  initClient,
 }) => {
-  const params = useParams();
-  const router = useRouter();
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const defaultValues = initSupplier
-    ? initSupplier
-    : {
-        name: "",
-        email: "",
-        phone: "",
-        address: "",
-        active: true,
-      };
+  const defaultValues: ClientFormValues = {
+    name: initClient?.name || "",
+    email: initClient?.email || "",
+    phone: initClient?.phone || "",
+    address: initClient?.address || "",
+    active: initClient?.active || true,
+  };
 
-  const form = useForm<SupplierFormValues>({
+  const form = useForm<ClientFormValues>({
     resolver: zodResolver(formSchema),
-    values: defaultValues,
+    defaultValues,
   });
 
-  const onSubmit = async (data: SupplierFormValues) => {
+  const onSubmit = async (data: ClientFormValues) => {
     setLoading(true);
     try {
-      if (initSupplier) {
-        const res = await updateSupplier({
-          id: initSupplier._id,
-          data,
+      if (initClient) {
+        const res = await updateClient({
+          id: initClient._id,
+          data: data,
         });
         toast({
           variant: "success",
           title: res.message,
         });
       } else {
-        const res = await createSupplier(data);
+        const res = await createClient(data);
         toast({
           variant: "success",
           title: res.message,
         });
       }
-      router.push("/dashboard/suppliers");
+      // Redirect to clients list or wherever needed
     } catch (error) {
       toast({
         variant: "destructive",
@@ -116,7 +100,6 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
       </div>
       <Separator />
       <div>
-        {" "}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -127,15 +110,14 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Client Name</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Supplier name"
+                      placeholder="Enter client name"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -145,41 +127,36 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Contact Email</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       disabled={loading}
-                      placeholder="Contact email"
+                      placeholder="Enter email address"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="phone"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Phone</FormLabel>
                   <FormControl>
-                    <div className="grid gap-2">
-                      <div className="flex items-center">
-                        <FormLabel>Phone</FormLabel>
-                      </div>
-                      <PhoneInput
-                        defaultCountry="TN"
-                        placeholder="12 345 678"
-                        {...field}
-                        disabled={loading}
-                      />
-                    </div>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter phone number"
+                      {...field}
+                    />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="address"
@@ -189,7 +166,7 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Address"
+                      placeholder="Enter address"
                       {...field}
                     />
                   </FormControl>
@@ -197,7 +174,6 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="active"
@@ -217,12 +193,11 @@ export const SupplierForm: React.FC<SupplierFormProps> = ({
                 </FormItem>
               )}
             />
-
             <Button
               className="w-full md:w-min"
               loading={loading}
-              type="submit"
               disabled={!form.formState.isDirty}
+              type="submit"
             >
               {action}
             </Button>

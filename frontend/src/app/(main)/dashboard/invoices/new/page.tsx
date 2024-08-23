@@ -1,3 +1,4 @@
+//  /invoices/new/page.tsx
 import { getSuppliers } from "@/api/supplier";
 import { getProducts } from "@/api/product";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";

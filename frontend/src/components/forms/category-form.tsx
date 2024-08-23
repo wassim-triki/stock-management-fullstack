@@ -173,7 +173,12 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               )}
             />
 
-            <Button className="w-full md:w-min" loading={loading} type="submit">
+            <Button
+              className="w-full md:w-min"
+              loading={loading}
+              type="submit"
+              disabled={!form.formState.isDirty}
+            >
               {action}
             </Button>
           </form>

@@ -3,7 +3,6 @@ import { CategoryForm } from "@/components/forms/category-form";
 import { SupplierForm } from "@/components/forms/supplier-form";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { queryKeys } from "@/lib/constants";
 import { QueryClient } from "@tanstack/react-query";
 
 const breadcrumbItems = [
