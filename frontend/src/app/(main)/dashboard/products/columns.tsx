@@ -57,7 +57,7 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="SUPPLIER" />
     ),
-    cell: async ({ row }) => {
+    cell: ({ row }) => {
       const supplier = row.original.supplier;
 
       return (

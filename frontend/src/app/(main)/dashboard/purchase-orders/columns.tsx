@@ -148,11 +148,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = formatDate(cell.getValue() as string);
-      return (
-        <CustomTableCell>
-          <span>{formattedDate}</span>
-        </CustomTableCell>
-      );
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
 
@@ -169,11 +165,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
         maximumFractionDigits: 2,
       }).format(total);
 
-      return (
-        <CustomTableCell>
-          <span>{formatted}</span>
-        </CustomTableCell>
-      );
+      return <CustomTableCell>{formatted}</CustomTableCell>;
     },
   },
 
@@ -184,11 +176,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
-      return (
-        <CustomTableCell>
-          <span>{formattedDate}</span>
-        </CustomTableCell>
-      );
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
   {
