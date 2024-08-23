@@ -60,10 +60,6 @@ export const columns: ColumnDef<Invoice>[] = [
           ? row.original.supplier
           : row.original.client;
 
-      if (!entity) {
-        return <span>N/A</span>;
-      }
-
       return (
         <CustomTableCell>
           <TableCellLink
@@ -202,11 +198,7 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = cell.getValue() as string;
-      return (
-        <CustomTableCell>
-          <span>{formattedDate}</span>
-        </CustomTableCell>
-      );
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
   {
@@ -216,11 +208,7 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = formatDate(cell.getValue() as string);
-      return (
-        <CustomTableCell>
-          <span>{formattedDate}</span>
-        </CustomTableCell>
-      );
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
   {
@@ -230,11 +218,7 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ cell }) => {
       const formattedDate = timeAgo(cell.getValue() as string);
-      return (
-        <CustomTableCell>
-          <span>{formattedDate}</span>
-        </CustomTableCell>
-      );
+      return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },
   {
