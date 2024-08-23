@@ -3,7 +3,8 @@ import { getProducts } from "@/api/product";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getPurchaseOrderById, getPurchaseOrders } from "@/api/purchase-order";
-import { SupplierInvoiceForm } from "@/components/forms/supplier-invoice-form";
+import { InvoiceForm } from "@/components/forms/invoice-form";
+import { getClients } from "@/api/client";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -19,7 +20,12 @@ type PageProps = {
 
 export default async function Page({ searchParams }: PageProps) {
   const { purchaseOrderId } = searchParams;
-  const purcahseOrders = await getPurchaseOrders();
+
+  // Fetch suppliers, clients, and purchase orders
+  const suppliers = await getSuppliers();
+  const clients = await getClients(); // Assuming you have this implemented
+  const purchaseOrders = await getPurchaseOrders();
+
   let purchaseOrder;
   if (purchaseOrderId)
     purchaseOrder = await getPurchaseOrderById(purchaseOrderId);
@@ -28,9 +34,11 @@ export default async function Page({ searchParams }: PageProps) {
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
         <Breadcrumbs items={breadcrumbItems} />
-        <SupplierInvoiceForm
-          purchaseOrders={purcahseOrders}
+        <InvoiceForm
+          purchaseOrders={purchaseOrders}
           purchaseOrder={purchaseOrder}
+          suppliers={suppliers}
+          clients={clients} // Pass clients to the form
           action="Create"
           description="Create a new invoice"
           title="Create Invoice"

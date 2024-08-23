@@ -1,12 +1,10 @@
-import { SupplierInvoice } from "@/lib/types";
 import { DataTable } from "@/components/data-table/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
-import {
-  getSuppliersInvoices,
-  getTotalSupplierInvoices,
-} from "@/api/supplier-invoices";
+
 import { columns } from "./columns";
 import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
+import { Invoice } from "@/lib/types";
+import { getInvoices, getTotalInvoices } from "@/api/invoice";
 
 type PageProps = {
   searchParams: {
@@ -37,19 +35,19 @@ export default async function DemoPage({ searchParams }: PageProps) {
   const [sortBy, order] =
     typeof sort === "string"
       ? (sort.split(".") as [
-          keyof SupplierInvoice | undefined,
+          keyof Invoice | undefined,
           "asc" | "desc" | undefined,
         ])
       : [];
 
-  const data = await getSuppliersInvoices({
+  const data = await getInvoices({
     offset,
     limit,
     sortBy,
     order,
     ...filters,
   });
-  const total = await getTotalSupplierInvoices();
+  const total = await getTotalInvoices();
   const pageCount = Math.ceil(total / limit);
   return (
     <ContentPageLayout

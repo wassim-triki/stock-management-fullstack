@@ -5,14 +5,16 @@ import productRouter from './product';
 import supplierRouter from './supplier';
 import categoryRouter from './category';
 import purchaseOrderRouter from './purchaseOrder';
-import supplierInvoiceRouter from './supplierInvoice';
+import invoiceRouter from './invoice';
 import companyRouter from './company';
+import clientRouter from './client';
 const routes = Router();
 
 routes.use('/api/auth', authRouter);
 routes.use('/api/users', userRouter);
 routes.use('/api/products', productRouter);
-routes.use('/api/suppliers/invoices', supplierInvoiceRouter);
+routes.use('/api/invoices', invoiceRouter);
+routes.use('/api/clients', clientRouter);
 routes.use('/api/suppliers', supplierRouter);
 routes.use('/api/categories', categoryRouter);
 routes.use('/api/purchase-orders', purchaseOrderRouter);

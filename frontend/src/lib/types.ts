@@ -158,15 +158,39 @@ export type QueryParams = {
   [key: string]: string | undefined | number;
 };
 
-export type SupplierInvoice = {
+export enum PaymentStatus {
+  PAID = "Paid",
+  UNPAID = "Unpaid",
+  PARTIALLY_PAID = "Partially Paid",
+  OVERDUE = "Overdue",
+}
+
+export type InvoiceType = "Supplier" | "Client";
+
+export type Invoice = {
   _id: string;
   invoiceNumber: string;
   purchaseOrder: PurchaseOrder;
   totalAmount: number;
   paidAmount: number;
-  paymentDate?: Date;
-  paymentStatus: string;
+  paymentDate: Date;
+  paymentStatus: PaymentStatus;
   dueDate: Date;
+  invoiceType: InvoiceType;
+  client: Client;
+  supplier: Supplier;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type Client = {
+  _id: string;
+  name: string;
+  email: string;
+  user: User;
+  phone: string;
+  address: string;
+  createdAt: Date;
+  updatedAt: Date;
+  active: boolean;
 };

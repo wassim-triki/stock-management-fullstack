@@ -1,8 +1,8 @@
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-import { Supplier, SupplierInvoice } from "@/lib/types";
-import { deleteSupplier } from "@/api/supplier";
+import { Invoice } from "@/lib/types";
+import { deleteInvoice } from "@/api/invoice";
 import { formatDate, timeAgo } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
@@ -11,29 +11,9 @@ import { DataTableRowActions } from "@/components/data-table/data-table-row-acti
 import TableCellLink from "@/components/ui/table-link";
 import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
 import { Badge } from "@/components/ui/badge";
-import { deleteSupplierInvoice } from "@/api/supplier-invoices";
 import { getUserColumn } from "../products/columns";
 
-export const columns: ColumnDef<SupplierInvoice>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={table.getIsAllPageRowsSelected()}
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
+export const columns: ColumnDef<Invoice>[] = [
   getUserColumn(),
   {
     accessorKey: "invoiceNumber",
@@ -44,6 +24,41 @@ export const columns: ColumnDef<SupplierInvoice>[] = [
       return (
         <TableCellLink href={`/dashboard/invoices/${row.original._id}`}>
           {cell.getValue() as string}
+        </TableCellLink>
+      );
+    },
+  },
+  {
+    accessorKey: "invoiceType",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="INVOICE TYPE" />
+    ),
+    cell: ({ row }) => {
+      const type = row.getValue("invoiceType") as string;
+      return <Badge variant="default">{type}</Badge>;
+    },
+  },
+  {
+    accessorKey: "entityId",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="SUPPLIER/CLIENT" />
+    ),
+    cell: ({ row }) => {
+      const invoiceType = row.original.invoiceType;
+      const entity =
+        invoiceType === "Supplier"
+          ? row.original.supplier
+          : row.original.client;
+
+      if (!entity) {
+        return <span>N/A</span>;
+      }
+
+      return (
+        <TableCellLink
+          href={`/dashboard/${invoiceType.toLowerCase()}s/${entity._id}`}
+        >
+          {entity.name}
         </TableCellLink>
       );
     },
@@ -61,7 +76,6 @@ export const columns: ColumnDef<SupplierInvoice>[] = [
       );
     },
   },
-
   {
     accessorKey: "totalAmount",
     header: ({ column }) => (
@@ -82,7 +96,6 @@ export const columns: ColumnDef<SupplierInvoice>[] = [
       );
     },
   },
-
   {
     accessorKey: "paidAmount",
     header: ({ column }) => (
@@ -202,7 +215,7 @@ export const columns: ColumnDef<SupplierInvoice>[] = [
     id: "actions",
     cell: ({ row }) => (
       <DataTableRowActions
-        deleteFunction={deleteSupplierInvoice}
+        deleteFunction={deleteInvoice}
         editUrl={`/dashboard/invoices/${row.original._id}`}
         row={row}
       />

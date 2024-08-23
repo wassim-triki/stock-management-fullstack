@@ -18,7 +18,13 @@ import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
 import { useToast } from "../ui/use-toast";
 
-import { PurchaseOrder, SupplierInvoice, ApiErrorResponse } from "@/lib/types";
+import {
+  PurchaseOrder,
+  Invoice,
+  ApiErrorResponse,
+  Client,
+  Supplier,
+} from "@/lib/types";
 import {
   Select,
   SelectContent,
@@ -27,16 +33,15 @@ import {
   SelectValue,
 } from "../ui/select";
 import { SingleDatePicker } from "../ui/single-date-picker";
-import { DropdownMenuSeparator } from "../ui/dropdown-menu";
-import {
-  createSupplierInvoice,
-  updateSupplierInvoice,
-} from "@/api/supplier-invoices";
-import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
+import { createInvoice, updateInvoice } from "@/api/invoice";
 
 // Zod validation schema for the form
 const formSchema = z.object({
   invoiceNumber: z.string().min(1, { message: "Invoice number is required" }),
+  invoiceType: z.enum(["Supplier", "Client"], {
+    required_error: "Invoice type is required",
+  }),
+  entityId: z.string().min(1, { message: "Supplier/Client is required" }), // This will either be supplier or client based on invoiceType
   purchaseOrder: z.string().min(1, { message: "Purchase order is required" }),
   totalAmount: z
     .string()
@@ -66,58 +71,66 @@ const formSchema = z.object({
   }, z.date().optional()),
 });
 
-export type SupplierInvoiceFormValues = z.infer<typeof formSchema>;
+export type InvoiceFormValues = z.infer<typeof formSchema>;
 
-interface SupplierInvoiceFormProps {
+interface InvoiceFormProps {
   title: string;
   description: string;
   action: string;
   supplierInvoiceId?: string | undefined;
   purchaseOrders: PurchaseOrder[];
   purchaseOrder?: PurchaseOrder;
-  initSupplierInvoice?: SupplierInvoice;
+  initInvoice?: Invoice;
+  suppliers: Supplier[];
+  clients: Client[];
 }
 
-export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
+export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   title,
   description,
   action,
   supplierInvoiceId = "",
   purchaseOrders,
   purchaseOrder,
-  initSupplierInvoice,
+  initInvoice,
+  suppliers,
+  clients,
 }) => {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const initialData: SupplierInvoiceFormValues = {
-    invoiceNumber: initSupplierInvoice?.invoiceNumber || "",
-    purchaseOrder:
-      purchaseOrder?._id || initSupplierInvoice?.purchaseOrder?._id || "",
+  const initialData: InvoiceFormValues = {
+    invoiceNumber: initInvoice?.invoiceNumber || "",
+    invoiceType: initInvoice?.invoiceType || "Supplier", // Default to "Supplier"
+    entityId: initInvoice?.supplier?._id || "", // This will be the supplier or client based on invoiceType
+    purchaseOrder: purchaseOrder?._id || initInvoice?.purchaseOrder?._id || "",
     totalAmount:
       purchaseOrder?.orderTotal.toString() ||
-      initSupplierInvoice?.totalAmount?.toString() ||
+      initInvoice?.totalAmount?.toString() ||
       "0",
-    paidAmount: initSupplierInvoice?.paidAmount?.toString() || "0",
+    paidAmount: initInvoice?.paidAmount?.toString() || "0",
     dueDate:
       purchaseOrder?.orderDate ||
-      (initSupplierInvoice?.dueDate
-        ? new Date(initSupplierInvoice.dueDate)
-        : new Date()),
+      (initInvoice?.dueDate ? new Date(initInvoice.dueDate) : new Date()),
   };
 
-  const form = useForm<SupplierInvoiceFormValues>({
+  const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData,
   });
 
-  const onSubmit = async (data: SupplierInvoiceFormValues) => {
+  const watchInvoiceType = useWatch({
+    control: form.control,
+    name: "invoiceType",
+  });
+
+  const onSubmit = async (data: InvoiceFormValues) => {
     setLoading(true);
     try {
-      if (initSupplierInvoice) {
-        const res = await updateSupplierInvoice({
-          id: initSupplierInvoice._id,
+      if (initInvoice) {
+        const res = await updateInvoice({
+          id: initInvoice._id,
           data: data,
         });
         toast({
@@ -125,7 +138,7 @@ export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
           title: res.message,
         });
       } else {
-        const res = await createSupplierInvoice(data);
+        const res = await createInvoice(data);
         toast({
           variant: "success",
           title: res.message,
@@ -149,7 +162,6 @@ export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
       </div>
       <Separator />
       <div>
-        {" "}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -168,7 +180,78 @@ export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
                       {...field}
                     />
                   </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {/* Invoice Type Field */}
+            <FormField
+              control={form.control}
+              name="invoiceType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Invoice Type</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select invoice type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Supplier">Supplier</SelectItem>
+                      <SelectItem value="Client">Client</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Conditionally show Supplier or Client based on invoiceType */}
+            <FormField
+              control={form.control}
+              name="entityId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {watchInvoiceType === "Supplier" ? "Supplier" : "Client"}
+                  </FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            watchInvoiceType === "Supplier"
+                              ? "Select supplier"
+                              : "Select client"
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {watchInvoiceType === "Supplier"
+                        ? suppliers.map((supplier) => (
+                            <SelectItem key={supplier._id} value={supplier._id}>
+                              {supplier.name}
+                            </SelectItem>
+                          ))
+                        : clients.map((client) => (
+                            <SelectItem key={client._id} value={client._id}>
+                              {client.name}
+                            </SelectItem>
+                          ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )}
             />
@@ -201,7 +284,6 @@ export const SupplierInvoiceForm: React.FC<SupplierInvoiceFormProps> = ({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
                 </FormItem>
               )}
             />

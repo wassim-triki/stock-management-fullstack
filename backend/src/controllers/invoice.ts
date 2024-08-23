@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { PaymentStatus, SupplierInvoice } from '../models/SupplierInvoice';
+import { PaymentStatus, InvoiceType, SupplierInvoice } from '../models/Invoice';
 import {
   ErrorResponse,
   HttpCode,
@@ -8,7 +8,8 @@ import {
 } from '../types/types';
 import { ROLES } from '../models/User';
 
-export const getSupplierInvoices = async (
+// Fetch all invoices
+export const getInvoices = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -40,7 +41,9 @@ export const getSupplierInvoices = async (
       .skip(offsetNum)
       .limit(limitNum)
       .populate('purchaseOrder', 'orderNumber')
-      .populate('user', 'email');
+      .populate('user', 'email')
+      .populate('client', 'name')
+      .populate('supplier', 'name');
 
     res
       .status(200)
@@ -50,15 +53,29 @@ export const getSupplierInvoices = async (
   }
 };
 
-export const createSupplierInvoice = async (
+// Create a new invoice
+export const createInvoice = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { totalAmount, paidAmount, dueDate } = req.body;
-    let status: PaymentStatus;
+    const { totalAmount, paidAmount, dueDate, invoiceType, entityId } =
+      req.body;
 
+    // Validate whether supplier or client is provided based on invoiceType
+    if (invoiceType === InvoiceType.SUPPLIER && !entityId) {
+      return next(
+        new ErrorResponse('Supplier is required for supplier invoices', 400)
+      );
+    }
+    if (invoiceType === InvoiceType.CLIENT && !entityId) {
+      return next(
+        new ErrorResponse('Client is required for client invoices', 400)
+      );
+    }
+
+    let status: PaymentStatus;
     status =
       Number(paidAmount) >= Number(totalAmount)
         ? PaymentStatus.PAID
@@ -72,11 +89,15 @@ export const createSupplierInvoice = async (
 
     req.body.paymentDate = status === PaymentStatus.PAID ? new Date() : null;
 
-    const newInvoice = await SupplierInvoice.create({
+    // Prepare data for new invoice
+    const newInvoiceData = {
       ...req.body,
       paymentStatus: status,
       user: req.user?._id, // Associate the invoice with the manager creating it
-    });
+      [invoiceType === InvoiceType.SUPPLIER ? 'supplier' : 'client']: entityId,
+    };
+
+    const newInvoice = await SupplierInvoice.create(newInvoiceData);
 
     res.status(201).json(new SuccessResponse('Invoice created', newInvoice));
   } catch (error) {
@@ -84,14 +105,16 @@ export const createSupplierInvoice = async (
   }
 };
 
-export const updateSupplierInvoice = async (
+// Update an invoice by ID
+export const updateInvoice = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { id } = req.params;
-    const { totalAmount, paidAmount, dueDate } = req.body;
+    const { totalAmount, paidAmount, dueDate, invoiceType, entityId } =
+      req.body;
 
     const invoice = await SupplierInvoice.findById(id);
     if (!invoice) {
@@ -111,6 +134,7 @@ export const updateSupplierInvoice = async (
       );
     }
 
+    // Update payment status
     let status: PaymentStatus;
     status =
       Number(paidAmount) >= Number(totalAmount)
@@ -125,10 +149,17 @@ export const updateSupplierInvoice = async (
 
     req.body.paymentDate = status === PaymentStatus.PAID ? new Date() : null;
 
+    // Prepare data for update
+    const updatedInvoiceData = {
+      ...req.body,
+      paymentStatus: status,
+      [invoiceType === InvoiceType.SUPPLIER ? 'supplier' : 'client']: entityId,
+    };
+
     const updatedInvoice = await SupplierInvoice.findByIdAndUpdate(
       id,
-      { ...req.body, paymentStatus: status },
-      { new: true }
+      updatedInvoiceData,
+      { new: true, runValidators: true }
     );
 
     res
@@ -139,17 +170,18 @@ export const updateSupplierInvoice = async (
   }
 };
 
-export const getSupplierInvoiceById = async (
+// Fetch a single invoice by ID
+export const getInvoiceById = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { id } = req.params;
-    const invoice = await SupplierInvoice.findById(id).populate(
-      'purchaseOrder',
-      'orderNumber'
-    );
+    const invoice = await SupplierInvoice.findById(id)
+      .populate('purchaseOrder', 'orderNumber')
+      .populate('client', 'name')
+      .populate('supplier', 'name');
 
     if (!invoice) {
       return next(new ErrorResponse('Invoice not found', 404));
@@ -174,7 +206,8 @@ export const getSupplierInvoiceById = async (
   }
 };
 
-export const deleteSupplierInvoice = async (
+// Delete an invoice
+export const deleteInvoice = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -207,7 +240,8 @@ export const deleteSupplierInvoice = async (
   }
 };
 
-export const getTotalSupplierInvoices = async (
+// Get total number of invoices
+export const getTotalInvoices = async (
   req: Request,
   res: Response,
   next: NextFunction

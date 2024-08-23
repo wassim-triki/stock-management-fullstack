@@ -1,6 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 import config from '../config/config';
-import { PaymentStatus } from '../models/SupplierInvoice';
+import { PaymentStatus } from '../models/Invoice';
 import { PO_STATUSES } from '../models/PurchaseOrder';
 import { Role, ROLES } from '../models/User';
 
@@ -171,15 +171,29 @@ export interface IProduct extends Document {
   updatedAt: Date;
 }
 
-export interface ISupplierInvoice {
+export interface IInvoice extends Document {
   invoiceNumber: string;
-  purchaseOrder: IPurchaseOrder;
+  purchaseOrder: mongoose.Types.ObjectId;
+  user: mongoose.Types.ObjectId;
   totalAmount: number;
   paidAmount: number;
   paymentDate: Date;
   paymentStatus: PaymentStatus;
-  user: mongoose.Types.ObjectId;
   dueDate: Date;
+  invoiceType: string;
+  client: mongoose.Types.ObjectId;
+  supplier: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IClient extends Document {
+  name: string;
+  email: string;
+  user: mongoose.Types.ObjectId;
+  phone: string;
+  address: string;
+  createdAt: Date;
+  updatedAt: Date;
+  active: boolean;
 }

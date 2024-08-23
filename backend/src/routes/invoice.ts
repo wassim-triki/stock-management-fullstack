@@ -1,54 +1,59 @@
-// routes/supplier.ts
 import express from 'express';
-
-import { authorizeRoles } from '../middleware/authorizeRoles';
 import { authHandler } from '../middleware/authHandler';
+import { authorizeRoles } from '../middleware/authorizeRoles';
 import {
-  createCategory,
-  deleteCategory,
-  getCategories,
-  getCategoryById,
-  getTotalCategories,
-  updateCategory,
-} from '../controllers/category';
-import 'express-async-errors';
+  getInvoices,
+  createInvoice,
+  getInvoiceById,
+  updateInvoice,
+  deleteInvoice,
+  getTotalInvoices,
+} from '../controllers/invoice';
 import { ROLES } from '../models/User';
-const router = express.Router();
-router.get('/total', authHandler, getTotalCategories);
 
+const router = express.Router();
+
+// Total invoices
+router.get('/total', getTotalInvoices);
+
+// Get invoices (auth and role-based access)
 router.get(
   '/',
   authHandler,
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
-  getCategories
+  getInvoices
 );
 
-router.get(
-  '/:id',
-  authHandler,
-  authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
-  getCategoryById
-);
-
+// Create invoice (supplier or client)
 router.post(
   '/',
   authHandler,
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
-  createCategory
+  createInvoice
 );
 
+// Update invoice
 router.put(
   '/:id',
   authHandler,
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
-  updateCategory
+  updateInvoice
 );
 
+// Get single invoice by ID
+router.get(
+  '/:id',
+  authHandler,
+  authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
+  getInvoiceById
+);
+
+// Delete invoice
 router.delete(
   '/:id',
   authHandler,
   authorizeRoles(ROLES.MANAGER, ROLES.ADMIN),
-  deleteCategory
+  deleteInvoice
 );
 
 export default router;
