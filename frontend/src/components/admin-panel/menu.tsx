@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Ellipsis, LogOut } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { getMenuList } from "@/constants/menu-list";
@@ -15,36 +15,19 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import { Role } from "@/lib/types";
-import { logoutUser } from "@/api/auth";
 import { useAuth } from "@/providers/auth-provider";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "../ui/use-toast";
+import { ROLES } from "@/lib/types";
 
 interface MenuProps {
   isOpen: boolean | undefined;
-  userRole: Role;
 }
 
-export function Menu({ isOpen, userRole }: MenuProps) {
+export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
-  const menuList = getMenuList(pathname, userRole);
   const auth = useAuth();
-  const router = useRouter();
-  const { mutate: logout, isPending: isSigningOut } = useMutation({
-    mutationFn: logoutUser,
-    onSuccess: (data) => {
-      toast({
-        variant: "success",
-        title: data.message,
-      });
-      auth.logout();
-      router.refresh();
-    },
-  });
-  const handleLogout = async () => {
-    logout();
-  };
+  const role = auth.role || ROLES.MANAGER;
+  const menuList = getMenuList(pathname, role);
+
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
       <nav className="mt-8 h-full w-full">
@@ -129,8 +112,7 @@ export function Menu({ isOpen, userRole }: MenuProps) {
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={handleLogout}
-                    loading={isSigningOut}
+                    onClick={() => {}}
                     variant="outline"
                     className="mt-5 h-10 w-full justify-center"
                   >

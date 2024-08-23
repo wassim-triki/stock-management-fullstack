@@ -27,9 +27,9 @@ import {
 import {
   Ban,
   FileText,
+  HandCoins,
   LucideFileSpreadsheet,
   PackageCheck,
-  ScrollText,
   Send,
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
@@ -304,7 +304,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
                 className="flex w-full items-center"
                 href={`/dashboard/invoices/new?purchaseOrderId=${row.original._id}`}
               >
-                <ScrollText className="mr-2 h-4 w-4" />
+                <HandCoins className="mr-2 h-4 w-4" />
                 Create invoice
               </Link>
             </DropdownMenuItem>
