@@ -30,6 +30,9 @@ export const columns: ColumnDef<Product>[] = [
 
       return <CustomTableCell>{row.getValue("name")}</CustomTableCell>;
     },
+    filterFn: (row, id, value) => {
+      return value instanceof Array && value.includes(row.getValue(id));
+    },
   },
   {
     accessorKey: "price",
@@ -57,8 +60,10 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="SUPPLIER" />
     ),
-    cell: ({ row }) => {
+    cell: ({ row, column }) => {
       const supplier = row.original.supplier;
+      //retruns undefined
+      console.log(column.getFilterValue());
 
       return (
         <CustomTableCell>
@@ -69,6 +74,9 @@ export const columns: ColumnDef<Product>[] = [
       );
     },
     enableSorting: false,
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
 
   {
@@ -85,6 +93,10 @@ export const columns: ColumnDef<Product>[] = [
       );
     },
     enableSorting: false,
+    enableColumnFilter: true, // Ensure filtering is enabled for the column
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
   },
 
   // {

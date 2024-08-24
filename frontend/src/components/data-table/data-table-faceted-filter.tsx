@@ -39,6 +39,15 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
 }: DataTableFacetedFilter<TData, TValue>) {
   const selectedValues = new Set(column?.getFilterValue() as string[]);
+  const handleSelect = (option: FilterOption, isSelected: boolean) => {
+    if (isSelected) {
+      selectedValues.delete(option.value);
+    } else {
+      selectedValues.add(option.value);
+    }
+    const filterValues = Array.from(selectedValues);
+    column?.setFilterValue(filterValues.length ? filterValues : undefined); // Set undefined to clear filters when none are selected
+  };
 
   return (
     <Popover>
@@ -92,17 +101,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                 return (
                   <CommandItem
                     key={option.value}
-                    onSelect={() => {
-                      if (isSelected) {
-                        selectedValues.delete(option.value);
-                      } else {
-                        selectedValues.add(option.value);
-                      }
-                      const filterValues = Array.from(selectedValues);
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined,
-                      );
-                    }}
+                    onSelect={() => handleSelect(option, isSelected)}
                   >
                     <div
                       className={cn(

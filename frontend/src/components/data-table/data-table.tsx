@@ -203,6 +203,7 @@ export function DataTable<TData, TValue>({
       }
     }
 
+    console.log(filterableColumns, filterableColumnFilters);
     for (const key of searchParams.keys()) {
       if (
         filterableColumns.find((column) => column.id === key) &&
@@ -228,23 +229,22 @@ export function DataTable<TData, TValue>({
       sorting,
       columnVisibility,
       rowSelection,
-      columnFilters,
+      columnFilters, // Ensure this is managing your filters
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: setColumnFilters, // Manage column filter state
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    getFilteredRowModel: getFilteredRowModel(), // Ensure this is enabled for filtering
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedRowModel: getFacetedRowModel(), // Faceted row model for filtering
     manualPagination: true,
     manualSorting: true,
-    manualFiltering: true,
+    // No manual filtering since filtering is client-side
   });
 
   return (

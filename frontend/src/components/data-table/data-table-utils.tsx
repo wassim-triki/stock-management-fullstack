@@ -32,8 +32,6 @@ export function getUserColumn<T>(): ColumnDef<T> {
         column.toggleVisibility(false);
       }
 
-      console.log("user", user);
-
       return (
         <CustomTableCell>
           <TableCellLink href={`/dashboard/users/${user?._id}`}>

@@ -11,6 +11,7 @@ import {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
 } from "./data-table";
+import { useEffect } from "react";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -24,6 +25,10 @@ export function DataTableToolbar<TData>({
   searchableColumns = [],
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+
+  useEffect(() => {
+    console.log("filterable: ", filterableColumns);
+  }, [filterableColumns, searchableColumns]);
 
   return (
     <div className="flex items-center justify-between p-1">
