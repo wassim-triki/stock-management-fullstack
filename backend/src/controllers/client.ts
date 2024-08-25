@@ -91,6 +91,14 @@ export const createClient = async (
   next: NextFunction
 ) => {
   try {
+    const { email } = req.body;
+    const clientForUserExists = await Client.findOne({
+      user: req.user?._id,
+      email,
+    });
+    if (clientForUserExists) {
+      return next(new ErrorResponse('Client already exists', 400));
+    }
     const newClient = await Client.create({
       ...req.body,
       user: req.user?._id, // Associate the client with the manager
@@ -110,7 +118,14 @@ export const updateClient = async (
 ) => {
   try {
     const { id } = req.params;
-
+    const { email } = req.body;
+    const clientForUserExists = await Client.findOne({
+      user: req.user?._id,
+      email,
+    });
+    if (clientForUserExists) {
+      return next(new ErrorResponse('Client already exists', 400));
+    }
     const client = await Client.findById(id);
 
     if (!client) {

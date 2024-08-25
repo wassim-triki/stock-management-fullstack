@@ -19,6 +19,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Client, ApiErrorResponse } from "@/lib/types";
 import { createClient, updateClient } from "@/api/client";
 import { Checkbox } from "../ui/checkbox";
+import { useRouter } from "next/navigation";
 
 // Zod validation schema for the client form
 const formSchema = z.object({
@@ -49,6 +50,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
 }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const defaultValues: ClientFormValues = {
     name: initClient?.name || "",
@@ -83,6 +85,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
         });
       }
       // Redirect to clients list or wherever needed
+      router.push("/dashboard/clients");
     } catch (error) {
       toast({
         variant: "destructive",

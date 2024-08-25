@@ -71,11 +71,11 @@ export default function UserNav() {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="#" alt="Avatar" />
                   <AvatarFallback className="bg-transparent">
-                    {user?.profile.firstName &&
+                    {user?.profile?.firstName &&
                       getInitials(user.profile.firstName)}
-                    {user?.profile.lastName &&
+                    {user?.profile?.lastName &&
                       getInitials(user.profile.lastName)}
-                    {!user?.profile.firstName && !user?.profile.lastName && (
+                    {!user?.profile?.firstName && !user?.profile?.lastName && (
                       <UserIcon className="h-4 w-4" />
                     )}
                   </AvatarFallback>
