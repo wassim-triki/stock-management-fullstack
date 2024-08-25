@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import {
   flexRender,
   getCoreRowModel,
@@ -17,6 +18,7 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table";
 
+import { useDebounce } from "@/hooks/use-debounce";
 import {
   Table,
   TableBody,
@@ -27,27 +29,17 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import { useDebounce } from "@uidotdev/usehooks";
-export type Option = {
-  label: string;
-  value: string;
-  icon?: React.ComponentType<{ className?: string }>;
-};
+import {
+  DataTableFilterableColumn,
+  DataTableSearchableColumn,
+} from "@/lib/types";
 
-export interface DataTableSearchableColumn {
-  id: keyof any;
-  title: string;
-}
-
-export interface DataTableFilterableColumn extends DataTableSearchableColumn {
-  options: Option[];
-}
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageCount: number;
-  filterableColumns?: DataTableFilterableColumn[];
-  searchableColumns?: DataTableSearchableColumn[];
+  filterableColumns?: DataTableFilterableColumn<TData>[];
+  searchableColumns?: DataTableSearchableColumn<TData>[];
 }
 
 export function DataTable<TData, TValue>({
@@ -63,7 +55,7 @@ export function DataTable<TData, TValue>({
 
   // Search params
   const page = searchParams?.get("page") ?? "1";
-  const per_page = searchParams?.get("per_page") ?? "5";
+  const per_page = searchParams?.get("per_page") ?? "10";
   const sort = searchParams?.get("sort");
   const [column, order] = sort?.split(".") ?? [];
 
@@ -203,7 +195,6 @@ export function DataTable<TData, TValue>({
       }
     }
 
-    console.log(filterableColumns, filterableColumnFilters);
     for (const key of searchParams.keys()) {
       if (
         filterableColumns.find((column) => column.id === key) &&
@@ -229,22 +220,23 @@ export function DataTable<TData, TValue>({
       sorting,
       columnVisibility,
       rowSelection,
-      columnFilters, // Ensure this is managing your filters
+      columnFilters,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters, // Manage column filter state
+    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(), // Ensure this is enabled for filtering
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(), // Faceted row model for filtering
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination: true,
     manualSorting: true,
-    // No manual filtering since filtering is client-side
+    manualFiltering: true,
   });
 
   return (

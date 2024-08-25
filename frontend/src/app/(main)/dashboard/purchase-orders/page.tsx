@@ -1,4 +1,12 @@
-import { ApiSearchFilter, PurchaseOrder, QueryParams } from "@/lib/types";
+import {
+  ApiSearchFilter,
+  OrderStatuses,
+  orderStatuses,
+  PurchaseOrder,
+  QueryParams,
+  ROLES,
+  Supplier,
+} from "@/lib/types";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 import {
   dehydrate,
@@ -12,7 +20,6 @@ import {
 } from "@/api/purchase-order";
 import { DataTable } from "@/components/data-table/data-table";
 import { columns } from "./columns";
-import { PO_STATUSES } from "@/constants/po-statuses";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -71,11 +78,12 @@ export default async function page({ searchParams }: paramsProps) {
           {
             id: "status",
             title: "Status",
-            options: PO_STATUSES.map((status) => ({
-              label: status.name,
-              value: status.name,
-              // icon: status.icon,
-            })),
+            options: Object.values(OrderStatuses).map((status) => {
+              return {
+                label: status[0]!.toUpperCase() + status.slice(1),
+                value: status,
+              };
+            }),
           },
         ]}
         columns={columns}

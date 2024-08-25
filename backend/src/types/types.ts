@@ -1,8 +1,8 @@
 import mongoose, { Document } from 'mongoose';
 import config from '../config/config';
 import { PaymentStatus } from '../models/Invoice';
-import { PO_STATUSES } from '../models/PurchaseOrder';
 import { Role, ROLES } from '../models/User';
+import { OrderStatuses } from '../models/PurchaseOrder';
 
 // export class SuccessResponse<T> {
 //   success: boolean;
@@ -123,7 +123,7 @@ export interface IPurchaseOrder extends Document {
   orderNumber: string;
   supplier: ISupplier;
   orderDate: Date;
-  status: PO_STATUSES;
+  status: OrderStatuses;
   orderTotal: number;
   receiptDate: Date | null;
   items: IPurchaseOrderItem[];

@@ -1,4 +1,19 @@
 import { Icons } from "../components/icons";
+export type Option = {
+  label: string;
+  value: string;
+  icon?: React.ComponentType<{ className?: string }>;
+};
+
+export interface DataTableSearchableColumn<TData> {
+  id: keyof TData;
+  title: string;
+}
+
+export interface DataTableFilterableColumn<TData>
+  extends DataTableSearchableColumn<TData> {
+  options: Option[];
+}
 
 export interface NavItem {
   title: string;
@@ -73,7 +88,7 @@ export type Company = {
 
 export type User = {
   _id: string;
-  password: string;
+  password?: string;
   email: string;
   company?: Company;
   profile: {
@@ -126,19 +141,24 @@ export type ApiSearchFilter = {
   noFilters?: boolean;
 };
 
-export type POStatus =
-  | "Pending"
-  | "Accepted"
-  | "Received"
-  | "Draft"
-  | "Canceled";
+export enum OrderStatuses {
+  Pending = "Pending",
+  Accepted = "Accepted",
+  Received = "Received",
+  Draft = "Draft",
+  Canceled = "Canceled",
+}
+
+export type OrderStatus = keyof typeof OrderStatuses;
+
+export const orderStatuses = Object.keys(OrderStatuses) as OrderStatus[];
 
 export type PurchaseOrder = {
   _id: string;
   orderNumber: number;
   supplier: Supplier;
   orderDate: Date;
-  status: POStatus;
+  status: OrderStatuses;
   items: {
     product: Product;
     quantity: number;

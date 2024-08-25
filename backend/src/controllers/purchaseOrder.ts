@@ -1,6 +1,6 @@
 // controllers/purchaseOrderController.ts
 import { Request, Response, NextFunction } from 'express';
-import { PO_STATUSES, PurchaseOrder } from '../models/PurchaseOrder';
+import { OrderStatuses, PurchaseOrder } from '../models/PurchaseOrder';
 import {
   ErrorResponse,
   HttpCode,
@@ -43,6 +43,11 @@ export const getPurchaseOrders = async (
     const query: any = {};
     if (filters.orderNumber)
       query.orderNumber = new RegExp(filters.orderNumber as string, 'i');
+    // Handle status filter to allow multiple statuses (e.g., Pending.Accepted)
+    if (filters.status) {
+      const statuses = (filters.status as string).split('.');
+      query.status = { $in: statuses };
+    }
 
     // Managers can only retrieve their own purchase orders
     if (req.user?.role === ROLES.MANAGER) {
@@ -93,17 +98,13 @@ export const createPurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const purchaseOrder = await PurchaseOrder.create({
-      ...req.body,
-      user: req.user?._id, // Assign the purchase order to the user creating it
-    });
-    res
-      .status(201)
-      .json(new SuccessResponse('Purchase Order created', purchaseOrder));
-  } catch (error) {
-    next(new ErrorResponse('Failed to create purchase order', 500));
-  }
+  const purchaseOrder = await PurchaseOrder.create({
+    ...req.body,
+    user: req.user?._id, // Assign the purchase order to the user creating it
+  });
+  res
+    .status(201)
+    .json(new SuccessResponse('Purchase Order created', purchaseOrder));
 };
 
 // Delete a purchase order by ID
@@ -183,44 +184,40 @@ export const updatePurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const purchaseOrder = await PurchaseOrder.findById(req.params.id);
-    if (!purchaseOrder) {
-      return next(new ErrorResponse('Purchase Order not found', 404));
-    }
-
-    // Managers can only update their own purchase orders
-    if (
-      req.user?.role === ROLES.MANAGER &&
-      purchaseOrder.user.toString() !== (req.user._id as string).toString()
-    ) {
-      return next(
-        new ErrorResponse(
-          'You are not authorized to update this order',
-          HttpCode.UNAUTHORIZED
-        )
-      );
-    }
-
-    const newStatus = req.body.status;
-    const orderPending = purchaseOrder.status === PO_STATUSES.PENDING;
-    const cancelingOrder = newStatus === PO_STATUSES.CANCELED;
-    if (orderPending && cancelingOrder) {
-      purchaseOrder.status = PO_STATUSES.CANCELED;
-    }
-    purchaseOrder.receiptDate =
-      newStatus === PO_STATUSES.RECEIVED ? new Date() : null;
-
-    await purchaseOrder.save({
-      validateBeforeSave: true,
-    });
-
-    res
-      .status(200)
-      .json(new SuccessResponse('Purchase Order updated', purchaseOrder));
-  } catch (error) {
-    next(new ErrorResponse('Failed to update purchase order', 500));
+  const purchaseOrder = await PurchaseOrder.findById(req.params.id);
+  if (!purchaseOrder) {
+    return next(new ErrorResponse('Purchase Order not found', 404));
   }
+
+  // Managers can only update their own purchase orders
+  if (
+    req.user?.role === ROLES.MANAGER &&
+    purchaseOrder.user.toString() !== (req.user._id as string).toString()
+  ) {
+    return next(
+      new ErrorResponse(
+        'You are not authorized to update this order',
+        HttpCode.UNAUTHORIZED
+      )
+    );
+  }
+
+  const newStatus = req.body.status;
+  const orderPending = purchaseOrder.status === OrderStatuses.Pending;
+  const cancelingOrder = newStatus === OrderStatuses.Canceled;
+  if (orderPending && cancelingOrder) {
+    purchaseOrder.status = OrderStatuses.Canceled;
+  }
+  purchaseOrder.receiptDate =
+    newStatus === OrderStatuses.Received ? new Date() : null;
+
+  await purchaseOrder.save({
+    validateBeforeSave: true,
+  });
+
+  res
+    .status(200)
+    .json(new SuccessResponse('Purchase Order updated', purchaseOrder));
 };
 
 export const getPurchaseOrderPreview = async (req: Request, res: Response) => {
@@ -287,7 +284,7 @@ export const sendPurchaseOrder = async (req: Request, res: Response) => {
       },
     ],
   });
-  purchaseOrder.status = PO_STATUSES.PENDING;
+  purchaseOrder.status = OrderStatuses.Pending;
   await purchaseOrder.save();
   res
     .status(200)
@@ -301,11 +298,11 @@ export const handleCancelOrder = async (req: Request, res: Response) => {
   if (!purchaseOrder) {
     throw new ErrorResponse('Purchase Order not found', 404);
   }
-  if (purchaseOrder.status !== PO_STATUSES.PENDING) {
+  if (purchaseOrder.status !== OrderStatuses.Pending) {
     throw new ErrorResponse(`Cannot cancel ${purchaseOrder.status} order`, 400);
   }
 
-  purchaseOrder.status = PO_STATUSES.CANCELED;
+  purchaseOrder.status = OrderStatuses.Canceled;
   await mailer.sendMail({
     to: purchaseOrder.supplier.email,
     subject: 'Cancel Purchase Order',
@@ -337,7 +334,7 @@ export const handleAddToStock = async (req: Request, res: Response) => {
     await product.save();
   }
 
-  purchaseOrder.status = PO_STATUSES.RECEIVED;
+  purchaseOrder.status = OrderStatuses.Received;
   await purchaseOrder.save();
   res.status(200).json(new SuccessResponse('Stock updated'));
 };

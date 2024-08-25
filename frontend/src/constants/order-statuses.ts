@@ -1,3 +1,4 @@
+import { OrderStatuses } from "@/lib/types";
 import {
   CheckCircledIcon,
   CircleIcon,
@@ -6,25 +7,25 @@ import {
 } from "@radix-ui/react-icons";
 import { CircleDashedIcon } from "lucide-react";
 
-export const PO_STATUSES = [
+export const OrderStatusesWithIcons = [
   {
-    name: "Draft",
+    name: OrderStatuses.Draft,
     icon: CircleDashedIcon,
   },
   {
-    name: "Pending",
+    name: OrderStatuses.Pending,
     icon: StopwatchIcon,
   },
   {
-    name: "Accepted",
+    name: OrderStatuses.Accepted,
     icon: CircleIcon,
   },
   {
-    name: "Received",
+    name: OrderStatuses.Received,
     icon: CheckCircledIcon,
   },
   {
-    name: "Canceled",
+    name: OrderStatuses.Canceled,
     icon: CrossCircledIcon,
   },
 ];

@@ -10,13 +10,12 @@ import { DataTableViewOptions } from "@/components/data-table/data-table-view-op
 import {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
-} from "./data-table";
-import { useEffect } from "react";
+} from "@/lib/types";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
-  filterableColumns?: DataTableFilterableColumn[];
-  searchableColumns?: DataTableSearchableColumn[];
+  filterableColumns?: DataTableFilterableColumn<TData>[];
+  searchableColumns?: DataTableSearchableColumn<TData>[];
 }
 
 export function DataTableToolbar<TData>({
@@ -25,10 +24,6 @@ export function DataTableToolbar<TData>({
   searchableColumns = [],
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
-
-  useEffect(() => {
-    console.log("filterable: ", filterableColumns);
-  }, [filterableColumns, searchableColumns]);
 
   return (
     <div className="flex items-center justify-between p-1">
@@ -51,13 +46,12 @@ export function DataTableToolbar<TData>({
                       ?.setFilterValue(event.target.value)
                   }
                   className="h-8 w-[150px] lg:w-[250px]"
-                  // className="w-full md:max-w-sm"
                 />
               ),
           )}
         {filterableColumns.length > 0 &&
-          filterableColumns.map(
-            (column) =>
+          filterableColumns.map((column) => {
+            return (
               table.getColumn(column.id ? String(column.id) : "") && (
                 <DataTableFacetedFilter
                   key={String(column.id)}
@@ -65,8 +59,9 @@ export function DataTableToolbar<TData>({
                   title={column.title}
                   options={column.options}
                 />
-              ),
-          )}
+              )
+            );
+          })}
         {isFiltered && (
           <Button
             variant="ghost"

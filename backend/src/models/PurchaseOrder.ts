@@ -1,11 +1,11 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { IProduct, IPurchaseOrder, ISupplier } from '../types/types';
-export enum PO_STATUSES {
-  DRAFT = 'Draft',
-  PENDING = 'Pending',
-  ACCEPTED = 'Accepted',
-  RECEIVED = 'Received',
-  CANCELED = 'Canceled',
+export enum OrderStatuses {
+  Pending = 'Pending',
+  Accepted = 'Accepted',
+  Received = 'Received',
+  Draft = 'Draft',
+  Canceled = 'Canceled',
 }
 const PurchaseOrderSchema: Schema = new Schema(
   {
@@ -29,8 +29,8 @@ const PurchaseOrderSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: PO_STATUSES,
-      default: PO_STATUSES.DRAFT,
+      enum: OrderStatuses,
+      default: OrderStatuses.Draft,
     },
     orderTotal: {
       type: Number,

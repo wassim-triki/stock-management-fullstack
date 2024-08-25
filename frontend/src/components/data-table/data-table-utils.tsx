@@ -7,11 +7,13 @@ import TableCellLink from "../ui/table-link";
 
 export const CustomTableCell = ({
   children,
+  justify = "center",
 }: {
   children: React.ReactNode;
+  justify?: "start" | "center" | "end";
 }) => {
   return (
-    <div className="flex w-full justify-center space-x-2 pr-3">
+    <div className={`flex w-full justify-${justify} space-x-2 pr-3`}>
       <span className="max-w-[120px] truncate font-medium">
         {children || "N/A"}
       </span>

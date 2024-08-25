@@ -31,6 +31,7 @@ import {
   Supplier,
   Product,
   ApiErrorResponse,
+  OrderStatuses,
 } from "@/lib/types";
 import {
   Select,
@@ -44,7 +45,7 @@ import { SingleDatePicker } from "../ui/single-date-picker";
 import fetchHelper from "@/lib/fetchInstance";
 import config from "@/lib/config";
 import { DropdownMenuSeparator } from "../ui/dropdown-menu";
-import { PO_STATUSES } from "@/constants/po-statuses";
+import { OrderStatusesWithIcons } from "@/constants/order-statuses";
 
 const formSchema = z.object({
   status: z.string().min(1, { message: "Status is required" }),
@@ -122,7 +123,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const initialData: PurchaseOrderFormValues = {
-    status: initPurchaseOrder?.status || "Draft",
+    status: initPurchaseOrder?.status || OrderStatuses.Draft,
     supplier: initPurchaseOrder?.supplier?._id || "",
     orderDate: initPurchaseOrder?.orderDate
       ? new Date(initPurchaseOrder.orderDate)
@@ -228,29 +229,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   async function handlePrintAndSend() {
     if (!initPurchaseOrder) return;
     router.push(`/dashboard/purchase-orders/print/${initPurchaseOrder._id}`);
-    // try {
-    //   setLoading(true);
-    //   const values = form.getValues();
-    //   const items = form.getValues("items").map((item) => ({
-    //     ...item,
-    //     quantity: parseInt(item.quantity, 10),
-    //     price: parseFloat(item.unitPrice),
-    //   }));
-    //   const res = await createPurchaseOrder({ ...values, items });
-    //   console.log(res.data);
-    //   toast({
-    //     variant: "success",
-    //     title: res.message,
-    //     description: "Email sent to " + res.data.supplier.email,
-    //   });
-    // } catch (error) {
-    //   toast({
-    //     variant: "destructive",
-    //     title: (error as ApiErrorResponse).message,
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
   }
 
   return (
@@ -275,22 +253,27 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                   <Select
                     disabled={loading}
                     onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
+                    value={field.value || OrderStatuses.Draft} // Default to "Draft" if no value
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue
-                          defaultValue={field.value}
-                          placeholder="Select a status"
-                        />
+                        <SelectValue>
+                          {field.value ? (
+                            field.value
+                          ) : (
+                            <span className="capitalize">
+                              {OrderStatuses.Draft}
+                            </span>
+                          )}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {PO_STATUSES.map((status) => (
+                      {OrderStatusesWithIcons.map((status) => (
                         <SelectItem key={status.name} value={status.name}>
                           <div className="flex items-center gap-2">
-                            <status.icon className="h-4 w-4" /> {status.name}
+                            <status.icon className="h-4 w-4" />
+                            <span className="capitalize">{status.name}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -300,6 +283,7 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                 </FormItem>
               )}
             />
+
             <div className="md:col-span-1">
               <FormField
                 control={form.control}

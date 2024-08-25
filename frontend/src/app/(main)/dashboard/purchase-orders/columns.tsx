@@ -3,7 +3,8 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   ApiErrorResponse,
-  POStatus,
+  orderStatuses,
+  OrderStatuses,
   Product,
   PurchaseOrder,
 } from "@/lib/types";
@@ -26,6 +27,8 @@ import {
 } from "@/api/purchase-order";
 import {
   Ban,
+  CircleDashedIcon,
+  CircleIcon,
   FileText,
   HandCoins,
   LucideFileSpreadsheet,
@@ -52,55 +55,42 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useModal } from "@/providers/modal-provider";
 import Link from "next/link";
 import TableCellLink from "@/components/ui/table-link";
-import { PO_STATUSES } from "@/constants/po-statuses";
 import { CustomTableCell } from "@/components/data-table/data-table-utils";
+import {
+  CheckCircledIcon,
+  CrossCircledIcon,
+  QuestionMarkCircledIcon,
+  StopwatchIcon,
+} from "@radix-ui/react-icons";
+import { OrderStatusesWithIcons } from "@/constants/order-statuses";
 export const columns: ColumnDef<PurchaseOrder>[] = [
-  // {
-  //   accessorKey: "name",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Name" />
-  //   ),
-  //   cell: ({ row }) => {
-  //     // const label = labels.find((label) => label.value === row.original.label)
-
-  //     return (
-  //       <div className="flex space-x-2">
-  //         {/* {label && <Badge variant="outline">{label.label}</Badge>} */}
-  //         <span className="max-w-[500px] truncate font-medium">
-  //           {row.getValue("name")}
-  //         </span>
-  //       </div>
-  //     );
-  //   },
-  // },
-
   {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="STATUS" />
     ),
     cell: ({ row }) => {
-      const status = PO_STATUSES.find(
-        (status) => status.name === row.getValue("status"),
+      const statusWithIcon = OrderStatusesWithIcons.find(
+        (status) => status.name === row.original.status,
       );
 
-      if (!status) {
+      if (!statusWithIcon) {
         return null;
       }
 
       return (
-        <CustomTableCell>
-          <div className="flex items-center">
-            {status.icon && (
-              <status.icon className="mb-[0.2rem] mr-2 h-4 w-4 text-muted-foreground" />
-            )}
-            <span>{status.name}</span>
+        <CustomTableCell justify="start">
+          <div className="ml-6 flex items-center">
+            {
+              <statusWithIcon.icon className="mb-[0.2rem] mr-2 h-4 w-4 text-muted-foreground" />
+            }
+            <span>{statusWithIcon.name}</span>
           </div>
         </CustomTableCell>
       );
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      return value instanceof Array && value.includes(row.getValue(id));
     },
   },
   {
@@ -275,12 +265,12 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleAddToStock}
-              disabled={oldStatus === "Received"}
+              disabled={oldStatus === OrderStatuses.Received}
             >
               <PackageCheck className="mr-2 h-4 w-4" />
               Add to stock
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={oldStatus !== "Received"}>
+            <DropdownMenuItem disabled={oldStatus !== OrderStatuses.Received}>
               <Link
                 className="flex w-full items-center"
                 href={`/dashboard/invoices/new?purchaseOrderId=${row.original._id}`}
@@ -292,7 +282,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleCancel}
-              disabled={oldStatus !== "Pending"}
+              disabled={oldStatus !== OrderStatuses.Pending}
             >
               <Ban className="mr-2 h-4 w-4" />
               Cancel
