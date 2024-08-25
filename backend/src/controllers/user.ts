@@ -29,7 +29,14 @@ export const getAllUsers = async (
 
   const query: any = {};
   if (filters.email) query.email = new RegExp(filters.email as string, 'i');
-
+  if (filters.active) {
+    const actives = (filters.active as string).split('.');
+    query.active = { $in: actives };
+  }
+  if (filters.role) {
+    const roles = (filters.role as string).split('.');
+    query.role = { $in: roles };
+  }
   const users = await User.find(query)
     .sort({ [sortBy as string]: sortOrder })
     .skip(offsetNum)

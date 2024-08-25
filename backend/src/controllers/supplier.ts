@@ -29,7 +29,10 @@ export const getSuppliers = async (
 
     const query: any = {};
     if (filters.name) query.name = new RegExp(filters.name as string, 'i');
-
+    if (filters.active) {
+      const actives = (filters.active as string).split('.');
+      query.active = { $in: actives };
+    }
     // Managers can only retrieve their own suppliers
     if (req.user?.role === ROLES.MANAGER) query.user = req.user._id;
 

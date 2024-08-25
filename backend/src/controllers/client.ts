@@ -29,6 +29,10 @@ export const getClients = async (
 
     const query: any = {};
     if (filters.name) query.name = new RegExp(filters.name as string, 'i');
+    if (filters.active) {
+      const actives = (filters.active as string).split('.');
+      query.active = { $in: actives };
+    }
 
     // Managers can only retrieve their own clients
     if (req.user?.role === ROLES.MANAGER) {

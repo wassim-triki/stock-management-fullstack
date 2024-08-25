@@ -55,6 +55,16 @@ export default async function DemoPage({ searchParams }: PageProps) {
     >
       <DataTable
         searchableColumns={[{ id: "name", title: "Name" }]}
+        filterableColumns={[
+          {
+            id: "active",
+            title: "Status",
+            options: [
+              { label: "Active", value: "true" },
+              { label: "Inactive", value: "false" },
+            ],
+          },
+        ]}
         columns={columns}
         data={data}
         pageCount={pageCount}

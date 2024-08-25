@@ -58,11 +58,29 @@ const Page = async ({ searchParams }: ParamsProps) => {
     <ContentPageLayout
       breadcrumbItems={breadcrumbItems}
       title={`Users (${total})`}
-      description="Manage employees (Server side table functionalities.)"
+      description="Manage users"
       addNewLink="/dashboard/users/new"
     >
       <DataTable
         searchableColumns={[{ id: "email", title: "Email" }]}
+        filterableColumns={[
+          {
+            id: "active",
+            title: "Status",
+            options: [
+              { label: "Active", value: "true" },
+              { label: "Inactive", value: "false" },
+            ],
+          },
+          {
+            id: "role",
+            title: "Role",
+            options: [
+              { label: "Admin", value: "Admin" },
+              { label: "Manager", value: "Manager" },
+            ],
+          },
+        ]}
         columns={columns}
         pageCount={pageCount}
         data={users}
