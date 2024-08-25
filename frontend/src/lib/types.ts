@@ -156,7 +156,8 @@ export const orderStatuses = Object.keys(OrderStatuses) as OrderStatus[];
 export type PurchaseOrder = {
   _id: string;
   orderNumber: number;
-  supplier: Supplier;
+  supplier?: Supplier;
+  client?: Client;
   orderDate: Date;
   status: OrderStatuses;
   items: {
@@ -184,8 +185,10 @@ export enum PaymentStatus {
   PARTIALLY_PAID = "Partially Paid",
   OVERDUE = "Overdue",
 }
-
-export type InvoiceType = "Supplier" | "Client";
+export enum InvoiceType {
+  Supplier = "Supplier",
+  Client = "Client",
+}
 
 export type Invoice = {
   _id: string;

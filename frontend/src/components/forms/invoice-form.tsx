@@ -100,10 +100,20 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  // Determine the initial entity based on the provided purchase order or initInvoice
+  const initialEntityId =
+    purchaseOrder?.supplier?._id ||
+    purchaseOrder?.client?._id ||
+    initInvoice?.supplier?._id ||
+    initInvoice?.client?._id ||
+    "";
+
   const initialData: InvoiceFormValues = {
     invoiceNumber: initInvoice?.invoiceNumber || "",
-    invoiceType: initInvoice?.invoiceType || "Supplier", // Default to "Supplier"
-    entityId: initInvoice?.supplier?._id || "", // This will be the supplier or client based on invoiceType
+    invoiceType:
+      initInvoice?.invoiceType ||
+      (purchaseOrder?.supplier ? "Supplier" : "Client"), // Default based on purchase order
+    entityId: initialEntityId, // Set to the correct supplier/client
     purchaseOrder: purchaseOrder?._id || initInvoice?.purchaseOrder?._id || "",
     totalAmount:
       purchaseOrder?.orderTotal.toString() ||
@@ -124,6 +134,20 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
     control: form.control,
     name: "invoiceType",
   });
+
+  useEffect(() => {
+    // Update the entityId based on the selected purchase order's supplier or client
+    if (purchaseOrder) {
+      form.setValue(
+        "entityId",
+        purchaseOrder?.supplier?._id || purchaseOrder?.client?._id || "",
+      );
+      form.setValue(
+        "invoiceType",
+        purchaseOrder?.supplier ? "Supplier" : "Client",
+      );
+    }
+  }, [purchaseOrder, form]);
 
   const onSubmit = async (data: InvoiceFormValues) => {
     setLoading(true);

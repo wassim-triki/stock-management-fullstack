@@ -30,6 +30,14 @@ export const getInvoices = async (
     const query: any = {};
     if (filters.invoiceNumber)
       query.invoiceNumber = new RegExp(filters.invoiceNumber as string, 'i');
+    if (filters.paymentStatus) {
+      const statuses = (filters.paymentStatus as string).split('.');
+      query.paymentStatus = { $in: statuses };
+    }
+    if (filters.invoiceType) {
+      const types = (filters.invoiceType as string).split('.');
+      query.invoiceType = { $in: types };
+    }
 
     // Managers can only retrieve their own invoices
     if (req.user?.role === ROLES.MANAGER) {

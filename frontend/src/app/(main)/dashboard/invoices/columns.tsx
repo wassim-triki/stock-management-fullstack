@@ -10,12 +10,12 @@ import { ArrowUpDown } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import TableCellLink from "@/components/ui/table-link";
-import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
 import { Badge } from "@/components/ui/badge";
 import {
   CustomTableCell,
   getUserColumn,
 } from "@/components/data-table/data-table-utils";
+import { PaymentStatuses } from "@/constants/payment-statuses";
 
 export const columns: ColumnDef<Invoice>[] = [
   getUserColumn(),
@@ -156,7 +156,7 @@ export const columns: ColumnDef<Invoice>[] = [
       <DataTableColumnHeader column={column} title="STATUS" />
     ),
     cell: ({ row, cell }) => {
-      const status = Object.values(PAYMENT_STATUSES).find(
+      const status = Object.values(PaymentStatuses).find(
         (status) => status === cell.getValue(),
       );
 
@@ -167,16 +167,16 @@ export const columns: ColumnDef<Invoice>[] = [
       let badgeVariant: "default" | "secondary" | "outline" | "destructive" =
         "default";
       switch (status) {
-        case PAYMENT_STATUSES.PAID:
+        case PaymentStatuses.Paid:
           badgeVariant = "secondary";
           break;
-        case PAYMENT_STATUSES.UNPAID:
+        case PaymentStatuses.Unpaid:
           badgeVariant = "default";
           break;
-        case PAYMENT_STATUSES.PARTIALLY_PAID:
+        case PaymentStatuses.PartiallyPaid:
           badgeVariant = "outline";
           break;
-        case PAYMENT_STATUSES.OVERDUE:
+        case PaymentStatuses.Overdue:
           badgeVariant = "destructive";
           break;
       }

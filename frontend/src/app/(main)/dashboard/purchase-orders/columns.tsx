@@ -192,7 +192,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
           toast({
             variant: "success",
             title: res.message,
-            description: `Email sent to ${res.data.supplier.email}`,
+            description: `Email sent to ${res.data.supplier?.email}`,
           });
         } catch (error) {
           toast({

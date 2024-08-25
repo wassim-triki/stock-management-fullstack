@@ -24,16 +24,15 @@ export const CustomTableCell = ({
 export function getUserColumn<T>(): ColumnDef<T> {
   return {
     accessorKey: "user",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="USER" />
-    ),
-    cell: ({ row, cell, column, table }) => {
+    header: ({ column }) => {
       const auth = useAuth();
-      const user = (row.original as { user: User }).user;
       if (auth.role !== ROLES.ADMIN) {
         column.toggleVisibility(false);
       }
-
+      return <DataTableColumnHeader column={column} title="USER" />;
+    },
+    cell: ({ row, cell, column, table }) => {
+      const user = (row.original as { user: User }).user;
       return (
         <CustomTableCell>
           <TableCellLink href={`/dashboard/users/${user?._id}`}>

@@ -3,8 +3,8 @@ import { DataTable } from "@/components/data-table/data-table";
 import ContentPageLayout from "@/components/layouts/content-page-layout";
 
 import { columns } from "./columns";
-import { PAYMENT_STATUSES } from "@/constants/payment-statuses";
-import { Invoice } from "@/lib/types";
+import { PaymentStatuses } from "@/constants/payment-statuses";
+import { Invoice, InvoiceType } from "@/lib/types";
 import { getInvoices, getTotalInvoices } from "@/api/invoice";
 
 type PageProps = {
@@ -61,9 +61,18 @@ export default async function DemoPage({ searchParams }: PageProps) {
         searchableColumns={[{ id: "invoiceNumber", title: "Invoice number" }]}
         filterableColumns={[
           {
+            id: "invoiceType",
+            title: "Type",
+            options: Object.values(InvoiceType).map((type) => ({
+              label: type,
+              value: type,
+              // icon: status.icon,
+            })),
+          },
+          {
             id: "paymentStatus",
             title: "Payment status",
-            options: Object.values(PAYMENT_STATUSES).map((status) => ({
+            options: Object.values(PaymentStatuses).map((status) => ({
               label: status,
               value: status,
               // icon: status.icon,
