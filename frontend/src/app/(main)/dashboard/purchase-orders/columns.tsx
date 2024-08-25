@@ -65,6 +65,24 @@ import {
 import { OrderStatusesWithIcons } from "@/constants/order-statuses";
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
+    accessorKey: "orderNumber",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="ORDER N°" />
+    ),
+    cell: ({ cell, row }) => {
+      return (
+        <CustomTableCell>
+          {" "}
+          <TableCellLink
+            href={`/dashboard/purchase-orders/${row.original._id}`}
+          >
+            {cell.getValue() as string}
+          </TableCellLink>
+        </CustomTableCell>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="STATUS" />
@@ -91,24 +109,6 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     },
     filterFn: (row, id, value) => {
       return value instanceof Array && value.includes(row.getValue(id));
-    },
-  },
-  {
-    accessorKey: "orderNumber",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ORDER N°" />
-    ),
-    cell: ({ cell, row }) => {
-      return (
-        <CustomTableCell>
-          {" "}
-          <TableCellLink
-            href={`/dashboard/purchase-orders/${row.original._id}`}
-          >
-            {cell.getValue() as string}
-          </TableCellLink>
-        </CustomTableCell>
-      );
     },
   },
   {

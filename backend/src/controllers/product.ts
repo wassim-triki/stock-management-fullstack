@@ -33,7 +33,10 @@ export const getProducts = async (
 
     const query: any = {};
 
+    // Filter by name
     if (filters.name) query.name = new RegExp(filters.name as string, 'i');
+
+    // Filter by price range
     if (filters.minPrice)
       query.price = {
         ...query.price,
@@ -44,6 +47,8 @@ export const getProducts = async (
         ...query.price,
         $lte: parseFloat(filters.maxPrice as string),
       };
+
+    // Filter by quantity range
     if (filters.minQuantity)
       query.quantityInStock = {
         ...query.quantityInStock,
@@ -55,17 +60,38 @@ export const getProducts = async (
         $lte: parseInt(filters.maxQuantity as string),
       };
 
+    // Filter by suppliers (using names, separated by dots)
+    if (filters.supplier) {
+      const supplierNames = (filters.supplier as string).split('.');
+      const suppliers = await Supplier.find({
+        name: { $in: supplierNames },
+      }).select('_id'); // Get the supplier IDs based on the names
+      const supplierIds = suppliers.map((supplier) => supplier._id);
+      query.supplier = { $in: supplierIds };
+    }
+
+    // Filter by categories (using names, separated by dots)
+    if (filters.category) {
+      const categoryNames = (filters.category as string).split('.');
+      const categories = await Category.find({
+        name: { $in: categoryNames },
+      }).select('_id'); // Get the category IDs based on the names
+      const categoryIds = categories.map((category) => category._id);
+      query.category = { $in: categoryIds };
+    }
+
     // Ensure that Managers can only see their own products
     if (req.user?.role === ROLES.MANAGER) {
       query.user = req.user._id; // Limit products to the manager's own products
     }
 
+    // Fetch the products based on the query
     const products = await Product.find(query)
       .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
       .limit(limitNum)
-      .populate('supplier', 'name')
-      .populate('category', 'name')
+      .populate('supplier', 'name') // Populate supplier name
+      .populate('category', 'name') // Populate category name
       .populate('user', ['email', 'role']);
 
     res

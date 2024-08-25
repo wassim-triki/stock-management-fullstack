@@ -59,15 +59,6 @@ export default async function DemoPage({ searchParams }: PageProps) {
         searchableColumns={[{ id: "name", title: "Name" }]}
         filterableColumns={[
           {
-            id: "name",
-            title: "Name",
-            options: [
-              { label: "Name1", value: "name1" },
-              { label: "Name2", value: "name2" },
-              { label: "Name3", value: "name3" },
-            ],
-          },
-          {
             id: "category",
             title: "Category",
             options: categories.map((category) => ({
@@ -80,7 +71,7 @@ export default async function DemoPage({ searchParams }: PageProps) {
             title: "Supplier",
             options: suppliers.map((supplier) => ({
               label: supplier.name,
-              value: supplier._id,
+              value: supplier.name,
             })),
           },
         ]}
