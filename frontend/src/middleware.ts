@@ -32,6 +32,16 @@ const middleware = async (req: NextRequest) => {
     return NextResponse.redirect(new URL("/maintenance", req.url));
   }
 
+  // Redirect the root ("/") to either dashboard or login page
+  //TODO: updpate with landing page instead
+  if (pathname === "/") {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    } else {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+  }
+
   // Handle redirection based on authentication status
   if (pathname.startsWith("/dashboard") && !isAuthenticated) {
     return NextResponse.redirect(new URL("/login", req.url));
@@ -45,8 +55,6 @@ const middleware = async (req: NextRequest) => {
   const rolePermissions: Record<string, string[]> = {
     "/dashboard/companies": [ROLES.ADMIN], // Only admin can access /dashboard/admin
     "/dashboard/users": [ROLES.ADMIN], // Only admin can access /dashboard/admin
-    // "/dashboard/manager": [ROLES.MANAGER, ROLES.ADMIN], // Both managers and admins can access /dashboard/manager
-    // "/dashboard/user": [ROLES.USER, ROLES.MANAGER, ROLES.ADMIN], // All roles can access /dashboard/user
   };
 
   // Check if the current path has role restrictions
@@ -67,7 +75,7 @@ const middleware = async (req: NextRequest) => {
 };
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/signup"], // Protect routes under /dashboard and specific routes
+  matcher: ["/dashboard/:path*", "/", "/login", "/signup"], // Protect root ("/") and routes under /dashboard
 };
 
 export default middleware;
