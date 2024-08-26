@@ -14,8 +14,14 @@ import { PieGraph } from "@/components/admin-panel/charts/pie-graph";
 import { AreaGraph } from "@/components/admin-panel/charts/area-graph";
 import { RecentSales } from "@/components/admin-panel/recent-sales";
 import Spinner from "@/components/spinner";
+import { getKPI } from "@/api/kpi";
+import { Package, Truck, User } from "lucide-react";
+import { getAuthUser } from "@/api/auth";
+import { ROLES } from "@/lib/types";
 //TODO: add loading.ts
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const { clients, suppliers, users, products, revenue } = await getKPI();
+  const { data: auth } = await getAuthUser();
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
@@ -23,17 +29,33 @@ export default function DashboardPage() {
           <h2 className="text-3xl font-bold tracking-tight">
             Hi, Welcome back 👋
           </h2>
-          <div className="hidden items-center space-x-2 md:flex">
+          {/* <div className="hidden items-center space-x-2 md:flex">
             <CalendarDateRangePicker />
             <Button>Download</Button>
-          </div>
+          </div> */}
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
+          {/* <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-          </TabsList>
+          </TabsList> */}
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div
+              className={`grid gap-4 md:grid-cols-2 lg:grid-cols-${auth.role === ROLES.ADMIN ? 5 : 4}`}
+            >
+              {auth.role === ROLES.ADMIN && users && (
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Users</CardTitle>
+                    <User className="h-5 w-5 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{users.total}</div>
+                    <p className="text-xs text-muted-foreground">
+                      +{users.new} from last month
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
@@ -53,17 +75,21 @@ export default function DashboardPage() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">$45,231.89</div>
+                  <div className="text-2xl font-bold">
+                    {new Intl.NumberFormat("tn-TN", {
+                      style: "currency",
+                      currency: "TND",
+                      maximumFractionDigits: 2,
+                    }).format(revenue.total)}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    +20.1% from last month
+                    +{revenue.growth} from last month
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Subscriptions
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Clients</CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -80,58 +106,43 @@ export default function DashboardPage() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+2350</div>
+                  <div className="text-2xl font-bold">{clients.total}</div>
                   <p className="text-xs text-muted-foreground">
-                    +180.1% from last month
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="h-4 w-4 text-muted-foreground"
-                  >
-                    <rect width="20" height="14" x="2" y="5" rx="2" />
-                    <path d="M2 10h20" />
-                  </svg>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">+12,234</div>
-                  <p className="text-xs text-muted-foreground">
-                    +19% from last month
+                    +{clients.new} from last month
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Active Now
+                    Suppliers
                   </CardTitle>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="h-4 w-4 text-muted-foreground"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                  </svg>
+                  <Truck className="h-5 w-5 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+573</div>
+                  <div className="text-2xl font-bold">{suppliers.total}</div>
                   <p className="text-xs text-muted-foreground">
-                    +201 since last hour
+                    +{suppliers.new} from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Products
+                  </CardTitle>
+                  <Package className="h-5 w-5 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 text-2xl font-bold">
+                    {products.unique}
+
+                    <span className="text-sm font-medium text-destructive">
+                      ( {products.outOfStock} out of stock )
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {products.total} total products
                   </p>
                 </CardContent>
               </Card>

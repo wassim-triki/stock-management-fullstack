@@ -42,6 +42,7 @@ const changEmailSchema = z.object({
 });
 export type ChangeEmailFormValues = z.infer<typeof changEmailSchema>;
 
+//TODO; add currency form
 const changePasswordSchema = z
   .object({
     oldPassword: z.string().min(1, "Old password is required"),

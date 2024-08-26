@@ -8,6 +8,7 @@ import purchaseOrderRouter from './purchaseOrder';
 import invoiceRouter from './invoice';
 import companyRouter from './company';
 import clientRouter from './client';
+import kpiRouter from './kpi';
 const routes = Router();
 
 routes.use('/api/auth', authRouter);
@@ -19,5 +20,6 @@ routes.use('/api/suppliers', supplierRouter);
 routes.use('/api/categories', categoryRouter);
 routes.use('/api/purchase-orders', purchaseOrderRouter);
 routes.use('/api/companies', companyRouter);
+routes.use('/api/kpi', kpiRouter);
 
 export default routes;
