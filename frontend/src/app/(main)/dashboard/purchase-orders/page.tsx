@@ -2,6 +2,7 @@ import {
   ApiSearchFilter,
   OrderStatuses,
   orderStatuses,
+  OrderType,
   PurchaseOrder,
   QueryParams,
   ROLES,
@@ -76,14 +77,20 @@ export default async function page({ searchParams }: paramsProps) {
         searchableColumns={[{ id: "orderNumber", title: "Order number" }]}
         filterableColumns={[
           {
+            id: "orderType",
+            title: "Type",
+            options: Object.values(OrderType).map((type) => ({
+              label: type,
+              value: type,
+            })),
+          },
+          {
             id: "status",
             title: "Status",
-            options: Object.values(OrderStatuses).map((status) => {
-              return {
-                label: status[0]!.toUpperCase() + status.slice(1),
-                value: status,
-              };
-            }),
+            options: Object.values(OrderStatuses).map((status) => ({
+              label: status,
+              value: status,
+            })),
           },
         ]}
         columns={columns}

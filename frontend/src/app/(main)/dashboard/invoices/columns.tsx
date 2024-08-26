@@ -49,24 +49,45 @@ export const columns: ColumnDef<Invoice>[] = [
     },
   },
   {
-    accessorKey: "entityId",
+    accessorKey: "supplier",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="SUPPLIER/CLIENT" />
+      <DataTableColumnHeader column={column} title="SUPPLIER" />
     ),
     cell: ({ row }) => {
       const invoiceType = row.original.invoiceType;
-      const entity =
-        invoiceType === "Supplier"
-          ? row.original.supplier
-          : row.original.client;
+      const supplier = row.original.supplier;
 
       return (
         <CustomTableCell>
-          <TableCellLink
-            href={`/dashboard/${invoiceType.toLowerCase()}s/${entity._id}`}
-          >
-            {entity.name}
-          </TableCellLink>
+          {supplier && (
+            <TableCellLink
+              href={`/dashboard/${invoiceType.toLowerCase()}s/${supplier?._id}`}
+            >
+              {supplier?.name}
+            </TableCellLink>
+          )}
+        </CustomTableCell>
+      );
+    },
+  },
+  {
+    accessorKey: "client",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="CLIENT" />
+    ),
+    cell: ({ row }) => {
+      const invoiceType = row.original.invoiceType;
+      const client = row.original.client;
+
+      return (
+        <CustomTableCell>
+          {client && (
+            <TableCellLink
+              href={`/dashboard/${invoiceType.toLowerCase()}s/${client?._id}`}
+            >
+              {client?.name}
+            </TableCellLink>
+          )}
         </CustomTableCell>
       );
     },
@@ -79,11 +100,13 @@ export const columns: ColumnDef<Invoice>[] = [
     cell: ({ cell, row }) => {
       return (
         <CustomTableCell>
-          <TableCellLink
-            href={`/dashboard/purchase-orders/${row.original._id}`}
-          >
-            {cell.getValue() as string}
-          </TableCellLink>
+          {row.original.purchaseOrder?._id && (
+            <TableCellLink
+              href={`/dashboard/purchase-orders/${row.original._id}`}
+            >
+              {cell.getValue() as string}
+            </TableCellLink>
+          )}
         </CustomTableCell>
       );
     },
@@ -197,7 +220,7 @@ export const columns: ColumnDef<Invoice>[] = [
       <DataTableColumnHeader column={column} title="PAYMENT DATE" />
     ),
     cell: ({ cell }) => {
-      const formattedDate = cell.getValue() as string;
+      const formattedDate = formatDate(cell.getValue() as string);
       return <CustomTableCell>{formattedDate}</CustomTableCell>;
     },
   },

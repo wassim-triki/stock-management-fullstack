@@ -21,7 +21,7 @@ export const OrderStatusesWithIcons = [
     icon: CircleIcon,
   },
   {
-    name: OrderStatuses.Received,
+    name: OrderStatuses.Delivered,
     icon: CheckCircledIcon,
   },
   {

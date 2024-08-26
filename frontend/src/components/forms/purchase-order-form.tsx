@@ -32,6 +32,8 @@ import {
   Product,
   ApiErrorResponse,
   OrderStatuses,
+  OrderType,
+  Client,
 } from "@/lib/types";
 import {
   Select,
@@ -49,7 +51,9 @@ import { OrderStatusesWithIcons } from "@/constants/order-statuses";
 
 const formSchema = z.object({
   status: z.string().min(1, { message: "Status is required" }),
-  supplier: z.string().min(1, { message: "Supplier is required" }),
+  supplier: z.string().optional(),
+  client: z.string().optional(),
+  orderType: z.string().min(1, { message: "Order type is required" }),
   orderDate: z.date().optional(),
   items: z.array(
     z.object({
@@ -100,6 +104,7 @@ interface PurchaseOrderFormProps {
   action: string;
   purchaseOrderId?: string | undefined;
   suppliers: Supplier[];
+  clients: Client[];
   products: Product[];
   initPurchaseOrder?: PurchaseOrder;
 }
@@ -114,8 +119,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   title,
   description,
   action,
-  purchaseOrderId = "",
   suppliers,
+  clients,
   products,
   initPurchaseOrder,
 }) => {
@@ -125,6 +130,8 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
   const initialData: PurchaseOrderFormValues = {
     status: initPurchaseOrder?.status || OrderStatuses.Draft,
     supplier: initPurchaseOrder?.supplier?._id || "",
+    client: initPurchaseOrder?.client?._id || "",
+    orderType: initPurchaseOrder?.orderType || OrderType.Supplier,
     orderDate: initPurchaseOrder?.orderDate
       ? new Date(initPurchaseOrder.orderDate)
       : new Date(),
@@ -142,6 +149,10 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       lineTotal: (item.quantity * item.unitPrice).toString(),
     })) || [{ product: "", quantity: "", unitPrice: "", lineTotal: "0" }],
   };
+
+  useEffect(() => {
+    console.log(initialData);
+  }, [initialData]);
 
   const form = useForm<PurchaseOrderFormValues>({
     resolver: zodResolver(formSchema),
@@ -212,7 +223,6 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
         toast({
           variant: "success",
           title: res.message,
-          // description: "Email sent to " + res.data.supplier.email,
         });
       }
       router.push("/dashboard/purchase-orders");
@@ -244,6 +254,35 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-8"
           >
+            <FormField
+              control={form.control}
+              name="orderType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Order Type</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value || OrderType.Supplier} // Default to Supplier if no value
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue>{field.value}</SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value={OrderType.Supplier}>
+                        Supplier
+                      </SelectItem>
+                      <SelectItem value={OrderType.Client}>Client</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="status"
@@ -304,52 +343,105 @@ export const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                 )}
               />
             </div>
-            <div className="md:col-span-2">
-              <FormField
-                control={form.control}
-                name="supplier"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Supplier</FormLabel>
-                    <Select
-                      disabled={loading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <div className="flex items-center gap-4">
-                          <SelectTrigger>
-                            <SelectValue
-                              defaultValue={field.value}
-                              placeholder="Select a supplier"
-                            />
-                          </SelectTrigger>
-                        </div>
-                      </FormControl>
-                      <SelectContent>
-                        <Button variant={"link"}>
-                          <Link
-                            className="flex items-center gap-2"
-                            href={"/dashboard/suppliers/new"}
-                          >
-                            <Plus className="h-4 w-4" />
-                            Add a new supplier
-                          </Link>
-                        </Button>
-                        <DropdownMenuSeparator />
-                        {suppliers.map((supplier) => (
-                          <SelectItem key={supplier._id} value={supplier._id}>
-                            {supplier.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+
+            {/* Conditional Supplier/Client fields based on orderType */}
+            {form.watch("orderType") === OrderType.Supplier && (
+              <div className="md:col-span-2">
+                <FormField
+                  control={form.control}
+                  name="supplier"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Supplier</FormLabel>
+                      <Select
+                        disabled={loading}
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <div className="flex items-center gap-4">
+                            <SelectTrigger>
+                              <SelectValue
+                                defaultValue={field.value}
+                                placeholder="Select a supplier"
+                              />
+                            </SelectTrigger>
+                          </div>
+                        </FormControl>
+                        <SelectContent>
+                          <Button variant={"link"}>
+                            <Link
+                              className="flex items-center gap-2"
+                              href={"/dashboard/suppliers/new"}
+                            >
+                              <Plus className="h-4 w-4" />
+                              Add a new supplier
+                            </Link>
+                          </Button>
+                          <DropdownMenuSeparator />
+                          {suppliers.map((supplier) => (
+                            <SelectItem key={supplier._id} value={supplier._id}>
+                              {supplier.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {form.watch("orderType") === OrderType.Client && (
+              <div className="md:col-span-2">
+                <FormField
+                  control={form.control}
+                  name="client"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Client</FormLabel>
+                      <Select
+                        disabled={loading}
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <div className="flex items-center gap-4">
+                            <SelectTrigger>
+                              <SelectValue
+                                defaultValue={field.value}
+                                placeholder="Select a client"
+                              />
+                            </SelectTrigger>
+                          </div>
+                        </FormControl>
+                        <SelectContent>
+                          <Button variant={"link"}>
+                            <Link
+                              className="flex items-center gap-2"
+                              href={"/dashboard/clients/new"}
+                            >
+                              <Plus className="h-4 w-4" />
+                              Add a new client
+                            </Link>
+                          </Button>
+                          <DropdownMenuSeparator />
+                          {clients.map((client) => (
+                            <SelectItem key={client._id} value={client._id}>
+                              {client.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
 
             <div className="space-y-8">
               <Separator />

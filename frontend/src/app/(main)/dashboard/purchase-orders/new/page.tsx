@@ -3,6 +3,7 @@ import { getProducts } from "@/api/product";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PurchaseOrderForm } from "@/components/forms/purchase-order-form";
+import { getClients } from "@/api/client";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/dashboard" },
@@ -13,6 +14,7 @@ const breadcrumbItems = [
 export default async function Page() {
   const suppliers = await getSuppliers();
   const products = await getProducts();
+  const clients = await getClients();
 
   return (
     <ScrollArea className="h-full">
@@ -21,6 +23,7 @@ export default async function Page() {
         <PurchaseOrderForm
           suppliers={suppliers}
           products={products}
+          clients={clients}
           action="Create"
           description="Create a new purchase order"
           title="Create Purchase Order"

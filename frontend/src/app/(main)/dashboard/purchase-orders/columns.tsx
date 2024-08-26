@@ -19,11 +19,11 @@ import {
 import { formatDate, timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
 import {
-  addToStock,
   cancelPurchaseOrder,
   deletePurchaseOrder,
   sendPurchaseOrder,
   updatePurchaseOrder,
+  updateStock,
 } from "@/api/purchase-order";
 import {
   Ban,
@@ -83,6 +83,20 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     },
   },
   {
+    accessorKey: "orderType",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="ORDER TYPE" />
+    ),
+    cell: ({ row }) => {
+      const type = row.getValue("orderType") as string;
+      return (
+        <CustomTableCell>
+          <Badge variant="default">{type}</Badge>
+        </CustomTableCell>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="STATUS" />
@@ -113,22 +127,47 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
   },
   {
     accessorKey: "supplier",
-    accessorFn: (row) => row.supplier?.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="SUPPLIER" />
     ),
-    cell: ({ cell, row }) => {
+    cell: ({ row }) => {
+      const orderType = row.original.orderType;
+      const supplier = row.original.supplier;
+
       return (
         <CustomTableCell>
-          <TableCellLink
-            href={`/dashboard/suppliers/${row.original.supplier?._id}`}
-          >
-            {cell.getValue() as string}
-          </TableCellLink>
+          {supplier && (
+            <TableCellLink
+              href={`/dashboard/${orderType.toLowerCase()}s/${supplier?._id}`}
+            >
+              {supplier?.name}
+            </TableCellLink>
+          )}
         </CustomTableCell>
       );
     },
-    enableSorting: false,
+  },
+  {
+    accessorKey: "client",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="CLIENT" />
+    ),
+    cell: ({ row }) => {
+      const orderType = row.original.orderType;
+      const client = row.original.client;
+
+      return (
+        <CustomTableCell>
+          {client && (
+            <TableCellLink
+              href={`/dashboard/${orderType.toLowerCase()}s/${client?._id}`}
+            >
+              {client?.name}
+            </TableCellLink>
+          )}
+        </CustomTableCell>
+      );
+    },
   },
 
   {
@@ -222,10 +261,10 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
         }
       };
 
-      const handleAddToStock = async () => {
+      const handleUpdateStock = async () => {
         setLoading(true);
         try {
-          const res = await addToStock(row.original._id);
+          const res = await updateStock(row.original._id);
           toast({
             variant: "success",
             title: res.message,
@@ -264,13 +303,13 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={handleAddToStock}
-              disabled={oldStatus === OrderStatuses.Received}
+              onClick={handleUpdateStock}
+              disabled={oldStatus === OrderStatuses.Delivered}
             >
               <PackageCheck className="mr-2 h-4 w-4" />
-              Add to stock
+              Update stock
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={oldStatus !== OrderStatuses.Received}>
+            <DropdownMenuItem disabled={oldStatus !== OrderStatuses.Delivered}>
               <Link
                 className="flex w-full items-center"
                 href={`/dashboard/invoices/new?purchaseOrderId=${row.original._id}`}
@@ -294,87 +333,3 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     },
   },
 ];
-
-// const renderPOStatusList = (
-//   row: Row<PurchaseOrder>,
-//   setLoading: Dispatch<SetStateAction<boolean>>,
-// ) => {
-//   const { showModal } = useModal();
-//   const handleStatusChange = async (status: string) => {
-//     const oldStatus = row.original.status;
-//     if (status === oldStatus) return;
-//     setLoading(true);
-//     try {
-//       const res = await updatePurchaseOrder({
-//         id: row.original._id,
-//         data: { status },
-//       });
-//       toast({
-//         variant: "success",
-//         title: res.message,
-//       });
-//     } catch (error) {
-//       toast({
-//         variant: "destructive",
-//         title: (error as ApiErrorResponse).message,
-//       });
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const onConfirmCancel = async (orderId: string) => {
-//     try {
-//       const res = await cancelPurchaseOrder(orderId);
-//       toast({
-//         variant: "success",
-//         title: res.message,
-//         description: `Email sent to ${res.data.supplier.email}`,
-//       });
-//     } catch (error) {
-//       toast({
-//         variant: "destructive",
-//         title: (error as ApiErrorResponse).message,
-//       });
-//     }
-//   };
-
-//   return (
-//     <>
-//       <DropdownMenuSub>
-//         <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
-//         <DropdownMenuSubContent>
-//           <DropdownMenuRadioGroup value={row.original.status}>
-//             <DropdownMenuRadioItem
-//               onClick={() => handleStatusChange("Draft")}
-//               value="Draft"
-//             >
-//               Draft
-//             </DropdownMenuRadioItem>
-//             <DropdownMenuRadioItem
-//               onClick={() => handleStatusChange("Pending")}
-//               value="Pending"
-//             >
-//               Pending
-//             </DropdownMenuRadioItem>
-//             <DropdownMenuRadioItem
-//               onClick={() => handleStatusChange("Accepted")}
-//               value="Accepted"
-//             >
-//               Accepted
-//             </DropdownMenuRadioItem>
-//             <DropdownMenuRadioItem
-//               onClick={() => handleStatusChange("Received")}
-//               value="Received"
-//             >
-//               Received
-//             </DropdownMenuRadioItem>
-//             <DropdownMenuRadioItem onClick={handleCancel} value="Canceled">
-//               Canceled
-//             </DropdownMenuRadioItem>
-//           </DropdownMenuRadioGroup>
-//         </DropdownMenuSubContent>
-//       </DropdownMenuSub>
-//     </>
-//   );
-// };

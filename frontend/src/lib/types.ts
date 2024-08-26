@@ -144,9 +144,24 @@ export type ApiSearchFilter = {
 export enum OrderStatuses {
   Pending = "Pending",
   Accepted = "Accepted",
-  Received = "Received",
+  Delivered = "Delivered",
   Draft = "Draft",
   Canceled = "Canceled",
+}
+export enum OrderType {
+  Supplier = "Supplier",
+  Client = "Client",
+}
+export enum InvoiceType {
+  Supplier = "Supplier",
+  Client = "Client",
+}
+
+export enum PaymentStatus {
+  PAID = "Paid",
+  UNPAID = "Unpaid",
+  PARTIALLY_PAID = "Partially Paid",
+  OVERDUE = "Overdue",
 }
 
 export type OrderStatus = keyof typeof OrderStatuses;
@@ -158,6 +173,7 @@ export type PurchaseOrder = {
   orderNumber: number;
   supplier?: Supplier;
   client?: Client;
+  orderType: OrderType;
   orderDate: Date;
   status: OrderStatuses;
   items: {
@@ -178,17 +194,6 @@ export type QueryParams = {
   offset?: number;
   [key: string]: string | undefined | number;
 };
-
-export enum PaymentStatus {
-  PAID = "Paid",
-  UNPAID = "Unpaid",
-  PARTIALLY_PAID = "Partially Paid",
-  OVERDUE = "Overdue",
-}
-export enum InvoiceType {
-  Supplier = "Supplier",
-  Client = "Client",
-}
 
 export type Invoice = {
   _id: string;

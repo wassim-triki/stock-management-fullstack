@@ -1,6 +1,10 @@
 // controllers/purchaseOrderController.ts
 import { Request, Response, NextFunction } from 'express';
-import { OrderStatuses, PurchaseOrder } from '../models/PurchaseOrder';
+import {
+  OrderStatuses,
+  OrderType,
+  PurchaseOrder,
+} from '../models/PurchaseOrder';
 import {
   ErrorResponse,
   HttpCode,
@@ -48,6 +52,10 @@ export const getPurchaseOrders = async (
       const statuses = (filters.status as string).split('.');
       query.status = { $in: statuses };
     }
+    if (filters.orderType) {
+      const types = (filters.orderType as string).split('.');
+      query.orderType = { $in: types };
+    }
 
     // Managers can only retrieve their own purchase orders
     if (req.user?.role === ROLES.MANAGER) {
@@ -58,7 +66,7 @@ export const getPurchaseOrders = async (
       .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
       .limit(limitNum)
-      .populate('supplier', 'name')
+      .populate('supplier client', 'name')
       .populate('user', 'email');
 
     res
@@ -98,10 +106,26 @@ export const createPurchaseOrder = async (
   res: Response,
   next: NextFunction
 ) => {
+  const { orderType, client, supplier, ...rest } = req.body;
+
+  if (orderType === OrderType.Supplier && !supplier) {
+    return next(
+      new ErrorResponse('Supplier is required for supplier orders', 400)
+    );
+  }
+
+  if (orderType === OrderType.Client && !client) {
+    return next(new ErrorResponse('Client is required for client orders', 400));
+  }
+
   const purchaseOrder = await PurchaseOrder.create({
-    ...req.body,
-    user: req.user?._id, // Assign the purchase order to the user creating it
+    ...rest,
+    orderType,
+    client: orderType === OrderType.Client ? client : null,
+    supplier: orderType === OrderType.Supplier ? supplier : null,
+    user: req.user?._id, // The manager creating the order
   });
+
   res
     .status(201)
     .json(new SuccessResponse('Purchase Order created', purchaseOrder));
@@ -150,7 +174,7 @@ export const getPurchaseOrderById = async (
 ) => {
   try {
     const purchaseOrder = await PurchaseOrder.findById(req.params.id)
-      .populate('supplier')
+      .populate('supplier client')
       .populate('items.product');
 
     if (!purchaseOrder) {
@@ -316,7 +340,7 @@ export const handleCancelOrder = async (req: Request, res: Response) => {
     .json(new SuccessResponse('Purchase Order cancelled', purchaseOrder));
 };
 
-export const handleAddToStock = async (req: Request, res: Response) => {
+export const handleUpdateStock = async (req: Request, res: Response) => {
   const purchaseOrder = await PurchaseOrder.findById(req.body.id).populate(
     'items.product'
   );
@@ -324,17 +348,35 @@ export const handleAddToStock = async (req: Request, res: Response) => {
     throw new ErrorResponse('Purchase Order not found', 404);
   }
 
-  for (const item of purchaseOrder.items) {
-    const product = await Product.findById(item.product);
-    if (!product) {
-      throw new ErrorResponse('Product not found', 404);
+  // Check the type of purchase order
+  if (purchaseOrder.orderType === OrderType.Supplier) {
+    for (const item of purchaseOrder.items) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        throw new ErrorResponse('Product not found', 404);
+      }
+      // Increase stock for Supplier orders
+      product.quantityInStock += item.quantity;
+      await product.save();
     }
-    //TODO: + quantityReceived
-    product.quantityInStock += item.quantity;
-    await product.save();
+  } else if (purchaseOrder.orderType === OrderType.Client) {
+    for (const item of purchaseOrder.items) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        throw new ErrorResponse('Product not found', 404);
+      }
+      // Decrease stock for Client orders
+      if (product.quantityInStock < item.quantity) {
+        throw new ErrorResponse('Insufficient stock to fulfill order', 400);
+      }
+      product.quantityInStock -= item.quantity;
+      await product.save();
+    }
   }
 
+  // Update the purchase order status to "Received"
   purchaseOrder.status = OrderStatuses.Received;
   await purchaseOrder.save();
-  res.status(200).json(new SuccessResponse('Stock updated'));
+
+  res.status(200).json(new SuccessResponse('Stock updated successfully'));
 };

@@ -2,7 +2,7 @@ import mongoose, { Document } from 'mongoose';
 import config from '../config/config';
 import { PaymentStatus } from '../models/Invoice';
 import { Role, ROLES } from '../models/User';
-import { OrderStatuses } from '../models/PurchaseOrder';
+import { OrderStatuses, OrderType } from '../models/PurchaseOrder';
 
 // export class SuccessResponse<T> {
 //   success: boolean;
@@ -124,6 +124,7 @@ export interface IPurchaseOrder extends Document {
   supplier: ISupplier;
   orderDate: Date;
   status: OrderStatuses;
+  orderType: OrderType;
   orderTotal: number;
   receiptDate: Date | null;
   items: IPurchaseOrderItem[];
@@ -180,9 +181,7 @@ export interface IInvoice extends Document {
   paymentDate: Date;
   paymentStatus: PaymentStatus;
   dueDate: Date;
-  invoiceType: string;
   client: mongoose.Types.ObjectId;
-  supplier: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }

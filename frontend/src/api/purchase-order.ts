@@ -105,9 +105,9 @@ export const fetchPurchaseOrderPdf = async (id: string): Promise<Blob> => {
   return response;
 };
 
-export const addToStock = async (id: string): Promise<ApiSuccessResponse> => {
+export const updateStock = async (id: string): Promise<ApiSuccessResponse> => {
   revalidateTag("purchase-orders");
-  return await fetchHelper(`/api/purchase-orders/add-to-stock`, {
+  return await fetchHelper(`/api/purchase-orders/update-stock`, {
     method: "POST",
     body: JSON.stringify({ id }),
   });

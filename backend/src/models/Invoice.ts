@@ -1,5 +1,10 @@
-import mongoose, { Model, Schema } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 import { IInvoice } from '../types/types';
+
+export enum InvoiceType {
+  Supplier = 'Supplier',
+  Client = 'Client',
+}
 
 export enum PaymentStatus {
   PAID = 'Paid',
@@ -8,12 +13,7 @@ export enum PaymentStatus {
   OVERDUE = 'Overdue',
 }
 
-export enum InvoiceType {
-  SUPPLIER = 'Supplier',
-  CLIENT = 'Client',
-}
-
-const SupplierInvoiceSchema: Schema = new Schema(
+const InvoiceSchema: Schema = new Schema(
   {
     invoiceNumber: {
       type: String,
@@ -23,12 +23,25 @@ const SupplierInvoiceSchema: Schema = new Schema(
     purchaseOrder: {
       type: Schema.Types.ObjectId,
       ref: 'PurchaseOrder',
+      // required: true,
+    },
+    invoiceType: {
+      type: String,
+      enum: InvoiceType,
       required: true,
+    },
+    client: {
+      type: Schema.Types.ObjectId,
+      ref: 'Client',
+    },
+    supplier: {
+      type: Schema.Types.ObjectId,
+      ref: 'Supplier',
     },
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User', // Reference to the manager who owns this invoice
-      required: true,
+      ref: 'User',
+      required: true, // Reference to manager handling the invoice
     },
     totalAmount: {
       type: Number,
@@ -37,9 +50,6 @@ const SupplierInvoiceSchema: Schema = new Schema(
     paidAmount: {
       type: Number,
       default: 0,
-    },
-    paymentDate: {
-      type: Date,
     },
     paymentStatus: {
       type: String,
@@ -50,26 +60,24 @@ const SupplierInvoiceSchema: Schema = new Schema(
       type: Date,
       required: true,
     },
-    // New field to determine if the invoice is for a client or a supplier
-    invoiceType: {
-      type: String,
-      enum: InvoiceType,
-      required: true,
+    paymentDate: {
+      type: Date,
     },
-    // Either client or supplier, based on invoiceType
-    client: {
-      type: Schema.Types.ObjectId,
-      ref: 'Client',
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
-    supplier: {
-      type: Schema.Types.ObjectId,
-      ref: 'Supplier',
+    updatedAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   { timestamps: true }
 );
 
-export const SupplierInvoice: Model<IInvoice> = mongoose.model<IInvoice>(
-  'SupplierInvoice',
-  SupplierInvoiceSchema
+// Pre-save hook for invoice number generation, if necessary
+
+export const Invoice: Model<IInvoice> = mongoose.model<IInvoice>(
+  'Invoice',
+  InvoiceSchema
 );

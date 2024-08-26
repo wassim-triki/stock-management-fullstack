@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { PaymentStatus, InvoiceType, SupplierInvoice } from '../models/Invoice';
+import { PaymentStatus, InvoiceType, Invoice } from '../models/Invoice';
 import {
   ErrorResponse,
   HttpCode,
@@ -38,13 +38,11 @@ export const getInvoices = async (
       const types = (filters.invoiceType as string).split('.');
       query.invoiceType = { $in: types };
     }
-
-    // Managers can only retrieve their own invoices
     if (req.user?.role === ROLES.MANAGER) {
       query.user = req.user._id;
     }
 
-    const invoices = await SupplierInvoice.find(query)
+    const invoices = await Invoice.find(query)
       .sort({ [sortBy as string]: sortOrder })
       .skip(offsetNum)
       .limit(limitNum)
@@ -67,50 +65,50 @@ export const createInvoice = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const { totalAmount, paidAmount, dueDate, invoiceType, entityId } =
-      req.body;
+  const {
+    totalAmount,
+    paidAmount,
+    dueDate,
+    invoiceType,
+    entityId,
+    purchaseOrder,
+  } = req.body;
 
-    // Validate whether supplier or client is provided based on invoiceType
-    if (invoiceType === InvoiceType.SUPPLIER && !entityId) {
-      return next(
-        new ErrorResponse('Supplier is required for supplier invoices', 400)
-      );
-    }
-    if (invoiceType === InvoiceType.CLIENT && !entityId) {
-      return next(
-        new ErrorResponse('Client is required for client invoices', 400)
-      );
-    }
-
-    let status: PaymentStatus;
-    status =
-      Number(paidAmount) >= Number(totalAmount)
-        ? PaymentStatus.PAID
-        : Number(paidAmount) > 0 && Number(paidAmount) < Number(totalAmount)
-        ? PaymentStatus.PARTIALLY_PAID
-        : PaymentStatus.UNPAID;
-
-    if (new Date(dueDate) < new Date() && status !== PaymentStatus.PAID) {
-      status = PaymentStatus.OVERDUE;
-    }
-
-    req.body.paymentDate = status === PaymentStatus.PAID ? new Date() : null;
-
-    // Prepare data for new invoice
-    const newInvoiceData = {
-      ...req.body,
-      paymentStatus: status,
-      user: req.user?._id, // Associate the invoice with the manager creating it
-      [invoiceType === InvoiceType.SUPPLIER ? 'supplier' : 'client']: entityId,
-    };
-
-    const newInvoice = await SupplierInvoice.create(newInvoiceData);
-
-    res.status(201).json(new SuccessResponse('Invoice created', newInvoice));
-  } catch (error) {
-    next(new ErrorResponse('Failed to create invoice', 500));
+  if (invoiceType === InvoiceType.Supplier && !entityId) {
+    return next(
+      new ErrorResponse('Supplier is required for supplier invoices', 400)
+    );
   }
+  if (invoiceType === InvoiceType.Client && !entityId) {
+    return next(
+      new ErrorResponse('Client is required for client invoices', 400)
+    );
+  }
+  if (!purchaseOrder) delete req.body.purchaseOrder;
+
+  let status: PaymentStatus =
+    Number(paidAmount) >= Number(totalAmount)
+      ? PaymentStatus.PAID
+      : Number(paidAmount) > 0 && Number(paidAmount) < Number(totalAmount)
+      ? PaymentStatus.PARTIALLY_PAID
+      : PaymentStatus.UNPAID;
+
+  if (new Date(dueDate) < new Date() && status !== PaymentStatus.PAID) {
+    status = PaymentStatus.OVERDUE;
+  }
+
+  req.body.paymentDate = status === PaymentStatus.PAID ? new Date() : null;
+
+  const newInvoiceData = {
+    ...req.body,
+    paymentStatus: status,
+    user: req.user?._id,
+    [invoiceType === InvoiceType.Supplier ? 'supplier' : 'client']: entityId,
+  };
+
+  const newInvoice = await Invoice.create(newInvoiceData);
+
+  res.status(201).json(new SuccessResponse('Invoice created', newInvoice));
 };
 
 // Update an invoice by ID
@@ -124,15 +122,14 @@ export const updateInvoice = async (
     const { totalAmount, paidAmount, dueDate, invoiceType, entityId } =
       req.body;
 
-    const invoice = await SupplierInvoice.findById(id);
+    const invoice = await Invoice.findById(id);
     if (!invoice) {
       return next(new ErrorResponse('Invoice not found', 404));
     }
 
-    // Managers can only update their own invoices
     if (
       req.user?.role === ROLES.MANAGER &&
-      invoice.user.toString() !== (req.user._id as string).toString()
+      invoice.user.toString() !== req.user._id?.toString()
     ) {
       return next(
         new ErrorResponse(
@@ -142,9 +139,7 @@ export const updateInvoice = async (
       );
     }
 
-    // Update payment status
-    let status: PaymentStatus;
-    status =
+    let status: PaymentStatus =
       Number(paidAmount) >= Number(totalAmount)
         ? PaymentStatus.PAID
         : Number(paidAmount) > 0 && Number(paidAmount) < Number(totalAmount)
@@ -157,14 +152,13 @@ export const updateInvoice = async (
 
     req.body.paymentDate = status === PaymentStatus.PAID ? new Date() : null;
 
-    // Prepare data for update
     const updatedInvoiceData = {
       ...req.body,
       paymentStatus: status,
-      [invoiceType === InvoiceType.SUPPLIER ? 'supplier' : 'client']: entityId,
+      [invoiceType === InvoiceType.Supplier ? 'supplier' : 'client']: entityId,
     };
 
-    const updatedInvoice = await SupplierInvoice.findByIdAndUpdate(
+    const updatedInvoice = await Invoice.findByIdAndUpdate(
       id,
       updatedInvoiceData,
       { new: true, runValidators: true }
@@ -186,7 +180,7 @@ export const getInvoiceById = async (
 ) => {
   try {
     const { id } = req.params;
-    const invoice = await SupplierInvoice.findById(id)
+    const invoice = await Invoice.findById(id)
       .populate('purchaseOrder', 'orderNumber')
       .populate('client', 'name')
       .populate('supplier', 'name');
@@ -195,10 +189,9 @@ export const getInvoiceById = async (
       return next(new ErrorResponse('Invoice not found', 404));
     }
 
-    // Managers can only access their own invoices
     if (
       req.user?.role === ROLES.MANAGER &&
-      invoice.user.toString() !== (req.user._id as string).toString()
+      invoice.user.toString() !== req.user._id?.toString()
     ) {
       return next(
         new ErrorResponse(
@@ -222,16 +215,15 @@ export const deleteInvoice = async (
 ) => {
   try {
     const { id } = req.params;
-    const invoice = await SupplierInvoice.findById(id);
+    const invoice = await Invoice.findById(id);
 
     if (!invoice) {
       return next(new ErrorResponse('Invoice not found', 404));
     }
 
-    // Managers can only delete their own invoices
     if (
       req.user?.role === ROLES.MANAGER &&
-      invoice.user.toString() !== (req.user._id as string).toString()
+      invoice.user.toString() !== req.user._id?.toString()
     ) {
       return next(
         new ErrorResponse(
@@ -257,7 +249,7 @@ export const getTotalInvoices = async (
   try {
     const query =
       req.user?.role === ROLES.MANAGER ? { user: req.user._id } : {};
-    const total = await SupplierInvoice.countDocuments(query);
+    const total = await Invoice.countDocuments(query);
 
     res
       .status(200)

@@ -1,11 +1,15 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
-import { IProduct, IPurchaseOrder, ISupplier } from '../types/types';
+import mongoose, { Schema, Model } from 'mongoose';
+import { IPurchaseOrder } from '../types/types';
 export enum OrderStatuses {
   Pending = 'Pending',
   Accepted = 'Accepted',
-  Received = 'Received',
+  Received = 'Delivered',
   Draft = 'Draft',
   Canceled = 'Canceled',
+}
+export enum OrderType {
+  Supplier = 'Supplier',
+  Client = 'Client',
 }
 const PurchaseOrderSchema: Schema = new Schema(
   {
@@ -16,7 +20,15 @@ const PurchaseOrderSchema: Schema = new Schema(
     supplier: {
       type: Schema.Types.ObjectId,
       ref: 'Supplier',
-      required: [true, 'Supplier is required'],
+    },
+    client: {
+      type: Schema.Types.ObjectId,
+      ref: 'Client',
+    },
+    orderType: {
+      type: String,
+      enum: OrderType,
+      required: true,
     },
     user: {
       type: Schema.Types.ObjectId,
