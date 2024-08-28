@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { Invoice } from "@/lib/types";
 import { deleteInvoice } from "@/api/invoice";
-import { formatDate, timeAgo } from "@/lib/utils";
+import { formatCurrency, formatDate, timeAgo } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
@@ -16,6 +16,7 @@ import {
   getUserColumn,
 } from "@/components/data-table/data-table-utils";
 import { PaymentStatuses } from "@/constants/payment-statuses";
+import { useAuth } from "@/providers/auth-provider";
 
 export const columns: ColumnDef<Invoice>[] = [
   getUserColumn(),
@@ -118,15 +119,11 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ row }) => {
       const total = row.getValue("totalAmount") as number;
-      const formatted = new Intl.NumberFormat("tn-TN", {
-        style: "currency",
-        currency: "TND",
-        maximumFractionDigits: 2,
-      }).format(total);
-
+      const auth = useAuth();
+      if (!auth.currency) return;
       return (
         <CustomTableCell>
-          <span>{formatted}</span>
+          <span>{formatCurrency(total, auth.currency)}</span>
         </CustomTableCell>
       );
     },
@@ -137,16 +134,12 @@ export const columns: ColumnDef<Invoice>[] = [
       <DataTableColumnHeader column={column} title="PAID" />
     ),
     cell: ({ row }) => {
-      const total = row.getValue("paidAmount") as number;
-      const formatted = new Intl.NumberFormat("tn-TN", {
-        style: "currency",
-        currency: "TND",
-        maximumFractionDigits: 2,
-      }).format(total);
-
+      const total = row.getValue("totalAmount") as number;
+      const auth = useAuth();
+      if (!auth.currency) return;
       return (
         <CustomTableCell>
-          <span>{formatted}</span>
+          <span>{formatCurrency(total, auth.currency)}</span>
         </CustomTableCell>
       );
     },
@@ -160,15 +153,11 @@ export const columns: ColumnDef<Invoice>[] = [
       const total = row.getValue("totalAmount") as number;
       const paid = row.getValue("paidAmount") as number;
       const due = total - paid >= 0 ? total - paid : 0;
-      const formatted = new Intl.NumberFormat("tn-TN", {
-        style: "currency",
-        currency: "TND",
-        maximumFractionDigits: 2,
-      }).format(due);
-
+      const auth = useAuth();
+      if (!auth.currency) return;
       return (
         <CustomTableCell>
-          <span>{formatted}</span>
+          <span>{formatCurrency(due, auth.currency)}</span>
         </CustomTableCell>
       );
     },

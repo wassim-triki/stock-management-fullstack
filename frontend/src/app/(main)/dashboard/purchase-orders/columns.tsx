@@ -16,7 +16,7 @@ import {
   ActionSubmenuItem,
   DataTableRowActions,
 } from "@/components/data-table/data-table-row-actions";
-import { formatDate, timeAgo } from "@/lib/utils";
+import { formatCurrency, formatDate, timeAgo } from "@/lib/utils";
 import { deleteProduct } from "@/api/product";
 import {
   cancelPurchaseOrder,
@@ -63,6 +63,7 @@ import {
   StopwatchIcon,
 } from "@radix-ui/react-icons";
 import { OrderStatusesWithIcons } from "@/constants/order-statuses";
+import { useAuth } from "@/providers/auth-provider";
 export const columns: ColumnDef<PurchaseOrder>[] = [
   {
     accessorKey: "orderNumber",
@@ -138,7 +139,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
         <CustomTableCell>
           {supplier && (
             <TableCellLink
-              href={`/dashboard/${orderType.toLowerCase()}s/${supplier?._id}`}
+              href={`/dashboard/${orderType?.toLowerCase()}s/${supplier?._id}`}
             >
               {supplier?.name}
             </TableCellLink>
@@ -160,7 +161,7 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
         <CustomTableCell>
           {client && (
             <TableCellLink
-              href={`/dashboard/${orderType.toLowerCase()}s/${client?._id}`}
+              href={`/dashboard/${orderType?.toLowerCase()}s/${client?._id}`}
             >
               {client?.name}
             </TableCellLink>
@@ -188,13 +189,14 @@ export const columns: ColumnDef<PurchaseOrder>[] = [
     ),
     cell: ({ row }) => {
       const total = row.getValue("orderTotal") as number;
-      const formatted = new Intl.NumberFormat("tn-TN", {
-        style: "currency",
-        currency: "TND",
-        maximumFractionDigits: 2,
-      }).format(total);
-
-      return <CustomTableCell>{formatted}</CustomTableCell>;
+      const auth = useAuth();
+      if (!auth.currency) return;
+      console.log(formatCurrency(total, auth.currency));
+      return (
+        <CustomTableCell>
+          {formatCurrency(total, auth.currency)}
+        </CustomTableCell>
+      );
     },
   },
 

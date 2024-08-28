@@ -18,6 +18,7 @@ import { getKPI } from "@/api/kpi";
 import { Package, Truck, User } from "lucide-react";
 import { getAuthUser } from "@/api/auth";
 import { ROLES } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
 //TODO: add loading.ts
 export default async function DashboardPage() {
   const { clients, suppliers, users, products, revenue } = await getKPI();
@@ -76,11 +77,7 @@ export default async function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {new Intl.NumberFormat("tn-TN", {
-                      style: "currency",
-                      currency: "TND",
-                      maximumFractionDigits: 2,
-                    }).format(revenue.total)}
+                    {formatCurrency(revenue.total, auth.profile.currency)}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     +{revenue.growth} from last month

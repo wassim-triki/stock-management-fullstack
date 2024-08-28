@@ -5,6 +5,7 @@ import passport from '../config/passport';
 import { ErrorResponse, IUser, SuccessResponse } from '../types/types';
 import { User } from '../models/User';
 import { Company } from '../models/Company';
+const currencies = require('../utils/currencies.json');
 
 export const signup = async (req: Request, res: Response, next: any) => {
   const { email, password, confirmPassword } = req.body;
@@ -81,6 +82,12 @@ export const handleChangeInfo = async (
   const { profile } = req.body;
   const user = await User.findById(req.user?.id);
   if (!user) return next(new ErrorResponse('User not found', 404));
+  const userCurrency = currencies[profile.currency];
+  if (!userCurrency) {
+    throw new ErrorResponse('Invalid currency', 400);
+  }
+  profile.currency = userCurrency;
+
   user.profile = profile;
   const newUser = await user.save();
   return res

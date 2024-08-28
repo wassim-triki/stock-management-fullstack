@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { IUser } from '../types/types';
 import { Company } from './Company'; // Import the Company model
-
+const currencies = require('../utils/currencies.json');
 export enum ROLES {
   ADMIN = 'Admin',
   MANAGER = 'Manager',
@@ -34,6 +34,12 @@ const UserSchema: Schema = new Schema(
       firstName: { type: String },
       lastName: { type: String },
       address: { type: String },
+      currency: {
+        symbol: { type: String, default: currencies.USD.symbol },
+        name: { type: String, default: currencies.USD.name },
+        code: { type: String, default: currencies.USD.code },
+        locale: { type: String, default: currencies.USD.locale },
+      },
     },
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: String },

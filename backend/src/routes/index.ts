@@ -9,6 +9,7 @@ import invoiceRouter from './invoice';
 import companyRouter from './company';
 import clientRouter from './client';
 import kpiRouter from './kpi';
+import currencyRouter from './currency';
 const routes = Router();
 
 routes.use('/api/auth', authRouter);
@@ -21,5 +22,6 @@ routes.use('/api/categories', categoryRouter);
 routes.use('/api/purchase-orders', purchaseOrderRouter);
 routes.use('/api/companies', companyRouter);
 routes.use('/api/kpi', kpiRouter);
+routes.use('/api/currencies', currencyRouter);
 
 export default routes;

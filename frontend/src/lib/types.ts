@@ -85,7 +85,12 @@ export type Company = {
   createdAt: Date;
   updatedAt: Date;
 };
-
+export type Currency = {
+  name: string;
+  symbol: string;
+  code: string;
+  locale: string;
+};
 export type User = {
   _id: string;
   password?: string;
@@ -94,7 +99,7 @@ export type User = {
   profile: {
     firstName: string;
     lastName: string;
-    // phone: string;
+    currency: Currency;
     address: string;
   };
   role: Role;

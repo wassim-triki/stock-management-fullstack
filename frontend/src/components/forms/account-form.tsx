@@ -36,10 +36,13 @@ import {
 import { registerSchema } from "../signup";
 import { changeEmail, changeInfo, changePassword } from "@/api/auth";
 import { AlertDestructive } from "../ui/alert-destructive";
-
+import CurrencySelect from "../ui/currency-select";
+import { CurrenciesMap } from "@/api/currency";
+import { useAuth } from "@/providers/auth-provider";
 const changEmailSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
 });
+
 export type ChangeEmailFormValues = z.infer<typeof changEmailSchema>;
 
 //TODO; add currency form
@@ -70,6 +73,7 @@ const accountInfoSchema = z.object({
     firstName: z.string(),
     lastName: z.string(),
     address: z.string(),
+    currency: z.string().min(1, "Currency is required"),
   }),
 });
 
@@ -80,6 +84,7 @@ interface AccountFormProps {
   description: string;
   action: string;
   authUser: User;
+  currencies: CurrenciesMap;
 }
 
 export const AccountForm: React.FC<AccountFormProps> = ({
@@ -87,7 +92,10 @@ export const AccountForm: React.FC<AccountFormProps> = ({
   description,
   action,
   authUser,
+  currencies,
 }) => {
+  const currenciesList = Object.values(currencies);
+
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -112,9 +120,10 @@ export const AccountForm: React.FC<AccountFormProps> = ({
     resolver: zodResolver(accountInfoSchema),
     defaultValues: {
       profile: {
-        address: authUser.profile?.address || "",
-        firstName: authUser.profile?.firstName || "",
-        lastName: authUser.profile?.lastName || "",
+        address: authUser.profile.address || "",
+        firstName: authUser.profile.firstName || "",
+        lastName: authUser.profile.lastName || "",
+        currency: authUser.profile.currency.code,
       },
     },
   });
@@ -153,7 +162,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({
       changePasswordForm.reset();
     },
   });
-
+  const { updateStorage } = useAuth();
   const {
     mutate: handleUpdateInfo,
     isPending: updatingInfo,
@@ -166,7 +175,14 @@ export const AccountForm: React.FC<AccountFormProps> = ({
         variant: "success",
         title: data.message,
       });
-      accountInfoForm.reset(data.data);
+      accountInfoForm.reset({
+        ...data.data,
+        profile: {
+          ...data.data.profile,
+          currency: data.data.profile.currency.code,
+        },
+      });
+      updateStorage({ currency: data.data.profile.currency });
     },
   });
 
@@ -233,23 +249,6 @@ export const AccountForm: React.FC<AccountFormProps> = ({
           >
             <FormField
               control={accountInfoForm.control}
-              name="profile.address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Address"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={accountInfoForm.control}
               name="profile.firstName"
               render={({ field }) => (
                 <FormItem>
@@ -278,6 +277,58 @@ export const AccountForm: React.FC<AccountFormProps> = ({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={accountInfoForm.control}
+              name="profile.address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Address"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={accountInfoForm.control}
+              name="profile.currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <div className="flex items-center gap-4">
+                        <SelectTrigger>
+                          <SelectValue
+                            defaultValue={field.value}
+                            placeholder="Select a currency"
+                          />
+                        </SelectTrigger>
+                      </div>
+                    </FormControl>
+                    <SelectContent>
+                      {currenciesList?.map((currency) => (
+                        <SelectItem key={currency.name} value={currency.code}>
+                          {currency.code} - {currency.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

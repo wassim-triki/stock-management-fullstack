@@ -9,7 +9,6 @@ import {
 } from '../types/types';
 import { paginateAndSearch } from '../utils/paginateAndSearch';
 import { QueryParams } from './purchaseOrder';
-
 export const getAllUsers = async (
   req: Request,
   res: Response,
@@ -91,7 +90,6 @@ export const getTotalUsers = async (
 
 export const createUser = async (req: Request, res: Response, next: any) => {
   const { email, password, confirmPassword } = req.body;
-
   if (password !== confirmPassword) {
     return next(new ErrorResponse('Passwords do not match', 400));
   }
