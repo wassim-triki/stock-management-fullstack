@@ -22,6 +22,8 @@ import { ROLES } from "@/lib/types";
 export default async function DashboardPage() {
   const { clients, suppliers, users, products, revenue } = await getKPI();
   const { data: auth } = await getAuthUser();
+  const gridColsClasses =
+    auth.role === ROLES.ADMIN ? "lg:grid-cols-5" : "lg:grid-cols-4";
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
@@ -39,9 +41,7 @@ export default async function DashboardPage() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
           </TabsList> */}
           <TabsContent value="overview" className="space-y-4">
-            <div
-              className={`grid gap-4 md:grid-cols-2 lg:grid-cols-${auth.role === ROLES.ADMIN ? 5 : 4}`}
-            >
+            <div className={`grid gap-4 md:grid-cols-2 ${gridColsClasses}`}>
               {auth.role === ROLES.ADMIN && users && (
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
