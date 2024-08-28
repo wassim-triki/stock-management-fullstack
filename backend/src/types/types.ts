@@ -91,7 +91,7 @@ export type User = {
   profile: {
     firstName: string;
     lastName: string;
-    // phone: string;
+    currency: ICurrency;
     address: string;
   };
   role: Role;
@@ -113,6 +113,7 @@ export interface IUser extends Document {
     firstName: string;
     lastName: string;
     address: string;
+    currency: ICurrency;
   };
   role: Role;
   createdAt: Date;
@@ -195,4 +196,11 @@ export interface IClient extends Document {
   createdAt: Date;
   updatedAt: Date;
   active: boolean;
+}
+
+export interface ICurrency {
+  symbol: string;
+  name: string;
+  code: string;
+  locale: string;
 }

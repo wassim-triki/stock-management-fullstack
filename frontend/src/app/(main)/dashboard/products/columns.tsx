@@ -41,9 +41,10 @@ export const columns: ColumnDef<Product>[] = [
     ),
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("price"));
-      const formatted = new Intl.NumberFormat("tn-TN", {
+      const { currency } = useAuth();
+      const formatted = new Intl.NumberFormat(currency?.locale, {
         style: "currency",
-        currency: "TND",
+        currency: currency?.code,
         maximumFractionDigits: 2,
       }).format(amount);
 

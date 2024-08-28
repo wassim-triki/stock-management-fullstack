@@ -76,7 +76,7 @@ function Login() {
         variant: "success",
         title: data.message,
       });
-      auth.login(data.data);
+      auth.updateStorage({ role: data.data.role });
       router.refresh();
       // router.push("/dashboard");
     },

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { QueryParams } from "./types";
+import { Currency, QueryParams } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -122,4 +122,12 @@ export function getDirtyValues<
   }, {});
 
   return dirtyValues;
+}
+
+export function formatCurrency(amount: number, currency: Currency): string {
+  return new Intl.NumberFormat(currency.locale, {
+    style: "currency",
+    currency: currency.code,
+    currencyDisplay: "code",
+  }).format(amount);
 }

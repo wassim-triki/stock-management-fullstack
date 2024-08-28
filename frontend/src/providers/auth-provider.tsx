@@ -1,14 +1,18 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Role, User } from "@/lib/types";
+import { Currency, Role, User } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
 // Define the shape of the auth context
 interface AuthContextType {
-  login: (userData: User) => void;
+  updateStorage: ({
+    role,
+    currency,
+  }: Partial<{ role: Role; currency: Currency }>) => void;
   logout: () => void;
   isAuthenticated: boolean;
   role: Role | null;
+  currency: Currency | null;
 }
 
 // Create the auth context
@@ -17,15 +21,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Define the AuthProvider component
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<Role | null>(null);
+  const [currency, setCurrency] = useState<Currency | null>(null);
   const router = useRouter();
 
   // Function to handle login
-  const login = (userData: User) => {
-    const { role } = userData;
-    setRole(role);
+  const updateStorage = ({
+    role,
+    currency,
+  }: Partial<{ role: Role; currency: Currency }>) => {
+    if (role) setRole(role);
+    if (currency) setCurrency(currency);
     // Optionally store the user in localStorage or cookies for persistence
     //TODO: incript and decrypt this value
-    localStorage.setItem("user", JSON.stringify({ role }));
+    localStorage.setItem("user", JSON.stringify({ role, currency: currency }));
   };
 
   // Function to handle logout
@@ -43,14 +51,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setRole(parsedUser.role);
+      setCurrency(parsedUser.currency);
     }
   }, []);
 
   const value = {
-    login,
+    updateStorage,
     logout,
     isAuthenticated: !!role,
     role,
+    currency,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,5 @@
 import { getAuthUser } from "@/api/auth";
+import { getCurrencies } from "@/api/currency";
 import { getTotalUsers, getUsers } from "@/api/user";
 import { DataTable } from "@/components/data-table/data-table";
 import { AccountForm } from "@/components/forms/account-form";
@@ -20,6 +21,7 @@ const breadcrumbItems = [
 
 const Page = async () => {
   const res = await getAuthUser();
+  const currencies = await getCurrencies();
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-8">
@@ -29,6 +31,7 @@ const Page = async () => {
           description="Update your account settings."
           action="Save changes"
           authUser={res.data}
+          currencies={currencies}
         />
       </div>
     </ScrollArea>

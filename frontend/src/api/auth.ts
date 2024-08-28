@@ -6,7 +6,7 @@ import { SignupFormValues } from "@/components/signup";
 import { axiosInstance } from "@/lib/axios";
 import config from "@/lib/config";
 import fetchHelper from "@/lib/fetchInstance";
-import { ApiSuccessResponse, User } from "@/lib/types";
+import { ApiSuccessResponse, Currency, User } from "@/lib/types";
 import { AxiosResponse } from "axios";
 export const getAuthUser = async (): Promise<ApiSuccessResponse<User>> => {
   return await fetchHelper("/api/auth/me");
@@ -55,7 +55,16 @@ export const changeEmail = async (
 
 export const changeInfo = async (
   data: AccountInfoFormValues,
-): Promise<ApiSuccessResponse<AccountInfoFormValues>> => {
+): Promise<
+  ApiSuccessResponse<{
+    profile: {
+      firstName: string;
+      lastName: string;
+      currency: Currency;
+      address: string;
+    };
+  }>
+> => {
   return await fetchHelper("/api/auth/change-info", {
     method: "POST",
     body: JSON.stringify(data),
