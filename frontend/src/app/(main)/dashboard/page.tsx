@@ -12,16 +12,18 @@ import {
 import { BarGraph } from "@/components/admin-panel/charts/bar-graph";
 import { PieGraph } from "@/components/admin-panel/charts/pie-graph";
 import { AreaGraph } from "@/components/admin-panel/charts/area-graph";
-import { RecentSales } from "@/components/admin-panel/recent-sales";
 import Spinner from "@/components/spinner";
 import { getKPI } from "@/api/kpi";
 import { Package, Truck, User } from "lucide-react";
 import { getAuthUser } from "@/api/auth";
 import { ROLES } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { Transactions } from "@/components/admin-panel/transactions";
 //TODO: add loading.ts
 export default async function DashboardPage() {
-  const { clients, suppliers, users, products, revenue } = await getKPI();
+  const { clients, suppliers, users, products, revenue, transactions } =
+    await getKPI();
+  await getKPI();
   const { data: auth } = await getAuthUser();
   const gridColsClasses =
     auth.role === ROLES.ADMIN ? "lg:grid-cols-5" : "lg:grid-cols-4";
@@ -150,13 +152,13 @@ export default async function DashboardPage() {
               </div>
               <Card className="col-span-4 md:col-span-3">
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
+                  <CardTitle>Recent Transactions</CardTitle>
                   <CardDescription>
-                    You made 265 sales this month.
+                    You made {transactions.length} transactions this month.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales />
+                  <Transactions transactions={transactions} />
                 </CardContent>
               </Card>
               <div className="col-span-4">

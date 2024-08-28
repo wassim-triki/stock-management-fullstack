@@ -1,6 +1,7 @@
 "use server";
 import { ApiSuccessResponse } from "@/lib/types";
 import fetchHelper from "@/lib/fetchInstance";
+import { Transaction } from "@/components/admin-panel/transactions";
 
 export type KPI = {
   users: {
@@ -27,6 +28,7 @@ export type KPI = {
     total: number;
     growth: string;
   };
+  transactions: Transaction[];
 };
 
 export const getKPI = async (): Promise<KPI> => {

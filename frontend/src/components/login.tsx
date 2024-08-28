@@ -76,7 +76,10 @@ function Login() {
         variant: "success",
         title: data.message,
       });
-      auth.updateStorage({ role: data.data.role });
+      auth.updateStorage({
+        role: data.data.role,
+        currency: data.data.profile.currency,
+      });
       router.refresh();
       // router.push("/dashboard");
     },

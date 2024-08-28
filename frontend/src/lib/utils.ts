@@ -6,18 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function getInitials(fullName: string): string {
-  if (!fullName) return "";
-
-  const names = fullName.split(" ");
-  let initials = "";
-
-  for (const name of names) {
-    if (name && name[0]) {
-      initials += name[0].toUpperCase();
-    }
-  }
-
+export function getInitials(name: string): string {
+  const initials = name
+    .split(" ")
+    .slice(0, 2) // Get the first two parts of the name
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
   return initials;
 }
 

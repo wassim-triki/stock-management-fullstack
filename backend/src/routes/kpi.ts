@@ -23,8 +23,8 @@ router.get('/', async (req: Request, res: Response) => {
     lastMonthRevenue = 0, // Initialize as a number
     newClients = 0,
     newSuppliers = 0,
-    newUsers = 0;
-
+    newUsers = 0,
+    recentTransactions: any[] = []; // Add for recent payments
   // Date range for "recent" calculations (e.g., new entities added in the last 30 days)
   const lastMonth = moment().subtract(30, 'days').toDate();
   const thisMonthStart = moment().startOf('month').toDate();
@@ -80,6 +80,13 @@ router.get('/', async (req: Request, res: Response) => {
       { $group: { _id: null, total: { $sum: '$paidAmount' } } },
     ]);
     lastMonthRevenue = lastMonthRevenueResult?.[0]?.total || 0; // Access the first element and total
+
+    recentTransactions = await Invoice.find({
+      $or: [{ invoiceType: 'Client' }, { invoiceType: 'Supplier' }],
+      paymentStatus: { $in: ['Paid', 'Partially Paid'] },
+    })
+      .sort({ createdAt: -1 }) // Sort by latest
+      .limit(5); // Limit the results to 5
   } else if (userRole === ROLES.MANAGER) {
     // Manager: Get data relevant to the specific manager
     totalProductQuantity = await Product.aggregate([
@@ -131,6 +138,16 @@ router.get('/', async (req: Request, res: Response) => {
       { $group: { _id: null, total: { $sum: '$paidAmount' } } },
     ]);
     lastMonthRevenue = lastMonthRevenueResult?.[0]?.total || 0; // Access the first element and total
+
+    // Fetch recent transactions (only relevant to this manager)
+    recentTransactions = await Invoice.find({
+      user: userId,
+      $or: [{ invoiceType: 'Client' }, { invoiceType: 'Supplier' }],
+      paymentStatus: { $in: ['Paid', 'Partially Paid'] },
+    })
+      .sort({ createdAt: -1 }) // Sort by latest
+      .limit(5) // Limit the results to 5
+      .populate('client supplier', 'name email'); // Populate client and supplier details
   }
 
   // Calculate revenue growth, defaulting to 0% instead of 'N/A'
@@ -168,6 +185,11 @@ router.get('/', async (req: Request, res: Response) => {
         total: totalRevenue,
         growth: `${revenueGrowth}%`,
       },
+      transactions: recentTransactions.map((tx) => ({
+        party: tx?.client || tx?.supplier,
+        type: tx.invoiceType,
+        amount: tx.paidAmount,
+      })),
       ...(userRole === ROLES.ADMIN && {
         users: {
           total: totalUsers,
