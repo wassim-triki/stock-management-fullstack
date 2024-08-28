@@ -1,4 +1,3 @@
-"use server";
 import {
   AccountInfoFormValues,
   ChangePasswordFormValues,
@@ -22,7 +21,6 @@ export const loginUser = async ({
   email: string;
   password: string;
 }): Promise<ApiSuccessResponse<User>> => {
-  revalidateTag("auth");
   return axiosInstance
     .post("/api/auth/login", { email, password })
     .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
@@ -34,7 +32,6 @@ export const logoutUser = async (): Promise<ApiSuccessResponse> => {
 export const signUpUser = async (
   data: SignupFormValues,
 ): Promise<ApiSuccessResponse<User>> => {
-  revalidateTag("auth");
   return await fetchHelper("/api/auth/signup", {
     method: "POST",
     body: JSON.stringify(data),
@@ -44,7 +41,6 @@ export const signUpUser = async (
 export const changePassword = async (
   data: ChangePasswordFormValues,
 ): Promise<ApiSuccessResponse> => {
-  revalidateTag("auth");
   return await fetchHelper("/api/auth/change-password", {
     method: "POST",
     body: JSON.stringify(data),
@@ -61,6 +57,7 @@ export const changeEmail = async (
   });
 };
 
+//TODO: revalidate after change
 export const changeInfo = async (
   data: AccountInfoFormValues,
 ): Promise<
@@ -73,7 +70,6 @@ export const changeInfo = async (
     };
   }>
 > => {
-  revalidateTag("auth");
   return await fetchHelper("/api/auth/change-info", {
     method: "POST",
     body: JSON.stringify(data),
@@ -93,7 +89,6 @@ export const resetPasswordRequest = async (
   token: string,
   password: string,
 ): Promise<ApiSuccessResponse> => {
-  revalidateTag("auth");
   return await fetchHelper(`/api/auth/reset-password/${token}`, {
     method: "PUT",
     body: JSON.stringify({ password }),
