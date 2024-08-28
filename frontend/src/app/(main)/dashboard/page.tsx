@@ -151,25 +151,31 @@ export default async function DashboardPage() {
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
               <div className="col-span-4">
-                <BarGraph />
+                {/* <BarGraph /> */}
+                <AreaGraph />
               </div>
-              <Card className="col-span-4 md:col-span-3">
-                <CardHeader>
-                  <CardTitle>Recent Transactions</CardTitle>
-                  <CardDescription>
-                    You made {transactions.length} transactions this month.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Transactions transactions={transactions} />
-                </CardContent>
-              </Card>
-              <div className="col-span-4">
+              {auth.role === ROLES.MANAGER ? (
+                <Card className="col-span-4 md:col-span-3">
+                  <CardHeader>
+                    <CardTitle>Recent Transactions</CardTitle>
+                    <CardDescription>
+                      You made {transactions.length} transactions this month.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Transactions transactions={transactions} />
+                  </CardContent>
+                </Card>
+              ) : (
+                <PieGraph />
+              )}
+
+              {/* <div className="col-span-4">
                 <AreaGraph />
               </div>
               <div className="col-span-4 md:col-span-3">
                 <PieGraph />
-              </div>
+              </div> */}
             </div>
           </TabsContent>
         </Tabs>
