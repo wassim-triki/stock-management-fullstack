@@ -111,7 +111,6 @@ function Login() {
                     />
                   </div>
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
@@ -128,7 +127,6 @@ function Login() {
                     <Input type="password" {...field} />
                   </div>
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
