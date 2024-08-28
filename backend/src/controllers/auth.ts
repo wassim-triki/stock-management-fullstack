@@ -165,7 +165,7 @@ export const sendPasswordResetEmail = async (
     await user.save();
 
     // Create reset URL
-    const resetUrl = `${req.protocol}://${config.clientUrl}/reset-password/${resetToken}`;
+    const resetUrl = `${config.clientUrl}/reset-password/${resetToken}`;
 
     // Email content
     const message = `

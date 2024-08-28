@@ -1,3 +1,4 @@
+"use server";
 import {
   AccountInfoFormValues,
   ChangePasswordFormValues,
@@ -8,8 +9,11 @@ import config from "@/lib/config";
 import fetchHelper from "@/lib/fetchInstance";
 import { ApiSuccessResponse, Currency, User } from "@/lib/types";
 import { AxiosResponse } from "axios";
+import { revalidateTag } from "next/cache";
 export const getAuthUser = async (): Promise<ApiSuccessResponse<User>> => {
-  return await fetchHelper("/api/auth/me");
+  return await fetchHelper("/api/auth/me", {
+    next: { tags: ["auth"] },
+  });
 };
 export const loginUser = async ({
   email,
@@ -18,6 +22,7 @@ export const loginUser = async ({
   email: string;
   password: string;
 }): Promise<ApiSuccessResponse<User>> => {
+  revalidateTag("auth");
   return axiosInstance
     .post("/api/auth/login", { email, password })
     .then((response: AxiosResponse<ApiSuccessResponse<User>>) => response.data);
@@ -29,6 +34,7 @@ export const logoutUser = async (): Promise<ApiSuccessResponse> => {
 export const signUpUser = async (
   data: SignupFormValues,
 ): Promise<ApiSuccessResponse<User>> => {
+  revalidateTag("auth");
   return await fetchHelper("/api/auth/signup", {
     method: "POST",
     body: JSON.stringify(data),
@@ -38,6 +44,7 @@ export const signUpUser = async (
 export const changePassword = async (
   data: ChangePasswordFormValues,
 ): Promise<ApiSuccessResponse> => {
+  revalidateTag("auth");
   return await fetchHelper("/api/auth/change-password", {
     method: "POST",
     body: JSON.stringify(data),
@@ -47,6 +54,7 @@ export const changePassword = async (
 export const changeEmail = async (
   email: string,
 ): Promise<ApiSuccessResponse<{ email: string }>> => {
+  revalidateTag("auth");
   return await fetchHelper("/api/auth/change-email", {
     method: "POST",
     body: JSON.stringify({ email }),
@@ -65,6 +73,7 @@ export const changeInfo = async (
     };
   }>
 > => {
+  revalidateTag("auth");
   return await fetchHelper("/api/auth/change-info", {
     method: "POST",
     body: JSON.stringify(data),
@@ -84,6 +93,7 @@ export const resetPasswordRequest = async (
   token: string,
   password: string,
 ): Promise<ApiSuccessResponse> => {
+  revalidateTag("auth");
   return await fetchHelper(`/api/auth/reset-password/${token}`, {
     method: "PUT",
     body: JSON.stringify({ password }),
