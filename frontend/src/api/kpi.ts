@@ -23,6 +23,7 @@ export type KPI = {
     total: number;
     unique: number;
     outOfStock: number; // New field for out of stock products
+    lowStock: number;
   };
   revenue: {
     total: number;

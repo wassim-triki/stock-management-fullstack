@@ -27,7 +27,9 @@ import {
   updateSupplier,
 } from "@/api/supplier";
 import { ApiErrorResponse, ApiSuccessResponse, Supplier } from "@/lib/types";
-import SubmitButton from "../ui/submit-button";
+export const phoneRegex = new RegExp(
+  /^(?:([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+)?$/,
+);
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "" }),
@@ -36,7 +38,7 @@ const formSchema = z.object({
     .min(1, { message: "" })
     .email({ message: "Invalid email address" }),
   //TODO: fix phone input
-  phone: z.string().regex(/^$|^\d{8,14}$/, { message: "Invalid phone number" }),
+  phone: z.string().regex(phoneRegex, { message: "Invalid phone number" }),
   address: z.string().optional(),
   active: z.boolean(),
 });

@@ -35,6 +35,11 @@ const ProductSchema: Schema = new Schema(
       type: Number,
       required: [true, 'Price is required'],
     },
+    reorderLevel: {
+      type: Number,
+      min: [0, 'Reorder level cannot be negative'],
+      default: 5,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

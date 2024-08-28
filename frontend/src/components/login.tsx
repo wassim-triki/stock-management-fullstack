@@ -98,13 +98,6 @@ function Login() {
         description: "Check your inbox for further instructions.",
       });
     },
-    onError: (error: ApiErrorResponse) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {

@@ -135,13 +135,16 @@ export default async function DashboardPage() {
                 <CardContent>
                   <div className="flex items-center gap-2 text-2xl font-bold">
                     {products.unique}
-
-                    <span className="text-sm font-medium text-destructive">
-                      ( {products.outOfStock} out of stock )
-                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {products.total} total products
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-red-500">
+                      {products.outOfStock}{" "}
+                    </span>
+                    out,{" "}
+                    <span className="font-medium text-yellow-500">
+                      {products.lowStock}{" "}
+                    </span>
+                    low
                   </p>
                 </CardContent>
               </Card>

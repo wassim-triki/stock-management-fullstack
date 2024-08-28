@@ -16,6 +16,7 @@ router.get('/', async (req: Request, res: Response) => {
   let totalProductQuantity,
     uniqueProducts,
     outOfStockProducts,
+    lowStockProducts, // New variable for low stock products
     totalClients,
     totalSuppliers,
     totalUsers,
@@ -25,6 +26,7 @@ router.get('/', async (req: Request, res: Response) => {
     newSuppliers = 0,
     newUsers = 0,
     recentTransactions: any[] = []; // Add for recent payments
+
   // Date range for "recent" calculations (e.g., new entities added in the last 30 days)
   const lastMonth = moment().subtract(30, 'days').toDate();
   const thisMonthStart = moment().startOf('month').toDate();
@@ -41,6 +43,11 @@ router.get('/', async (req: Request, res: Response) => {
     ]);
     uniqueProducts = await Product.countDocuments();
     outOfStockProducts = await Product.countDocuments({ quantityInStock: 0 }); // Count out-of-stock products
+
+    // Count products running low on stock using $expr to compare fields
+    lowStockProducts = await Product.countDocuments({
+      $expr: { $lte: ['$quantityInStock', '$reorderLevel'] },
+    });
 
     totalClients = await Client.countDocuments();
     totalSuppliers = await Supplier.countDocuments();
@@ -98,6 +105,12 @@ router.get('/', async (req: Request, res: Response) => {
       user: userId,
       quantityInStock: 0,
     }); // Count out-of-stock products for this manager
+
+    // Count products running low on stock for this manager using $expr
+    lowStockProducts = await Product.countDocuments({
+      user: userId,
+      $expr: { $lte: ['$quantityInStock', '$reorderLevel'] },
+    });
 
     totalClients = await Client.countDocuments({ user: userId });
     totalSuppliers = await Supplier.countDocuments({ user: userId });
@@ -180,6 +193,7 @@ router.get('/', async (req: Request, res: Response) => {
         total: (totalProductQuantity && totalProductQuantity[0]?.total) || 0, // Total quantity in stock
         unique: uniqueProducts, // Number of unique products
         outOfStock: outOfStockProducts, // Number of out of stock products
+        lowStock: lowStockProducts, // Number of products running low on stock
       },
       revenue: {
         total: totalRevenue,
