@@ -11,7 +11,9 @@ import {
   handleChangePassword,
   changeEmail,
   handleChangeInfo,
-  logout, // Import the logout controller
+  sendPasswordResetEmail,
+  logout,
+  resetPassword, // Import the logout controller
 } from '../controllers/auth';
 import { authHandler } from '../middleware/authHandler';
 import { SuccessResponse } from '../types/types';
@@ -20,6 +22,8 @@ import 'express-async-errors';
 router.get('/me', authHandler, getAuthUserDetails);
 router.post('/signup', signup);
 router.post('/login', login);
+router.post('/forgot-password', sendPasswordResetEmail);
+router.put('/reset-password/:token', resetPassword);
 router.post('/change-email', authHandler, checkEmailAvailability, changeEmail);
 router.post('/change-password', authHandler, handleChangePassword);
 router.post('/change-info', authHandler, handleChangeInfo);

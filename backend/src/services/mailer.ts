@@ -1,3 +1,4 @@
+//services/mailer.ts
 import nodemailer from 'nodemailer';
 import { Attachment } from 'nodemailer/lib/mailer';
 import { ErrorResponse, HttpCode } from '../types/types';

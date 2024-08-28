@@ -1,10 +1,17 @@
-import { Response, Request, CookieOptions } from 'express';
+import { Response, Request, CookieOptions, NextFunction } from 'express';
 import crypto from 'crypto';
 import passport from '../config/passport';
 
-import { ErrorResponse, IUser, SuccessResponse } from '../types/types';
+import {
+  ErrorResponse,
+  HttpCode,
+  IUser,
+  SuccessResponse,
+} from '../types/types';
 import { User } from '../models/User';
 import { Company } from '../models/Company';
+import mailer from '../services/mailer';
+import config from '../config/config';
 const currencies = require('../utils/currencies.json');
 
 export const signup = async (req: Request, res: Response, next: any) => {
@@ -128,4 +135,106 @@ export const handleChangePassword = async (
   user.password = newPassword;
   await user.save();
   return res.status(200).json(new SuccessResponse('Password updated'));
+};
+
+// Controller to handle forgot password
+export const sendPasswordResetEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email } = req.body;
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return next(
+        new ErrorResponse('No user found with that email', HttpCode.NOT_FOUND)
+      );
+    }
+
+    // Generate a password reset token and set expiration
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+    user.resetPasswordExpire = (Date.now() + 60 * 60 * 1000).toString(); // 1 hour expiry
+
+    await user.save();
+
+    // Create reset URL
+    const resetUrl = `${req.protocol}://${config.clientUrl}/reset-password/${resetToken}`;
+
+    // Email content
+    const message = `
+      <h1>Password Reset Request</h1>
+      <p>Please click on the following link to reset your password:</p>
+      <a href="${resetUrl}">${resetUrl}</a>
+      <p>This link is valid for 1 hour.</p>
+    `;
+
+    // Send email
+    await mailer.sendMail({
+      to: user.email,
+      subject: 'Password Reset Request',
+      html: message,
+    });
+
+    res.status(200).json(new SuccessResponse('Email sent', {}));
+  } catch (error) {
+    return next(
+      new ErrorResponse(
+        'Failed to send password reset email',
+        HttpCode.INTERNAL_SERVER_ERROR
+      )
+    );
+  }
+};
+
+// Controller to handle reset password
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { token } = req.params; // Token is passed in the URL as a parameter
+  const { password } = req.body;
+
+  try {
+    // Hash the token and compare with the one in the database
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Find user by token and check if token is still valid (not expired)
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() }, // Ensure token has not expired
+    });
+
+    if (!user) {
+      return next(
+        new ErrorResponse(
+          'Invalid or expired password reset token',
+          HttpCode.BAD_REQUEST
+        )
+      );
+    }
+
+    // Set new password
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json(new SuccessResponse('Password reset successful', {}));
+  } catch (error) {
+    return next(
+      new ErrorResponse(
+        'Failed to reset password',
+        HttpCode.INTERNAL_SERVER_ERROR
+      )
+    );
+  }
 };

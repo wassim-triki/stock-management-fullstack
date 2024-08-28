@@ -29,7 +29,7 @@ import { ToastAction } from "./ui/toast";
 import { ApiErrorResponse, ApiSuccessResponse } from "@/lib/types";
 import { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { loginUser } from "@/api/auth";
+import { loginUser, sendPasswordResetEmail } from "@/api/auth"; // Import sendPasswordResetEmail API call
 import { Button } from "./ui/button";
 import { queryKeys } from "@/constants/query-keys";
 import { useAuth } from "@/providers/auth-provider";
@@ -82,10 +82,45 @@ function Login() {
     },
   });
 
-  // const { loading, error, apiRequest } = useApi();
+  const {
+    mutate: forgotPassword,
+    isPending: isSendingEmail,
+    error: sendingError,
+  } = useMutation({
+    mutationFn: sendPasswordResetEmail, // Backend email reset function (implementation later)
+    onSuccess: () => {
+      toast({
+        variant: "success",
+        title: "Password reset email sent",
+        description: "Check your inbox for further instructions.",
+      });
+    },
+    onError: (error: ApiErrorResponse) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     login(values);
   }
+
+  function handleForgotPassword() {
+    const email = form.getValues("email");
+    if (email) {
+      forgotPassword(email); // Trigger password reset email
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Email required",
+        description: "Please enter your email before resetting password.",
+      });
+    }
+  }
+
   return (
     <>
       <Form {...form}>
@@ -101,9 +136,7 @@ function Login() {
               <FormItem>
                 <FormControl>
                   <div className="grid gap-2">
-                    <div className="flex items-center">
-                      <FormLabel>Email</FormLabel>
-                    </div>
+                    <FormLabel>Email</FormLabel>
                     <Input
                       type="email"
                       placeholder="m@example.com"
@@ -121,8 +154,16 @@ function Login() {
               <FormItem>
                 <FormControl>
                   <div className="grid gap-2">
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-between">
                       <FormLabel>Password</FormLabel>
+                      <Button
+                        variant="link"
+                        type="button"
+                        onClick={handleForgotPassword}
+                        loading={isSendingEmail}
+                      >
+                        Forgot password?
+                      </Button>
                     </div>
                     <Input type="password" {...field} />
                   </div>
@@ -130,20 +171,23 @@ function Login() {
               </FormItem>
             )}
           />
-          {isError && error?.message && (
-            <AlertDestructive error={error.message} />
+          {error?.message && <AlertDestructive error={error?.message} />}
+          {sendingError?.message && (
+            <AlertDestructive error={sendingError?.message} />
           )}
-          <Button loading={isLoggingIn}>Login</Button>
-          <Button
+          <Button loading={isLoggingIn} disabled={isSendingEmail}>
+            Login
+          </Button>
+          {/* <Button
             variant={"outline"}
             onClick={() => {
               form.setValue("email", adminCredentials.email);
               form.setValue("password", adminCredentials.password);
             }}
-            loading={isLoggingIn}
+            loading={isLoggingIn || isSendingEmail}
           >
             Login as admin
-          </Button>
+          </Button> */}
         </form>
       </Form>
       <div className="text-center text-sm">

@@ -18,7 +18,7 @@ const SECRET = process.env.SECRET || 'secret';
 const config = {
   environment: process.env.NODE_ENV,
   hostname: SERVER_HOSTNAME,
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
+  clientUrl: process.env.CLIENT_URL || 'localhost:3000',
   port: PORT,
   mongo: {
     uri: MONGO_URI,

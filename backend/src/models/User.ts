@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { IUser } from '../types/types';
 import { Company } from './Company'; // Import the Company model
 const currencies = require('../utils/currencies.json');
+
 export enum ROLES {
   ADMIN = 'Admin',
   MANAGER = 'Manager',
@@ -18,15 +19,18 @@ const UserSchema: Schema = new Schema(
   {
     password: {
       type: String,
-      required: [true, "Can't be blank"],
-      select: false,
+      required: [true, "Password can't be blank"],
+      select: false, // Prevent password from being returned in queries
       minlength: [6, 'Please use a minimum of 6 characters'],
     },
     email: {
       type: String,
       lowercase: true,
-      required: [true, "Can't be blank"],
-      match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please use a valid address'],
+      required: [true, "Email can't be blank"],
+      match: [
+        /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+        'Please use a valid email address',
+      ],
       unique: true,
       index: true,
     },
@@ -42,7 +46,7 @@ const UserSchema: Schema = new Schema(
       },
     },
     resetPasswordToken: { type: String },
-    resetPasswordExpire: { type: String },
+    resetPasswordExpire: { type: Date }, // Updated to use Date instead of String
     role: {
       type: String,
       enum: ROLES,
@@ -70,29 +74,37 @@ UserSchema.pre<IUser>('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
   }
+
   const salt = await bcrypt.genSalt(10);
-  this.password = bcrypt.hashSync(this.password, 10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-// Methods for user actions
+// Method to compare passwords during login
 UserSchema.methods.matchPassword = async function (password: string) {
   return await bcrypt.compare(password, this.password);
 };
 
+// Method to generate signed JWT token
 UserSchema.methods.getSignedToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET!, {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
+// Method to generate password reset token and expire date
 UserSchema.methods.getResetPasswordToken = function () {
   const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash the token and store it in the database
   this.resetPasswordToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  // Set expiration time (10 minutes)
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
   return resetToken;
 };
 

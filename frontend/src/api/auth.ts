@@ -70,3 +70,22 @@ export const changeInfo = async (
     body: JSON.stringify(data),
   });
 };
+
+export const sendPasswordResetEmail = async (
+  email: string,
+): Promise<ApiSuccessResponse> => {
+  return await fetchHelper("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+};
+
+export const resetPasswordRequest = async (
+  token: string,
+  password: string,
+): Promise<ApiSuccessResponse> => {
+  return await fetchHelper(`/api/auth/reset-password/${token}`, {
+    method: "PUT",
+    body: JSON.stringify({ password }),
+  });
+};
